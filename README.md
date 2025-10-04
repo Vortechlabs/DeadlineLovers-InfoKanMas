@@ -577,10 +577,9 @@ git push origin feature/amazing-feature
     <td align="center">
       <a href="https://github.com/VortechLabs">
         <img 
-          src="https://i.ibb.co.com/KjfXgv4F/ibe.jpg" 
+          src="https://i.ibb.co.com/Lzc8y7jn/ibe.jpg" 
           width="120" 
           height="120" 
-          style="object-fit: cover; border-radius: 12px; border: 2px solid #ddd;" 
           alt="VortechLabs" 
         />
       </a>
@@ -594,7 +593,6 @@ git push origin feature/amazing-feature
           src="https://ui-avatars.com/api/?name=Backend+Dev&size=120" 
           width="120" 
           height="120" 
-          style="object-fit: cover; border-radius: 12px; border: 2px solid #ddd;" 
           alt="Backend Developer"
         />
       </a>
@@ -608,7 +606,6 @@ git push origin feature/amazing-feature
           src="https://ui-avatars.com/api/?name=ML+Engineer&size=120" 
           width="120" 
           height="120" 
-          style="object-fit: cover; border-radius: 12px; border: 2px solid #ddd;" 
           alt="ML Engineer"
         />
       </a>
