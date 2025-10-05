@@ -1,9 +1,9 @@
 
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import Sidebar from "@/components/Sidebar";
-import TopBar from "@/components/TopBar";
+import  { AdminPusatSidebar } from "@/components/sidebar/AdminPusatSidebar";
 import { cn } from "@/lib/utils";
+import AdminPusatTopBar from "@/components/TopBar";
 
 export const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -31,18 +31,18 @@ export const AdminLayout = () => {
         isDesktop ? "w-64" : "w-80",
         !isMobileSidebarOpen && !isDesktop ? "-translate-x-[100dvw]" : "translate-x-0"
       )}>
-        <Sidebar />
+        <AdminPusatSidebar />
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-20 md:ml-16">
-          <TopBar toggleSidebar={toggleSidebar} />
+        <header className="sticky top-0 z-20 md:ml-8">
+          <AdminPusatTopBar toggleSidebar={toggleSidebar} />
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 overflow-auto py-4 md:ml-16 md:mt-0 md:bg-gradient-to-tl md:from-primary/70 md:to-background ">
+        <main className="flex-1 overflow-auto py-4 md:mt-0">
           <div className="mx-auto w-full max-w-[calc(100%-2rem)] bg-background rounded-lg p-4">
             <Outlet />
           </div>

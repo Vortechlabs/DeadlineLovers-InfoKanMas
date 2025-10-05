@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import publicRoutes from "./PublicRoutes";
 import AuthRoutes from "./AuthRoutes";
-import AdminRoutes from "./AdminRoutes";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFoundPage from "@/components/NotFoundPage";
 import { RootLayout } from "@/layouts/RootLayout";
+import AdminPusatRoutes from "./AdminPusatRoutes";
 
 export default function AppRoutes() {
   return (
@@ -24,19 +24,19 @@ export default function AppRoutes() {
       </Route>
 
 
-      {/* Admin Routes */}
-      {AdminRoutes.map((route) => (
+      {/* Admin Pusat Routes */}
+      {AdminPusatRoutes.map((route) => (
         <Route
           key={route.path}
           path={route.path}
-          // element={
+          element={ route.element
           //   <ProtectedRoute
           //     roles={route.roles}
           //     permissions={route.permissions}
           //   >
           //     {route.element}
           //   </ProtectedRoute>
-          // }
+          }
         >
           {route.children?.map((child) => (
             <Route

@@ -1,4 +1,4 @@
-import DashboardAdmin from "@/pages/admin/dashboard";
+import DashboardAdmin from "@/pages/admin-pusat/dashboard";
 import HomePage from "@/pages/user/home";
 
 
