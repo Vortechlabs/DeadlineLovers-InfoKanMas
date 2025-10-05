@@ -603,7 +603,7 @@ git push origin feature/amazing-feature
     <td align="center">
       <a href="https://github.com/aisalth">
         <img 
-          src="https://i.ibb.co.com/B5s38Y09/Tak-berjudul17-20251004195320.png" 
+          src="https://i.ibb.co.com/KjXQKTZf/Tak-berjudul17-20251004195320-2.png" 
           width="120" 
           height="120" 
           alt="ML Engineer"
