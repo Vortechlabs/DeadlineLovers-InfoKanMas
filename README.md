@@ -590,7 +590,7 @@ git push origin feature/amazing-feature
     <td align="center">
       <a href="https://github.com/SyifaIsnan">
         <img 
-          src="https://ui-avatars.com/api/?name=Backend+Dev&size=120" 
+          src="https://i.ibb.co.com/3ydwfDdM/Whats-App-Image-2025-10-04-at-16-23-13.jpg" 
           width="120" 
           height="120" 
           alt="Backend Developer"
@@ -603,7 +603,7 @@ git push origin feature/amazing-feature
     <td align="center">
       <a href="https://github.com/aisalth">
         <img 
-          src="https://ui-avatars.com/api/?name=ML+Engineer&size=120" 
+          src="https://i.ibb.co.com/B5s38Y09/Tak-berjudul17-20251004195320.png" 
           width="120" 
           height="120" 
           alt="ML Engineer"
