@@ -1,12 +1,13 @@
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { AdminPusatSidebar } from "@/components/sidebar/AdminPusatSidebar";
+import AdminPusatSidebar from "@/components/sidebar/AdminPusatSidebar";
 import { cn } from "@/lib/utils";
 import AdminPusatTopBar from "@/components/TopBar";
 
 export const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -22,27 +23,39 @@ export const AdminLayout = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
+  const sidebarWidth = sidebarCollapsed ? 80 : 288;
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       {/* Sidebar */}
-      <aside className={cn(
-        "fixed md:relative z-40 h-full flex flex-col border-r bg-white transition-transform duration-300",
-        isDesktop ? "w-72" : "w-80",
-        !isMobileSidebarOpen && !isDesktop ? "-translate-x-full" : "translate-x-0"
-      )}>
-        <AdminPusatSidebar />
+      <aside 
+        className={cn(
+          "fixed md:relative z-30 h-screen flex flex-col border-r border-gray-200/50 bg-white/80 backdrop-blur-md transition-all duration-300",
+          !isMobileSidebarOpen && !isDesktop ? "-translate-x-full" : "translate-x-0"
+        )}
+        style={{ width: isDesktop ? sidebarWidth : 288 }}
+      >
+        <AdminPusatSidebar 
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+        />
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div 
+        className="flex-1 flex flex-col min-w-0 transition-all duration-300"
+        style={{ marginLeft: isDesktop ? 0 : 0 }}
+      >
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
-          <AdminPusatTopBar toggleSidebar={toggleSidebar} />
+        <header className="sticky top-0 z-20">
+          <AdminPusatTopBar 
+            toggleSidebar={toggleSidebar} 
+          />
         </header>
         
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
-          <div className="w-full h-full">
+          <div className="mx-auto w-full">
             <Outlet />
           </div>
         </main>
@@ -51,10 +64,12 @@ export const AdminLayout = () => {
       {/* Mobile Overlay */}
       {!isDesktop && isMobileSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 transition-opacity"
+          className="fixed inset-0 bg-black/50 z-20 transition-opacity"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
     </div>
   );
 };
+
+export default AdminLayout;

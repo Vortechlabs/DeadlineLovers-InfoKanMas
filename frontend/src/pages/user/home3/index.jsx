@@ -9,9 +9,10 @@ import ProblemStatement from "./ProblemStatement";
 import TeamTimeline from "./TeamTimeline";
 import TechnologyStack from "./TechnologyStack";
 
-export default function Home() {
+
+export default function HomePage() {
   return (
-    <main className="min-h-screen ">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
       <HeroSection />
       <ProblemStatement />
       <AIFeaturesShowcase />
@@ -22,6 +23,6 @@ export default function Home() {
       <MetricsImpact />
       <TeamTimeline />
       <FinalCTA />
-    </main>
+    </div>
   );
 }

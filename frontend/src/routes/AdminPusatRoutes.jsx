@@ -16,6 +16,10 @@ const AdminPusatRoutes = [
     roles: ["admin_pusat"],
     children: [
       {
+        path: "",
+        element: <AdminPusatDashboard />,
+      },
+      {
         path: "dashboard",
         element: <AdminPusatDashboard />,
       },

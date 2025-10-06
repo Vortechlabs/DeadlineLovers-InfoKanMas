@@ -20,9 +20,9 @@ const ProfileHeader = ({ admin, onEditPhoto }) => {
           </div>
           <button
             onClick={onEditPhoto}
-            className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all opacity-0 group-hover:opacity-100"
+            className="absolute bottom-2 right-2 w-8 h-8 bg-white  rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all opacity-0 group-hover:opacity-100"
           >
-            <Camera size={16} />
+            <Camera size={16} className='text-black bg-black'/>
           </button>
         </div>
 

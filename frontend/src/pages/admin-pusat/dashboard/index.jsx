@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const AdminPusatDashboard = ({ userRole = 'admin_pusat' }) => {
+const AdminPusatDashboard = () => {
   const [timeFilter, setTimeFilter] = useState('bulan_ini');
 
   // Data statistik
@@ -194,7 +194,7 @@ const AdminPusatDashboard = ({ userRole = 'admin_pusat' }) => {
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Main Content */}
-      <div className="pt-16 lg:pt-0 w-full max-w-full">
+      <div className=" w-full max-w-full">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-6 w-full max-w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full max-w-full">

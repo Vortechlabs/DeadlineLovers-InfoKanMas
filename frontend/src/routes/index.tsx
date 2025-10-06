@@ -16,12 +16,29 @@ export default function AppRoutes() {
         ))}
       </Route>
 
-      {/* Auth Routes */}
-      <Route element={<RootLayout />}>
-        {AuthRoutes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
-      </Route>
+      {/* Auth Routes Routes */}
+      {AuthRoutes.map((route) => (
+        <Route
+          key={route.path}
+          path={route.path}
+          element={ route.element
+          //   <ProtectedRoute
+          //     roles={route.roles}
+          //     permissions={route.permissions}
+          //   >
+          //     {route.element}
+          //   </ProtectedRoute>
+          }
+        >
+          {route.children?.map((child) => (
+            <Route
+              key={child.path}
+              path={child.path}
+              element={child.element}
+            />
+          ))}
+        </Route>
+      ))}
 
 
       {/* Admin Pusat Routes */}

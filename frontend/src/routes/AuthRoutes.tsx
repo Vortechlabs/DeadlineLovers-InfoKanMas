@@ -1,11 +1,18 @@
-import HomePage from "@/pages/user/home";
+import { AuthLayout } from "@/layouts/AuthLayout";
+import LoginPage from "@/pages/auth/login";
 
 
 const AuthRoutes = [
   {
-    path: "/",
-    element: <HomePage />,
-  }
+    path: "/auth",
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+    ],
+  },
 ];
 
-export default AuthRoutes;
+export default AuthRoutes 
