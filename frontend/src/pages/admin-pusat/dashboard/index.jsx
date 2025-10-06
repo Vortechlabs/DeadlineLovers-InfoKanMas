@@ -192,12 +192,12 @@ const AdminPusatDashboard = ({ userRole = 'admin_pusat' }) => {
   };
 
   return (
-    <div className="min-h-screen  bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Main Content */}
-      <div className="pt-16 lg:pt-0 w-full">
+      <div className="pt-16 lg:pt-0 w-full max-w-full">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-6 w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-ful">
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-6 w-full max-w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full max-w-full">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-500 mt-1">Monitor dan kelola anggaran sosial secara real-time</p>
@@ -222,7 +222,7 @@ const AdminPusatDashboard = ({ userRole = 'admin_pusat' }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6 w-full max-w-full">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => {

@@ -1,7 +1,6 @@
-
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import  { AdminPusatSidebar } from "@/components/sidebar/AdminPusatSidebar";
+import { AdminPusatSidebar } from "@/components/sidebar/AdminPusatSidebar";
 import { cn } from "@/lib/utils";
 import AdminPusatTopBar from "@/components/TopBar";
 
@@ -24,26 +23,26 @@ export const AdminLayout = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <aside className={cn(
-        "fixed md:relative z-30 h-screen flex flex-col border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-all duration-300",
-        isDesktop ? "w-64" : "w-80",
-        !isMobileSidebarOpen && !isDesktop ? "-translate-x-[100dvw]" : "translate-x-0"
+        "fixed md:relative z-40 h-full flex flex-col border-r bg-white transition-transform duration-300",
+        isDesktop ? "w-72" : "w-80",
+        !isMobileSidebarOpen && !isDesktop ? "-translate-x-full" : "translate-x-0"
       )}>
         <AdminPusatSidebar />
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-20 md:ml-8">
+        <header className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
           <AdminPusatTopBar toggleSidebar={toggleSidebar} />
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 overflow-auto py-4 md:mt-0">
-          <div className="mx-auto w-full max-w-[calc(100%-2rem)] bg-background rounded-lg p-4">
+        <main className="flex-1 overflow-auto">
+          <div className="w-full h-full">
             <Outlet />
           </div>
         </main>
@@ -52,7 +51,7 @@ export const AdminLayout = () => {
       {/* Mobile Overlay */}
       {!isDesktop && isMobileSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-20 transition-opacity"
+          className="fixed inset-0 bg-black/50 z-30 transition-opacity"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
