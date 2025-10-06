@@ -1,13 +1,17 @@
 [build]
   base = "frontend"
-  publish = "frontend/dist"
+  publish = "dist"
   command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20.19.0"
 
-# Redirect settings untuk React Router
+# React Router redirects
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Optional: Jika tidak pakai functions, comment atau hapus section ini
+# [functions]
+#   directory = ".netlify/functions"
