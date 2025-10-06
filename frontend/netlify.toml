@@ -2,7 +2,7 @@
 
 [build]
   command = "npm run build"
-  publish = "build"
+  publish = "dist"
 
 # Redirects untuk React Router
 [[redirects]]
