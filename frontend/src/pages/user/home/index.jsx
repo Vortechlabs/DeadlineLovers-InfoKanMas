@@ -19,7 +19,7 @@ export default function Home() {
       <DemoScenarios />
       <TechnologyStack />
       <CompetitiveAdvantages />
-      <MetricsImpact />
+      {/* <MetricsImpact /> */}
       <TeamTimeline />
       <FinalCTA />
     </main>

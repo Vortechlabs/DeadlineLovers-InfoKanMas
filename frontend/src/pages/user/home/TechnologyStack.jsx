@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Brain, Cloud, Database, Lock, Zap, Globe } from "lucide-react";
+import { Brain, Cloud, Database, Lock, Monitor, Globe } from "lucide-react";
 
 const technologies = [
   {
@@ -10,34 +10,34 @@ const technologies = [
     color: "from-blue-500 to-cyan-500",
     bgColor: "bg-blue-50",
     items: [
-      { name: "TensorFlow", description: "Deep learning framework" },
-      { name: "PyTorch", description: "Neural network library" },
-      { name: "Scikit-learn", description: "Machine learning tools" },
-      { name: "Natural Language Processing", description: "Text analysis" },
+      { name: "Computer Vision", description: "Analisis foto progress proyek" },
+      { name: "Natural Language Processing", description: "Analisis laporan dan dokumen" },
+      { name: "Anomaly Detection", description: "Deteksi penyimpangan anggaran" },
+      { name: "Predictive Analytics", description: "Prediksi risiko proyek" },
     ],
   },
   {
-    category: "Cloud Infrastructure",
+    category: "Cloud & Infrastructure",
     icon: Cloud,
     color: "from-purple-500 to-pink-500",
     bgColor: "bg-purple-50",
     items: [
-      { name: "AWS/Azure/GCP", description: "Multi-cloud support" },
-      { name: "Kubernetes", description: "Container orchestration" },
-      { name: "Docker", description: "Containerization" },
-      { name: "Terraform", description: "Infrastructure as code" },
+      { name: "Cloud Hosting", description: "Hosting yang scalable dan reliable" },
+      { name: "Real-time Database", description: "Database untuk data real-time" },
+      { name: "API Integration", description: "Integrasi dengan sistem pemerintah" },
+      { name: "Load Balancer", description: "Penyeimbang beban server" },
     ],
   },
   {
-    category: "Database & Storage",
-    icon: Database,
+    category: "Web Development",
+    icon: Monitor,
     color: "from-green-500 to-emerald-500",
     bgColor: "bg-green-50",
     items: [
-      { name: "PostgreSQL", description: "Relational database" },
-      { name: "MongoDB", description: "Document database" },
-      { name: "Redis", description: "In-memory cache" },
-      { name: "Apache Kafka", description: "Event streaming" },
+      { name: "React.js", description: "Framework frontend modern" },
+      { name: "Responsive Design", description: "Akses dari desktop & mobile" },
+      { name: "Real-time Updates", description: "Update data secara live" },
+      { name: "Progressive Web App", description: "Pengalaman seperti aplikasi" },
     ],
   },
   {
@@ -46,34 +46,34 @@ const technologies = [
     color: "from-red-500 to-orange-500",
     bgColor: "bg-red-50",
     items: [
-      { name: "256-bit Encryption", description: "End-to-end security" },
-      { name: "OAuth 2.0", description: "Authentication" },
-      { name: "Blockchain", description: "Audit trail" },
-      { name: "ISO 27001", description: "Compliance certified" },
+      { name: "Authentication System", description: "Sistem login yang aman" },
+      { name: "Role-based Access", description: "Hak akses berdasarkan peran" },
+      { name: "Audit Trail", description: "Riwayat aktivitas tercatat" },
+      { name: "Data Encryption", description: "Enkripsi data sensitif" },
     ],
   },
   {
-    category: "Performance",
-    icon: Zap,
+    category: "Data & Analytics",
+    icon: Database,
     color: "from-yellow-500 to-orange-500",
     bgColor: "bg-yellow-50",
     items: [
-      { name: "CDN", description: "Global content delivery" },
-      { name: "Load Balancing", description: "High availability" },
-      { name: "Caching", description: "Fast response time" },
-      { name: "Auto Scaling", description: "Dynamic resources" },
+      { name: "Data Validation", description: "Validasi data penerima bansos" },
+      { name: "Real-time Dashboard", description: "Dashboard monitoring live" },
+      { name: "Report Generation", description: "Generate laporan otomatis" },
+      { name: "Data Visualization", description: "Visualisasi data interaktif" },
     ],
   },
   {
-    category: "Integration",
+    category: "Public Transparency",
     icon: Globe,
     color: "from-indigo-500 to-purple-500",
     bgColor: "bg-indigo-50",
     items: [
-      { name: "REST API", description: "Standard interface" },
-      { name: "GraphQL", description: "Flexible queries" },
-      { name: "Webhooks", description: "Real-time events" },
-      { name: "SDK Support", description: "Multiple languages" },
+      { name: "Public Portal", description: "Akses terbuka untuk masyarakat" },
+      { name: "Reporting System", description: "Sistem pelaporan masyarakat" },
+      { name: "Rating System", description: "Sistem penilaian proyek" },
+      { name: "Data Export", description: "Ekspor data untuk analisis" },
     ],
   },
 ];
@@ -96,17 +96,17 @@ export default function TechnologyStack() {
           className="text-center mb-16"
         >
           <span className="inline-block text-blue-600 font-semibold mb-4 text-sm uppercase tracking-wider">
-            Technology Stack
+            Teknologi Website
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
             Dibangun dengan{" "}
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Teknologi Terbaik
+            <span className="bg-gradient-to-r from-blue-600  to-blue-700 bg-clip-text text-transparent">
+              Teknologi Modern
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Menggunakan teknologi enterprise-grade untuk performa, keamanan, dan 
-            skalabilitas yang optimal
+            Website InfoKanMas menggunakan teknologi terbaru untuk memastikan transparansi 
+            anggaran Purbalingga dapat diakses dengan mudah dan aman
           </p>
         </motion.div>
 
@@ -168,26 +168,74 @@ export default function TechnologyStack() {
           ))}
         </div>
 
-        {/* Bottom stats */}
+        {/* Website Features Highlight */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-8 max-w-6xl mx-auto border border-blue-100"
+        >
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                Fitur Website InfoKanMas
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Website dengan fitur lengkap untuk transparansi anggaran:
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  "Dashboard Real-time",
+                  "Monitoring Proyek", 
+                  "Validasi Data Penerima",
+                  "Laporan Masyarakat",
+                  "Rating Kualitas",
+                  "Export Data"
+                ].map((feature, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: 0.6 + i * 0.1 }}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                  >
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    {feature}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="text-center">
+              <Monitor className="w-32 h-32 text-blue-500 mx-auto mb-4" />
+              <p className="text-gray-600">
+                Akses mudah dari desktop dan mobile browser
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Bottom stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-20 grid md:grid-cols-4 gap-8 max-w-5xl mx-auto"
         >
           {[
-            { label: "Uptime", value: "99.9%", color: "from-green-500 to-emerald-500" },
+            { label: "Uptime Website", value: "99.9%", color: "from-green-500 to-emerald-500" },
             { label: "Response Time", value: "<100ms", color: "from-blue-500 to-cyan-500" },
-            { label: "Data Centers", value: "12", color: "from-purple-500 to-pink-500" },
-            { label: "Daily Transactions", value: "10M+", color: "from-orange-500 to-red-500" },
+            { label: "Data Terproses", value: "1TB+", color: "from-purple-500 to-pink-500" },
+            { label: "Pengguna Website", value: "10K+", color: "from-orange-500 to-red-500" },
           ].map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
+              transition={{ duration: 0.4, delay: 1.0 + i * 0.1 }}
               className="text-center"
             >
               <div className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
@@ -196,24 +244,6 @@ export default function TechnologyStack() {
               <div className="text-gray-600 font-medium">{stat.label}</div>
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-16"
-        >
-          <div className="inline-block bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 max-w-3xl">
-            <p className="text-2xl font-semibold text-gray-900 mb-2">
-              Enterprise-Ready Infrastructure
-            </p>
-            <p className="text-gray-600">
-              Teknologi yang sama digunakan oleh perusahaan Fortune 500 di seluruh dunia
-            </p>
-          </div>
         </motion.div>
       </div>
     </section>

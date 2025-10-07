@@ -30,7 +30,7 @@ export default function FinalCTA() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full blur-3xl"
+          className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full blur-3xl"
         />
       </div>
 
@@ -41,7 +41,7 @@ export default function FinalCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-1 max-w-6xl mx-auto mb-20"
+          className="bg-gradient-to-r from-blue-600  to-blue-800 rounded-3xl p-1 max-w-6xl mx-auto mb-20"
         >
           <div className="bg-white rounded-3xl p-12 lg:p-16">
             <div className="text-center max-w-3xl mx-auto">
@@ -50,14 +50,14 @@ export default function FinalCTA() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-6 py-3 rounded-full mb-8 font-semibold"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 px-6 py-3 rounded-full mb-8 font-semibold"
               >
                 🚀 Siap Memulai Transformasi Digital?
               </motion.div>
 
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
                 Mari Wujudkan{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                   Transparansi
                 </span>{" "}
                 Bersama
@@ -70,25 +70,13 @@ export default function FinalCTA() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-7 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-7 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
                   Jadwalkan Demo Gratis
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-blue-600 px-10 py-7 text-lg rounded-full transition-all">
                   Hubungi Sales
                 </Button>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  ✅ Demo 30 menit
-                </div>
-                <div className="flex items-center gap-2">
-                  ✅ Konsultasi gratis
-                </div>
-                <div className="flex items-center gap-2">
-                  ✅ Custom solution
-                </div>
               </div>
             </div>
           </div>
@@ -209,7 +197,7 @@ export default function FinalCTA() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="border-t border-gray-200 mt-16 pt-8 text-center text-gray-600"
         >
-          <p>© 2024 Transparansi AI. All rights reserved. | Privacy Policy | Terms of Service</p>
+          <p>© 2024 InfoKanMas. All rights reserved. | Privacy Policy | Terms of Service</p>
         </motion.div>
       </div>
     </section>

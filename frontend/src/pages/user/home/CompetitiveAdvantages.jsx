@@ -4,42 +4,42 @@ import { Card } from "@/components/ui/card";
 import { Check, X, Sparkles } from "lucide-react";
 
 const comparisonFeatures = [
-  { feature: "AI-Powered Anomaly Detection", us: true, others: false },
-  { feature: "Real-time Data Processing", us: true, others: false },
-  { feature: "Blockchain Audit Trail", us: true, others: false },
-  { feature: "Multi-language Support", us: true, others: true },
-  { feature: "Custom Report Generation", us: true, others: true },
-  { feature: "Mobile Application", us: true, others: false },
-  { feature: "Predictive Analytics", us: true, others: false },
-  { feature: "Automated Compliance Checking", us: true, others: false },
-  { feature: "24/7 AI Monitoring", us: true, others: false },
-  { feature: "API Integration", us: true, others: true },
+  { feature: "Validasi Harga AI vs HSPK", us: true, others: false },
+  { feature: "Monitoring Real-time Proyek", us: true, others: false },
+  { feature: "Validasi Foto GPS & Timestamp", us: true, others: false },
+  { feature: "Portal Transparansi Publik", us: true, others: false },
+  { feature: "Deteksi Anomali Otomatis", us: true, others: false },
+  { feature: "Konfirmasi Penerima Bansos via SMS", us: true, others: false },
+  { feature: "Milestone-based Payment", us: true, others: false },
+  { feature: "Rating System oleh Masyarakat", us: true, others: false },
+  { feature: "Integrasi Data Dukcapil", us: true, others: false },
+  { feature: "Laporan Masyarakat Real-time", us: true, others: false },
 ];
 
 const advantages = [
   {
-    title: "10x Lebih Cepat",
-    description: "Proses analisis data yang biasanya memakan waktu berhari-hari, kini hanya butuh beberapa menit dengan AI kami",
+    title: "70% Lebih Cepat",
+    description: "Proses monitoring proyek yang manual kini otomatis dengan validasi AI real-time",
     gradient: "from-blue-500 to-cyan-500",
-    value: "10x",
+    value: "70%",
   },
   {
-    title: "99.9% Akurat",
-    description: "Tingkat akurasi deteksi anomali dan fraud detection tertinggi di industri berkat machine learning",
+    title: "95% Akurasi Data",
+    description: "Validasi data penerima bansos dengan NIK Dukcapil mengurangi kesalahan data",
     gradient: "from-purple-500 to-pink-500",
-    value: "99.9%",
+    value: "95%",
   },
   {
-    title: "40% Hemat Biaya",
-    description: "Otomatisasi proses audit dan monitoring mengurangi biaya operasional secara signifikan",
+    title: "40% Penghematan",
+    description: "Deteksi mark-up dan penyimpangan anggaran menghemat APBD secara signifikan",
     gradient: "from-green-500 to-emerald-500",
     value: "40%",
   },
   {
-    title: "24/7 Monitoring",
-    description: "Sistem AI yang tidak pernah tidur, memantau setiap transaksi dan aktivitas sepanjang waktu",
+    title: "100% Transparan",
+    description: "Seluruh proses anggaran terbuka untuk dipantau masyarakat kapan saja",
     gradient: "from-orange-500 to-red-500",
-    value: "24/7",
+    value: "100%",
   },
 ];
 
@@ -55,16 +55,16 @@ export default function CompetitiveAdvantages() {
           className="text-center mb-16"
         >
           <span className="inline-block text-blue-600 font-semibold mb-4 text-sm uppercase tracking-wider">
-            Keunggulan Kompetitif
+            Keunggulan InfoKanMas
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            Mengapa Memilih{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Platform Kami?
+            Mengapa{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              InfoKanMas?
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Bandingkan fitur kami dengan solusi lain dan lihat perbedaan yang signifikan
+            Perbandingan fitur unggulan InfoKanMas dengan sistem konvensional di Purbalingga
           </p>
         </motion.div>
 
@@ -106,13 +106,13 @@ export default function CompetitiveAdvantages() {
             <div className="grid grid-cols-3 gap-4 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-b-2 border-gray-100">
               <div className="text-lg font-semibold text-gray-700">Fitur</div>
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold shadow-lg">
                   <Sparkles className="w-5 h-5" />
-                  Platform Kami
+                  InfoKanMas
                 </div>
               </div>
               <div className="text-center text-lg font-semibold text-gray-500">
-                Solusi Lain
+                Sistem Konvensional
               </div>
             </div>
 
@@ -178,29 +178,6 @@ export default function CompetitiveAdvantages() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-16"
-        >
-          <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-1 max-w-3xl">
-            <div className="bg-white rounded-2xl p-8">
-              <p className="text-2xl font-semibold text-gray-900 mb-2">
-                Siap untuk Upgrade ke Sistem Terbaik?
-              </p>
-              <p className="text-gray-600 mb-6">
-                Join dengan 100+ institusi yang sudah mempercayai platform kami
-              </p>
-              <button className="px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                Jadwalkan Demo Gratis
-              </button>
             </div>
           </div>
         </motion.div>

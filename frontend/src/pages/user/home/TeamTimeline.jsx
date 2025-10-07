@@ -1,70 +1,48 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Rocket, Users, Award, Target, TrendingUp, Globe } from "lucide-react";
+import { Rocket, Users, Target, Code, Presentation, Award } from "lucide-react";
 
 const milestones = [
   {
-    year: "2021",
-    quarter: "Q1",
-    title: "Ide & Konsep",
-    description: "Tim research mengidentifikasi masalah transparansi anggaran di Indonesia",
+    date: "5-6 Okt",
+    title: "Ide & Research",
+    description: "Diskusi tim dan penelitian mendalam tentang masalah transparansi anggaran di Purbalingga",
     icon: Rocket,
     color: "from-blue-500 to-cyan-500",
-    achievements: ["Market Research", "Problem Validation", "Initial Team"],
+    achievements: ["Brainstorming Ide", "Analisis Studi Kasus", "Market Research"],
   },
   {
-    year: "2021",
-    quarter: "Q3",
-    title: "MVP Development",
-    description: "Membangun prototype pertama dengan fitur dasar AI analytics",
-    icon: Users,
+    date: "6-10 Okt",
+    title: "Development",
+    description: "Pembangunan website InfoKanMas dengan fitur AI dan transparansi real-time",
+    icon: Code,
     color: "from-purple-500 to-pink-500",
-    achievements: ["Core AI Engine", "Dashboard v1.0", "5 Beta Users"],
+    achievements: ["Frontend Development", "Backend API", "AI Integration"],
   },
   {
-    year: "2022",
-    quarter: "Q2",
-    title: "Pilot Program",
-    description: "Launch pilot program dengan 3 pemerintah daerah",
+    date: "10-11 Okt",
+    title: "Testing & Polish",
+    description: "Pengujian sistem dan penyempurnaan fitur untuk presentasi final",
     icon: Target,
     color: "from-green-500 to-emerald-500",
-    achievements: ["3 Cities Onboarded", "1M Transactions", "Positive Feedback"],
+    achievements: ["Bug Fixing", "Performance Optimization", "UI/UX Polish"],
   },
   {
-    year: "2022",
-    quarter: "Q4",
-    title: "Expansion",
-    description: "Ekspansi ke 20+ institusi dengan tim yang berkembang",
-    icon: TrendingUp,
+    date: "11 Okt",
+    title: "Presentasi Final",
+    description: "Demo dan presentasi solusi InfoKanMas untuk Hackathon",
+    icon: Presentation,
     color: "from-orange-500 to-red-500",
-    achievements: ["20+ Clients", "Series A Funding", "Team of 30"],
-  },
-  {
-    year: "2023",
-    quarter: "Q3",
-    title: "Enterprise Ready",
-    description: "Platform matang dengan fitur enterprise dan security certification",
-    icon: Award,
-    color: "from-yellow-500 to-orange-500",
-    achievements: ["ISO 27001", "100+ Clients", "10M Daily Transactions"],
-  },
-  {
-    year: "2024",
-    quarter: "Q1",
-    title: "Global Vision",
-    description: "Persiapan ekspansi regional Asia Tenggara",
-    icon: Globe,
-    color: "from-indigo-500 to-purple-500",
-    achievements: ["Regional Expansion", "Multi-language", "AI Innovation Award"],
+    achievements: ["Live Demo", "Pitch Presentation", "Q&A Session"],
   },
 ];
 
 const teamStats = [
-  { label: "Team Members", value: "50+", icon: Users },
-  { label: "Years Experience", value: "15+", icon: Award },
-  { label: "Countries", value: "3", icon: Globe },
-  { label: "Success Rate", value: "98%", icon: Target },
+  { label: "Tim Members", value: "3", icon: Users },
+  { label: "Hari Development", value: "5", icon: Code },
+  { label: "Fitur Utama", value: "6", icon: Target },
+  { label: "Studi Kasus", value: "5", icon: Award },
 ];
 
 export default function TeamTimeline() {
@@ -84,18 +62,17 @@ export default function TeamTimeline() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block text-purple-600 font-semibold mb-4 text-sm uppercase tracking-wider">
-            Perjalanan Kami
+          <span className="inline-block text-blue-600 font-semibold mb-4 text-sm uppercase tracking-wider">
+            Timeline Hackathon
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            Dari Ide hingga{" "}
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Solusi Terdepan
+            Perjalanan{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              7 Hari
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Perjalanan tim kami dalam membangun platform transparansi anggaran 
-            yang dipercaya oleh ratusan institusi
+            Dari ide hingga solusi nyata untuk transparansi anggaran Purbalingga dalam waktu singkat
           </p>
         </motion.div>
 
@@ -113,11 +90,11 @@ export default function TeamTimeline() {
                 <motion.div
                   whileHover={{ scale: 1.2, rotate: 10 }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4"
+                  className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-4"
                 >
                   <stat.icon className="w-6 h-6 text-white" />
                 </motion.div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1">
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-1">
                   {stat.value}
                 </div>
                 <div className="text-sm text-gray-700 font-medium">{stat.label}</div>
@@ -148,7 +125,7 @@ export default function TeamTimeline() {
                   <div className={`flex-1 ${index % 2 === 0 ? "text-right" : "text-left"}`}>
                     <Card className="inline-block bg-white border-2 border-gray-100 p-8 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 group text-left max-w-md">
                       <div className={`inline-block px-4 py-1 rounded-full bg-gradient-to-r ${milestone.color} text-white text-sm font-semibold mb-4`}>
-                        {milestone.year} {milestone.quarter}
+                        {milestone.date}
                       </div>
                       <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-600 transition-colors">
                         {milestone.title}
@@ -217,7 +194,7 @@ export default function TeamTimeline() {
                   {/* Content */}
                   <div className="flex-grow pb-8">
                     <div className={`inline-block px-4 py-1 rounded-full bg-gradient-to-r ${milestone.color} text-white text-sm font-semibold mb-3`}>
-                      {milestone.year} {milestone.quarter}
+                      {milestone.date}
                     </div>
                     <h3 className="text-2xl font-bold mb-3">
                       {milestone.title}
@@ -239,24 +216,6 @@ export default function TeamTimeline() {
             </div>
           </div>
         </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-20"
-        >
-          <div className="inline-block bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 max-w-3xl">
-            <p className="text-2xl font-semibold text-gray-900 mb-2">
-              Bergabunglah dalam Perjalanan Kami
-            </p>
-            <p className="text-gray-600">
-              Menjadi bagian dari transformasi transparansi anggaran di Indonesia
-            </p>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

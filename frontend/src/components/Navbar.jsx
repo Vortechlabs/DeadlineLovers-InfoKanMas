@@ -13,10 +13,10 @@ export default function Navbar() {
           {/* Logo Section */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="logo" className='h-10 w-10' />
+              <img src="/logo.png" alt="logo" className='h-10 w-10' />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">InfoKanMas</h1>
-                <p className="text-xs text-gray-500">Admin Pusat</p>
+                <p className="text-xs text-gray-500">Membangun Purbalingga Transparan</p>
               </div>
             </div>
           </Link>
