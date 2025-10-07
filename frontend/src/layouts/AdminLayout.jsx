@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import AdminPusatSidebar from "@/components/sidebar/AdminPusatSidebar";
+import AdminKabupatenSidebar from "@/components/sidebar/AdminKabupatenSidebar";
 import { cn } from "@/lib/utils";
-import AdminPusatTopBar from "@/components/TopBar";
+import AdminKabupatenTopBar from "@/components/TopBar";
 
 export const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -35,7 +35,7 @@ export const AdminLayout = () => {
         )}
         style={{ width: isDesktop ? sidebarWidth : 288 }}
       >
-        <AdminPusatSidebar 
+        <AdminKabupatenSidebar 
           sidebarCollapsed={sidebarCollapsed}
           setSidebarCollapsed={setSidebarCollapsed}
         />
@@ -48,7 +48,7 @@ export const AdminLayout = () => {
       >
         {/* Header */}
         <header className="sticky top-0 z-20">
-          <AdminPusatTopBar 
+          <AdminKabupatenTopBar 
             toggleSidebar={toggleSidebar} 
           />
         </header>

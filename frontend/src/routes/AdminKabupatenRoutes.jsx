@@ -1,27 +1,27 @@
 import { AdminLayout } from "@/layouts/AdminLayout";
-import AdminProfilePage from "@/pages/admin-pusat/admin-pusat-profile";
-import AnalyticsDashboard from "@/pages/admin-pusat/analytics";
-import CompliancePage from "@/pages/admin-pusat/compliance";
-import AdminPusatDashboard from "@/pages/admin-pusat/dashboard";
-import DataDaerahPage from "@/pages/admin-pusat/data-daerah";
-import LaporanPage from "@/pages/admin-pusat/laporan";
-import LaporanMasyarakatPage from "@/pages/admin-pusat/laporan-masyarkat";
-import MonitoringPage from "@/pages/admin-pusat/monitoring";
-import ReviewRABPage from "@/pages/admin-pusat/rab-review";
+import AdminProfilePage from "@/pages/admin-kabupaten/admin-kabupaten-profile";
+import AnalyticsDashboard from "@/pages/admin-kabupaten/analytics";
+import CompliancePage from "@/pages/admin-kabupaten/compliance";
+import AdminKabupatenDashboard from "@/pages/admin-kabupaten/dashboard";
+import DataDaerahPage from "@/pages/admin-kabupaten/data-daerah";
+import LaporanPage from "@/pages/admin-kabupaten/laporan";
+import LaporanMasyarakatPage from "@/pages/admin-kabupaten/laporan-masyarkat";
+import MonitoringPage from "@/pages/admin-kabupaten/monitoring";
+import ReviewRABPage from "@/pages/admin-kabupaten/rab-review";
 
-const AdminPusatRoutes = [
+const AdminKabupatenRoutes = [
   {
-    path: "/admin-pusat",
+    path: "/admin-kabupaten",
     element: <AdminLayout />,
-    roles: ["admin_pusat"],
+    roles: ["admin_kabupaten"],
     children: [
       {
         path: "",
-        element: <AdminPusatDashboard />,
+        element: <AdminKabupatenDashboard />,
       },
       {
         path: "dashboard",
-        element: <AdminPusatDashboard />,
+        element: <AdminKabupatenDashboard />,
       },
       {
         path: "pengajuan",
@@ -59,4 +59,4 @@ const AdminPusatRoutes = [
   },
 ];
 
-export default AdminPusatRoutes;
+export default AdminKabupatenRoutes;

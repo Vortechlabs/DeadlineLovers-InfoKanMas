@@ -26,7 +26,7 @@ import {
   Database
 } from 'lucide-react';
 
-function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
+function AdminKabupatenSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -60,14 +60,14 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'dashboard', 
           label: 'Dashboard', 
           icon: LayoutDashboard, 
-          path: '/admin-pusat/dashboard', 
+          path: '/admin-kabupaten/dashboard', 
           active: activeTab === 'dashboard' 
         },
         { 
           id: 'pengajuan', 
           label: 'Review RAB', 
           icon: FileText, 
-          path: '/admin-pusat/pengajuan', 
+          path: '/admin-kabupaten/pengajuan', 
           active: activeTab === 'pengajuan', 
           badge: '12' 
         },
@@ -75,14 +75,14 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'monitoring', 
           label: 'Monitoring', 
           icon: Activity, 
-          path: '/admin-pusat/monitoring', 
+          path: '/admin-kabupaten/monitoring', 
           active: activeTab === 'monitoring' 
         },
         { 
           id: 'laporan', 
           label: 'Laporan', 
           icon: AlertCircle, 
-          path: '/admin-pusat/laporan', 
+          path: '/admin-kabupaten/laporan', 
           active: activeTab === 'laporan', 
           badge: '5' 
         },
@@ -95,14 +95,14 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'daerah', 
           label: 'Data Daerah', 
           icon: Users, 
-          path: '/admin-pusat/daerah', 
+          path: '/admin-kabupaten/daerah', 
           active: activeTab === 'daerah' 
         },
         { 
           id: 'pengaduan', 
           label: 'Laporan Masyarakat', 
           icon: AlertCircle, 
-          path: '/admin-pusat/pengaduan', 
+          path: '/admin-kabupaten/pengaduan', 
           active: activeTab === 'pengaduan',
           badge: '8' 
         },
@@ -110,14 +110,14 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'transparansi', 
           label: 'Portal Transparansi', 
           icon: Eye, 
-          path: '/admin-pusat/transparansi', 
+          path: '/admin-kabupaten/transparansi', 
           active: activeTab === 'transparansi' 
         },
         { 
           id: 'compliance', 
           label: 'Compliance', 
           icon: Shield, 
-          path: '/admin-pusat/compliance', 
+          path: '/admin-kabupaten/compliance', 
           active: activeTab === 'compliance' 
         },
       ]
@@ -129,21 +129,21 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'analytics', 
           label: 'Analytics', 
           icon: BarChart3, 
-          path: '/admin-pusat/analytics', 
+          path: '/admin-kabupaten/analytics', 
           active: activeTab === 'analytics' 
         },
         { 
           id: 'statistics', 
           label: 'Statistik', 
           icon: PieChart, 
-          path: '/admin-pusat/statistics', 
+          path: '/admin-kabupaten/statistics', 
           active: activeTab === 'statistics' 
         },
         { 
           id: 'predictions', 
           label: 'Prediksi', 
           icon: TrendingUp, 
-          path: '/admin-pusat/predictions', 
+          path: '/admin-kabupaten/predictions', 
           active: activeTab === 'predictions',
           badge: 'NEW' 
         },
@@ -156,21 +156,21 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           id: 'database', 
           label: 'Database', 
           icon: Database, 
-          path: '/admin-pusat/database', 
+          path: '/admin-kabupaten/database', 
           active: activeTab === 'database' 
         },
         { 
           id: 'profile', 
           label: 'Profile', 
           icon: User, 
-          path: '/admin-pusat/profile', 
+          path: '/admin-kabupaten/profile', 
           active: activeTab === 'profile' 
         },
         { 
           id: 'settings', 
           label: 'Settings', 
           icon: Settings, 
-          path: '/admin-pusat/settings', 
+          path: '/admin-kabupaten/settings', 
           active: activeTab === 'settings' 
         },
       ]
@@ -308,4 +308,4 @@ function AdminPusatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
   );
 }
 
-export default AdminPusatSidebar;
+export default AdminKabupatenSidebar;

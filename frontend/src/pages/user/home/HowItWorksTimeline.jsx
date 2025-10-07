@@ -5,29 +5,29 @@ import { Upload, Cpu, Eye, CheckCircle } from "lucide-react";
 const steps = [
   {
     icon: Upload,
-    title: "Upload Data Anggaran",
-    description: "Import data anggaran dari berbagai sumber dalam format apapun. Sistem kami mendukung Excel, CSV, PDF, dan integrasi API langsung.",
+    title: "Input Program & RAB",
+    description: "Dinas menginput program anggaran dengan RAB detail, spesifikasi teknis, dan dokumen pendukung. AI langsung validasi harga vs HSPK.",
     color: "from-blue-500 to-cyan-500",
     bgColor: "bg-blue-50",
   },
   {
     icon: Cpu,
-    title: "Analisis AI Otomatis",
-    description: "AI kami memproses dan menganalisis data secara mendalam. Deteksi anomali, pola pengeluaran, dan prediksi trend secara real-time.",
+    title: "Validasi Multi-Layer AI",
+    description: "Sistem melakukan validasi berlapis: price check, spesifikasi material, timeline, dan kelayakan teknis. Deteksi potensi mark-up otomatis.",
     color: "from-purple-500 to-pink-500",
     bgColor: "bg-purple-50",
   },
   {
     icon: Eye,
-    title: "Visualisasi & Monitor",
-    description: "Data ditampilkan dalam dashboard interaktif yang mudah dipahami. Monitor pengeluaran, track progress, dan dapatkan insight mendalam.",
+    title: "Monitoring Real-time",
+    description: "Pantau progres fisik dengan bukti foto GPS+timestamp, video progress, dan laporan lapangan. Pembayaran bertahap berdasarkan milestone.",
     color: "from-orange-500 to-red-500",
     bgColor: "bg-orange-50",
   },
   {
     icon: CheckCircle,
-    title: "Laporan & Aksi",
-    description: "Generate laporan otomatis, terima alert untuk anomali, dan ambil keputusan berdasarkan data yang akurat dan real-time.",
+    title: "Transparansi & Laporan",
+    description: "Publikasi real-time ke portal transparansi. Masyarakat bisa pantau, rating, dan lapor. Generate laporan audit otomatis.",
     color: "from-green-500 to-emerald-500",
     bgColor: "bg-green-50",
   },
@@ -45,16 +45,16 @@ export default function HowItWorksTimeline() {
           className="text-center mb-20"
         >
           <span className="inline-block text-blue-600 font-semibold mb-4 text-sm uppercase tracking-wider">
-            Cara Kerja
+            Cara Kerja InfoKanMas
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            Mudah Dimulai dalam{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              4 Langkah
+            Proses Transparansi dalam{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              4 Tahap
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Dari upload data hingga insight mendalam, semuanya otomatis dan cepat
+            Dari perencanaan hingga pelaporan, setiap tahap divalidasi dengan teknologi AI dan bukti digital
           </p>
         </motion.div>
 
@@ -90,7 +90,7 @@ export default function HowItWorksTimeline() {
                   {/* Content card */}
                   <div className="mt-16 bg-white border-2 border-gray-100 rounded-2xl p-6 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group cursor-pointer">
                     <div className={`inline-block px-4 py-1 rounded-full ${step.bgColor} text-sm font-semibold mb-4`}>
-                      Step {index + 1}
+                      Tahap {index + 1}
                     </div>
                     <h3 className="text-xl font-bold mb-3 group-hover:text-blue-600 transition-colors">
                       {step.title}
@@ -137,7 +137,7 @@ export default function HowItWorksTimeline() {
                   {/* Content */}
                   <div className="flex-grow pb-8">
                     <div className={`inline-block px-4 py-1 rounded-full ${step.bgColor} text-sm font-semibold mb-3`}>
-                      Step {index + 1}
+                      Tahap {index + 1}
                     </div>
                     <h3 className="text-2xl font-bold mb-3">
                       {step.title}
@@ -160,12 +160,12 @@ export default function HowItWorksTimeline() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-20"
         >
-          <div className="inline-block bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 max-w-3xl">
+          <div className="inline-block bg-blue-50 rounded-xl p-6 max-w-3xl border border-blue-100">
             <p className="text-2xl font-semibold text-gray-900 mb-2">
-              Proses Otomatis, Hasil Maksimal
+              Setiap Rupiah Terpantau, Setiap Proses Tervalidasi
             </p>
             <p className="text-gray-600">
-              Tidak perlu technical knowledge. Platform kami dirancang untuk semua orang
+              Dengan InfoKanMas, tidak ada ruang untuk manipulasi. Semua transparan dan akuntabel
             </p>
           </div>
         </motion.div>

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const AdminPusatDashboard = () => {
+const AdminKabupatenDashboard = () => {
   const [timeFilter, setTimeFilter] = useState('bulan_ini');
 
   // Data statistik
@@ -440,4 +440,4 @@ const AdminPusatDashboard = () => {
   );
 };
 
-export default AdminPusatDashboard;
+export default AdminKabupatenDashboard;

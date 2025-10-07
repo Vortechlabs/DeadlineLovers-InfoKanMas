@@ -5,33 +5,11 @@ import { ArrowRight, Sparkles, Shield, TrendingUp } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Animated background elements */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
+      {/* Clean background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [90, 0, 90],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl"
-        />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-50 rounded-full blur-3xl opacity-60" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-50 rounded-full blur-3xl opacity-60" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -47,29 +25,30 @@ export default function HeroSection() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full mb-6 font-medium text-sm"
+              className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full mb-6 font-medium text-sm border border-blue-100"
             >
               <Sparkles className="w-4 h-4" />
-              Platform Transparansi Anggaran Berbasis AI
+              Solusi Transparansi Anggaran Kabupaten Purbalingga
             </motion.div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-              Transparansi Anggaran untuk Masa Depan
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-gray-900 leading-tight">
+              InfoKanMas Purbalingga
+              <span className="block text-blue-600 mt-2">Transparansi Total Anggaran Daerah</span>
             </h1>
 
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Transformasi pengelolaan anggaran publik dengan kecerdasan buatan. 
-              Monitoring real-time, analisis mendalam, dan transparansi penuh untuk 
-              akuntabilitas pemerintahan yang lebih baik.
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              Sistem monitoring real-time semua anggaran publik Kabupaten Purbalingga. 
+              Dengan validasi AI multi-layer, pastikan setiap rupiah tepat sasaran 
+              dan bebas dari penyimpangan.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
-                Mulai Sekarang
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg rounded-lg shadow-sm hover:shadow-md transition-all">
+                Mulai Eksplorasi
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-blue-600 px-8 py-6 text-lg rounded-full transition-all">
-                Lihat Demo
+              <Button size="lg" variant="outline" className="border-2 border-gray-200 hover:border-blue-600 hover:bg-blue-50 px-8 py-6 text-lg rounded-lg transition-all">
+                Lihat Kasus Studi
               </Button>
             </div>
 
@@ -81,8 +60,8 @@ export default function HeroSection() {
                 transition={{ delay: 0.6 }}
                 className="text-center lg:text-left"
               >
-                <div className="text-3xl font-bold text-blue-600">98%</div>
-                <div className="text-sm text-gray-600">Akurasi Data</div>
+                <div className="text-xl 2xl:text-2xl font-bold text-blue-600">Rp 200M+</div>
+                <div className="text-sm text-gray-600">APBD Terpantau</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -90,8 +69,8 @@ export default function HeroSection() {
                 transition={{ delay: 0.7 }}
                 className="text-center lg:text-left"
               >
-                <div className="text-3xl font-bold text-purple-600">24/7</div>
-                <div className="text-sm text-gray-600">Monitoring</div>
+                <div className="text-xl 2xl:text-2xl font-bold text-blue-600">100%</div>
+                <div className="text-sm text-gray-600">Transparansi</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -99,8 +78,8 @@ export default function HeroSection() {
                 transition={{ delay: 0.8 }}
                 className="text-center lg:text-left"
               >
-                <div className="text-3xl font-bold text-pink-600">100+</div>
-                <div className="text-sm text-gray-600">Instansi</div>
+                <div className="text-xl 2xl:text-2xl font-bold text-blue-600">24/7</div>
+                <div className="text-sm text-gray-600">Monitoring AI</div>
               </motion.div>
             </div>
           </motion.div>
@@ -110,75 +89,82 @@ export default function HeroSection() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative hidden lg:block"
+            className="relative "
           >
             <div className="relative">
               {/* Floating cards */}
               <motion.div
-                animate={{ y: [0, -20, 0] }}
+                animate={{ y: [0, -15, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-10 right-10 bg-white rounded-2xl shadow-xl p-6 w-64"
+                className="absolute top-8 right-8 bg-white rounded-xl shadow-lg p-4 w-56 border border-gray-100"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-blue-600" />
+                  <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Keamanan Data</div>
-                    <div className="text-xs text-gray-500">Terenkripsi End-to-End</div>
+                    <div className="font-semibold text-sm">Validasi Multi-Layer</div>
+                    <div className="text-xs text-gray-500">AI + GPS + Dokumentasi</div>
                   </div>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: "0%" }}
-                    animate={{ width: "95%" }}
+                    animate={{ width: "92%" }}
                     transition={{ duration: 1.5, delay: 1 }}
-                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600"
+                    className="h-full bg-blue-500"
                   />
                 </div>
               </motion.div>
 
               <motion.div
-                animate={{ y: [0, 20, 0] }}
+                animate={{ y: [0, 15, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-10 left-10 bg-white rounded-2xl shadow-xl p-6 w-64"
+                className="absolute bottom-8 left-8 bg-white rounded-xl shadow-lg p-4 w-56 border border-gray-100"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Analisis Real-time</div>
-                    <div className="text-xs text-gray-500">Powered by AI</div>
+                    <div className="font-semibold text-sm">Deteksi Anomali</div>
+                    <div className="text-xs text-gray-500">Real-time AI Analysis</div>
                   </div>
                 </div>
-                <div className="flex gap-1 h-20 items-end">
-                  {[40, 70, 55, 85, 65, 90, 75].map((height, i) => (
+                <div className="flex gap-1 h-16 items-end">
+                  {[35, 65, 45, 80, 60, 85, 70].map((height, i) => (
                     <motion.div
                       key={i}
                       initial={{ height: 0 }}
                       animate={{ height: `${height}%` }}
                       transition={{ duration: 0.5, delay: 1.5 + i * 0.1 }}
-                      className="flex-1 bg-gradient-to-t from-purple-500 to-pink-500 rounded-sm"
+                      className="flex-1 bg-blue-500 rounded-sm opacity-80"
                     />
                   ))}
                 </div>
               </motion.div>
 
-              {/* Center decoration */}
-              <div className="w-full h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="w-48 h-48 border-8 border-dashed border-blue-300 rounded-full"
-                />
+              {/* Center main visual */}
+              <div className="w-full h-80 bg-gradient-to-br from-blue-50 to-white rounded-2xl flex items-center justify-center border border-gray-100 shadow-sm">
+                <div className="text-center">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                  >
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <h3 className="font-semibold text-gray-900 mb-2">InfoKanMas Purbalingga</h3>
+                  <p className="text-sm text-gray-600 max-w-xs">
+                    Informasi Keterbukaan Masyarakat Purbalingga
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
         </div>
       </div>
-
-
     </section>
   );
 }

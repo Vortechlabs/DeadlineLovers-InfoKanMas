@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, Bell, Search, User } from 'lucide-react';
 
-function AdminPusatTopBar({ toggleSidebar }) {
+function AdminKabupatenTopBar({ toggleSidebar }) {
   return (
     <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -51,4 +51,4 @@ function AdminPusatTopBar({ toggleSidebar }) {
   );
 }
 
-export default AdminPusatTopBar;
+export default AdminKabupatenTopBar;

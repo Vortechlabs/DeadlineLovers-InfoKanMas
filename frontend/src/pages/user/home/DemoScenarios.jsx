@@ -1,60 +1,60 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Building2, GraduationCap, Heart, Landmark } from "lucide-react";
+import { Building2, Users, Landmark, Shield } from "lucide-react";
 import { useState } from "react";
 
 const scenarios = [
   {
     icon: Landmark,
-    title: "Pemerintah Daerah",
-    subtitle: "Transparansi APBD Real-time",
-    description: "Monitor dan publikasikan penggunaan APBD secara real-time. Tingkatkan kepercayaan masyarakat dengan transparansi penuh.",
+    title: "Dinas PUPR",
+    subtitle: "Monitoring Proyek Infrastruktur",
+    description: "Pantau real-time progres pembangunan jalan, jembatan, dan gedung dengan validasi multi-layer AI. Deteksi penyimpangan kualitas dan volume secara otomatis.",
     stats: [
-      { label: "Efisiensi", value: "+40%" },
-      { label: "Transparansi", value: "100%" },
-      { label: "Response Time", value: "-60%" },
+      { label: "Akurasi Volume", value: "99%" },
+      { label: "Deteksi Dini", value: "95%" },
+      { label: "Efisiensi Waktu", value: "-70%" },
     ],
-    image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&q=80",
-    color: "from-blue-500 to-cyan-500",
+    image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80",
+    color: "from-blue-600 to-blue-700",
   },
   {
-    icon: Building2,
-    title: "BUMN & Kementerian",
-    subtitle: "Audit & Compliance Automation",
-    description: "Otomatisasi proses audit internal dan eksternal. Deteksi dini potensi fraud dengan AI monitoring 24/7.",
+    icon: Users,
+    title: "Dinas Sosial",
+    subtitle: "Penyaluran Bantuan Sosial",
+    description: "Validasi penerima bansos dengan NIK Dukcapil, konfirmasi langsung via SMS, dan tracking distribusi. Pastikan bantuan tepat sasaran tanpa penerima fiktif.",
     stats: [
-      { label: "Akurasi Audit", value: "98%" },
-      { label: "Waktu Proses", value: "-75%" },
-      { label: "Cost Saving", value: "45%" },
+      { label: "Tepat Sasaran", value: "98%" },
+      { label: "Konfirmasi Penerima", value: "92%" },
+      { label: "Waktu Distribusi", value: "-60%" },
     ],
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80",
     color: "from-purple-500 to-pink-500",
   },
   {
-    icon: GraduationCap,
-    title: "Institusi Pendidikan",
-    subtitle: "Budget Planning & Tracking",
-    description: "Kelola anggaran pendidikan dengan optimal. Track pengeluaran per program, departemen, dan kegiatan dengan detail.",
+    icon: Building2,
+    title: "Dinas Pendidikan",
+    subtitle: "Pengadaan Sarana Prasarana",
+    description: "Monitor pengadaan barang seperti laptop, mebel, dan buku dengan e-tender transparan. Validasi spesifikasi dan harga dengan AI price check.",
     stats: [
-      { label: "Budget Accuracy", value: "95%" },
-      { label: "Waste Reduction", value: "-35%" },
-      { label: "Planning Time", value: "-50%" },
+      { label: "Penghematan", value: "35%" },
+      { label: "Kesesuaian Spek", value: "100%" },
+      { label: "Transparansi", value: "100%" },
     ],
     image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80",
     color: "from-green-500 to-emerald-500",
   },
   {
-    icon: Heart,
-    title: "Organisasi Nirlaba",
-    subtitle: "Donor Transparency Portal",
-    description: "Berikan transparansi penuh kepada donor. Tunjukkan impact dari setiap donasi dengan visualisasi yang jelas.",
+    icon: Shield,
+    title: "Badan Pengawasan",
+    subtitle: "Audit Real-time Anggaran",
+    description: "Lakukan pengawasan proaktif dengan dashboard monitoring real-time. Deteksi anomali anggaran dan dapatkan alert otomatis untuk investigasi.",
     stats: [
-      { label: "Donor Trust", value: "+85%" },
-      { label: "Report Speed", value: "10x" },
-      { label: "Engagement", value: "+120%" },
+      { label: "Deteksi Anomali", value: "90%" },
+      { label: "Response Time", value: "-80%" },
+      { label: "Laporan Otomatis", value: "95%" },
     ],
-    image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80",
     color: "from-orange-500 to-red-500",
   },
 ];
@@ -72,18 +72,18 @@ export default function DemoScenarios() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block text-purple-600 font-semibold mb-4 text-sm uppercase tracking-wider">
-            Use Cases
+          <span className="inline-block bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent font-semibold mb-4 text-sm uppercase tracking-wider">
+            Studi Kasus Purbalingga
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            Solusi untuk{" "}
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Setiap Kebutuhan
+            Implementasi di{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              Setiap Dinas
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Platform kami telah dipercaya oleh berbagai institusi untuk meningkatkan 
-            transparansi dan akuntabilitas
+            InfoKanMas telah membantu berbagai dinas di Purbalingga meningkatkan transparansi 
+            dan akuntabilitas pengelolaan anggaran publik
           </p>
         </motion.div>
 
@@ -143,11 +143,14 @@ export default function DemoScenarios() {
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${scenarios[activeIndex].color} flex items-center justify-center`}>
-                    {/* <scenarios[activeIndex].icon className="w-6 h-6 text-white" /> */}
+                    {(() => {
+                      const IconComponent = scenarios[activeIndex].icon;
+                      return <IconComponent className="w-6 h-6 text-white" />;
+                    })()}
                   </div>
                   <div>
                     <div className="font-bold text-lg">{scenarios[activeIndex].title}</div>
-                    <div className="text-sm text-gray-500">Success Story</div>
+                    <div className="text-sm text-gray-500">Hasil Implementasi</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 pt-3 border-t border-gray-100">
@@ -204,7 +207,7 @@ export default function DemoScenarios() {
                   className="mt-8"
                 >
                   <button className={`px-8 py-4 rounded-full bg-gradient-to-r ${scenarios[activeIndex].color} text-white font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
-                    Pelajari Lebih Lanjut
+                    Lihat Detail Implementasi
                   </button>
                 </motion.div>
               </motion.div>

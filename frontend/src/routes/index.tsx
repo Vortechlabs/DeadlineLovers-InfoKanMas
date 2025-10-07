@@ -4,7 +4,7 @@ import AuthRoutes from "./AuthRoutes";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFoundPage from "@/components/NotFoundPage";
 import { RootLayout } from "@/layouts/RootLayout";
-import AdminPusatRoutes from "./AdminPusatRoutes";
+import AdminKabupatenRoutes from "./AdminKabupatenRoutes";
 
 export default function AppRoutes() {
   return (
@@ -41,8 +41,8 @@ export default function AppRoutes() {
       ))}
 
 
-      {/* Admin Pusat Routes */}
-      {AdminPusatRoutes.map((route) => (
+      {/* Admin Kabupaten Routes */}
+      {AdminKabupatenRoutes.map((route) => (
         <Route
           key={route.path}
           path={route.path}
