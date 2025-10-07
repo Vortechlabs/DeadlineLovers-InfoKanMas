@@ -191,7 +191,7 @@ function AdminKabupatenSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
       >
         <div className="flex items-center space-x-3">
           <IconComponent className={`${collapsed ? 'w-5 h-5' : 'w-5 h-5'} flex-shrink-0 ${
-            item.active ? 'text-white' : 'text-gray-400 group-hover:text-blue-600'
+            item.active ? 'text-white' : 'text-gray-400 group-hover:text-blue-600 group-hover:scale-[1.1] group-hover:rotate-6'
           }`} />
           {!collapsed && (
             <span className={`font-medium text-sm ${item.active ? 'font-semibold' : ''}`}>
@@ -203,7 +203,7 @@ function AdminKabupatenSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
         {!collapsed && item.badge && (
           <span className={`px-2.5 py-1 text-xs rounded-full font-bold min-w-6 text-center ${
             item.active 
-              ? 'bg-white/20 text-white' 
+              ? 'bg-white/20 text-white ' 
               : item.badge === 'NEW'
                 ? 'bg-green-100 text-green-700'
                 : 'bg-blue-50 text-blue-600'

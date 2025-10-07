@@ -1,3 +1,4 @@
+import AdminDesaLayout from "@/layouts/AdminDesaLayout";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import AdminDesaDashboard from "@/pages/admin-desa/dashboard";
 import AdminProfilePage from "@/pages/admin-kabupaten/admin-kabupaten-profile";
@@ -12,7 +13,7 @@ import ReviewRABPage from "@/pages/admin-kabupaten/rab-review";
 const AdminDesaRoutes = [
   {
     path: "/admin-desa",
-    element: <AdminLayout />,
+    element: <AdminDesaLayout />,
     roles: ["admin_desa"],
     children: [
       {

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import AdminKabupatenSidebar from "@/components/sidebar/AdminKabupatenSidebar";
 import { cn } from "@/lib/utils";
 import AdminKabupatenTopBar from "@/components/TopBar";
+import AdminKabupatenBottomBar from "@/components/bottombar/AdminKabupatenBottomBar";
 
 export const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -54,12 +55,15 @@ export const AdminLayout = () => {
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
           <div className="mx-auto w-full">
             <Outlet />
           </div>
         </main>
       </div>
+
+      {/* Bottom Bar - Mobile Only */}
+      {!isDesktop && <AdminKabupatenBottomBar />}
 
       {/* Mobile Overlay */}
       {!isDesktop && isMobileSidebarOpen && (

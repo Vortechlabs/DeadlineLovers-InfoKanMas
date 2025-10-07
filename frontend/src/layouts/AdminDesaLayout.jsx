@@ -1,12 +1,9 @@
-
-
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import AdminKabupatenSidebar from "@/components/sidebar/AdminKabupatenSidebar";
-import { cn } from "@/lib/utils";
-import AdminKabupatenTopBar from "@/components/TopBar";
 import AdminDesaSidebar from "@/components/sidebar/AdminDesaSidebar";
-import { SidebarOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
+import AdminKabupatenTopBar from "@/components/AdminKabupatenTopBAr";
+import AdminDesaBottomBar from "@/components/bottombar/AdminDesaBottomBar";
 
 export const AdminDesaLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -39,11 +36,10 @@ export const AdminDesaLayout = () => {
         )}
         style={{ width: isDesktop ? sidebarWidth : 288 }}
       >
-      {/* Sidebar */}
-      <AdminDesaSidebar 
-        isOpen={SidebarOpen} 
-        toggleSidebar={toggleSidebar} 
-      />
+        <AdminDesaSidebar 
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+        />
       </aside>
 
       {/* Main Content Area */}
@@ -65,6 +61,11 @@ export const AdminDesaLayout = () => {
           </div>
         </main>
       </div>
+
+      
+      {/* Bottom Bar - Mobile Only */}
+      {!isDesktop && <AdminDesaBottomBar />}
+
 
       {/* Mobile Overlay */}
       {!isDesktop && isMobileSidebarOpen && (
