@@ -228,16 +228,16 @@ function AdminKabupatenSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
       <div className={`p-6 border-b border-gray-200/30 flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!sidebarCollapsed && (
           <div className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="logo" className='h-10 w-10'/>
+            <img src="/logo.png" alt="logo" className='h-10 w-10'/>
             <div>
               <h1 className="text-xl font-bold text-gray-800">InfoKanMas</h1>
-              <p className="text-xs text-gray-500">Admin Pusat</p>
+              <p className="text-xs text-gray-500">Admin Kabupaten</p>
             </div>
           </div>
         )}
         
         {sidebarCollapsed && (
-            <img src="/logo.svg" alt="logo" className='h-10 w-10'/>
+            <img src="/logo.png" alt="logo" className='h-10 w-10'/>
         )}
         
         <button

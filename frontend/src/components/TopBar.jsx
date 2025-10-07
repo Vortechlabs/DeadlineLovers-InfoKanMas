@@ -18,7 +18,7 @@ const AdminPusatTopBar = ({ toggleSidebar, userRole = 'admin_pusat' }) => {
       category: 'RAB',
       timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
       read: false,
-      onClick: () => navigate('/admin-pusat/pengajuan')
+      onClick: () => navigate('/admin-kabupaten/pengajuan')
     },
     {
       id: 2,
@@ -28,7 +28,7 @@ const AdminPusatTopBar = ({ toggleSidebar, userRole = 'admin_pusat' }) => {
       category: 'Monitoring',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       read: false,
-      onClick: () => navigate('/admin-pusat/monitoring')
+      onClick: () => navigate('/admin-kabupaten/monitoring')
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ const AdminPusatTopBar = ({ toggleSidebar, userRole = 'admin_pusat' }) => {
       category: 'Laporan',
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
       read: true,
-      onClick: () => navigate('/admin-pusat/pengaduan')
+      onClick: () => navigate('/admin-kabupaten/pengaduan')
     },
     {
       id: 4,
@@ -48,7 +48,7 @@ const AdminPusatTopBar = ({ toggleSidebar, userRole = 'admin_pusat' }) => {
       category: 'Compliance',
       timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
       read: true,
-      onClick: () => navigate('/admin-pusat/compliance')
+      onClick: () => navigate('/admin-kabupaten/compliance')
     }
   ]);
 
@@ -88,12 +88,12 @@ const AdminPusatTopBar = ({ toggleSidebar, userRole = 'admin_pusat' }) => {
     {
       label: 'Profil Saya',
       icon: User,
-      onClick: () => navigate('/admin-pusat/profile')
+      onClick: () => navigate('/admin-kabupaten/profile')
     },
     {
       label: 'Pengaturan',
       icon: Settings,
-      onClick: () => navigate('/admin-pusat/settings')
+      onClick: () => navigate('/admin-kabupaten/settings')
     },
     {
       label: 'Keluar',

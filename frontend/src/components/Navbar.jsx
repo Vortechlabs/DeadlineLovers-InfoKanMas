@@ -16,7 +16,7 @@ export default function Navbar() {
               <img src="/logo.png" alt="logo" className='h-10 w-10' />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">InfoKanMas</h1>
-                <p className="text-xs text-gray-500">Membangun Purbalingga Transparan</p>
+                <p className="text-xs text-gray-500">Terbuka dan Terpercaya</p>
               </div>
             </div>
           </Link>
