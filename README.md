@@ -56,21 +56,33 @@ Pengelolaan anggaran publik di Indonesia masih menghadapi berbagai tantangan ser
 - Nilai Proyek: Rp 13,2 miliar
 - Masalah: Manipulasi laporan pekerjaan dan kualitas konstruksi tidak sesuai spesifikasi
 - Dampak: Material di bawah standar, jembatan hanya dapat dilalui kendaraan kecil
-
+- Sumber:
+  
+    [https://www.ayobandung.com/umum/7914805356/jembatan-merah-purbalingga-diduga-dikorupsi-dan-rugikan-negara-rp132-miliar-padahal-jadi-penghubung-2-daerah-ini?page=1&utm_source=chatgpt.com](https://www.ayobandung.com/umum/7914805356/jembatan-merah-purbalingga-diduga-dikorupsi-dan-rugikan-negara-rp132-miliar-padahal-jadi-penghubung-2-daerah-ini?page=1&utm_source=chatgpt.com)
+  
+    [https://www.detik.com/jateng/hukum-dan-kriminal/d-7992743/eks-cawabup-purbalingga-dituntut-5-tahun-bui-di-kasus-korupsi-jembatan-merah?utm_source=chatgpt.com](https://www.detik.com/jateng/hukum-dan-kriminal/d-7992743/eks-cawabup-purbalingga-dituntut-5-tahun-bui-di-kasus-korupsi-jembatan-merah?utm_source=chatgpt.com)
+  
 **Dugaan Penggelembungan Dana MCK Desa Bojanegara (2024)**
 - Nilai Proyek: Rp 30 juta (Dana Desa)
 - Masalah: Ukuran bangunan (1,5 x 3 meter) tidak sebanding dengan anggaran
 - Dampak: Tidak ada transparansi rincian penggunaan dana
+- Sumber:
+  
+    [https://selidikkasus.com/2025/02/14/diduga-penggelembungan-dana-dan-maladministrasi-pada-pembangunan-mck-di-stand-kios-desa-bojanegara/?utm_source=chatgpt.com](https://selidikkasus.com/2025/02/14/diduga-penggelembungan-dana-dan-maladministrasi-pada-pembangunan-mck-di-stand-kios-desa-bojanegara/?utm_source=chatgpt.com)
+    
+    [https://www.jejakinvestigasi.id/2025/02/pembangunan-mck-di-stand-kios-desa.html](https://www.jejakinvestigasi.id/2025/02/pembangunan-mck-di-stand-kios-desa.html)
 
 **Mark-up Proyek Jalan Desa Sumberejo (2024)**
 - Nilai Proyek: Rp 1 miliar
 - Laporan: Jalan 2 km dengan ketebalan aspal 10 cm
 - Realitas: Hanya 1,5 km terealisasi dengan ketebalan 3-4 cm
 - Estimasi kerugian: Rp 400 juta
+- Sumber:
 
-**Ketidaktepatan Data Penerima Bantuan Sosial (2020-2022)**
-- Temuan: 7% data penerima tidak valid
-- Masalah: Penerima sudah meninggal, nominal tidak sesuai laporan
+  [https://www.antaranews.com/berita/2320706/tim-penyidik-kpk-geledah-dua-lokasi-di-purbalingga?utm_source=chatgpt.com](https://www.antaranews.com/berita/2320706/tim-penyidik-kpk-geledah-dua-lokasi-di-purbalingga?utm_source=chatgpt.com)
+  
+  [https://www.kompas.id/artikel/petugas-kpk-geledah-kantor-pt-sw-selama-7-jam-di-purbalingga-terkait-kasus-banjarnegara](https://www.kompas.id/artikel/petugas-kpk-geledah-kantor-pt-sw-selama-7-jam-di-purbalingga-terkait-kasus-banjarnegara)
+  
 
 ### Pola Penyimpangan
 
