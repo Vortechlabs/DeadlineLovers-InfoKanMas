@@ -34,7 +34,7 @@ InfoKanMas adalah platform monitoring real-time untuk semua jenis dana publik de
 
 ### Stakeholder Utama
 
-**Admin Pusat** - Monitoring dan approval anggaran dengan AI recommendation
+**Admin Kabupaten** - Monitoring dan approval anggaran dengan AI recommendation
 
 **Admin Daerah** - Pengajuan RAB dan pelaporan realisasi program
 
@@ -171,19 +171,19 @@ Dashboard interaktif dengan alert otomatis untuk anomali spending dan perbanding
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  FRONTEND LAYER                      │
+│                  FRONTEND LAYER                     │
 │      React.js + Tailwind CSS + Recharts             │
 │  Admin Pusat | Admin Daerah | Public Portal         │
 └────────────────────┬────────────────────────────────┘
                      │ REST API (JWT Auth)
 ┌────────────────────┴────────────────────────────────┐
-│                  BACKEND LAYER                       │
-│         Laravel 10 + MySQL + Redis                   │
-│  Auth Service | RAB Management | Spending Tracker    │
+│                  BACKEND LAYER                      │
+│         Laravel 10 + MySQL + Redis                  │
+│  Auth Service | RAB Management | Spending Tracker   │
 └────────────────────┬────────────────────────────────┘
                      │ HTTP/REST
 ┌────────────────────┴────────────────────────────────┐
-│                  AI/ML LAYER                         │
+│                  AI/ML LAYER                        │
 │      Python + Flask/FastAPI + Scikit-learn          │
 │  Fraud Detection | RAB Scoring | Budget Prediction  │
 └─────────────────────────────────────────────────────┘
@@ -278,8 +278,6 @@ python app.py
 
 ### Phase 2: AI Enhancement
 
-**Target**: 3-4 bulan setelah Phase 1
-
 **Fitur**:
 - Advanced fraud detection dengan deep learning
 - OCR untuk ekstraksi data otomatis
@@ -289,8 +287,6 @@ python app.py
 
 ### Phase 3: Mobile Application
 
-**Target**: 4-5 bulan setelah Phase 2
-
 **Fitur**:
 - Mobile app untuk Admin Daerah
 - Mobile app untuk penerima manfaat
@@ -298,8 +294,6 @@ python app.py
 - Offline mode
 
 ### Phase 4: Integration & Scale
-
-**Target**: 6+ bulan setelah Phase 3
 
 **Fitur**:
 - Integrasi dengan SIPD
