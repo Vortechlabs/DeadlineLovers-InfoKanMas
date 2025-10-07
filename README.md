@@ -2,19 +2,14 @@
 
 <div align="center">
 
-![InfoKanMas Banner](https://img.shields.io/badge/InfoKanMas-Platform%20Transparansi%20Anggaran-blue?style=for-the-badge)
-
 **Informasi Keterbukaan Anggaran Masyarakat**
 
-*Platform Transparansi Anggaran Sosial Berbasis Kecerdasan Buatan untuk Meningkatkan Akuntabilitas Dana Publik*
+Platform Transparansi Anggaran Sosial Berbasis Kecerdasan Buatan untuk Meningkatkan Akuntabilitas Dana Publik
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)](https://reactjs.org/)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel)](https://laravel.com/)
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python)](https://www.python.org/)
-[![AI Powered](https://img.shields.io/badge/AI-Powered-FF6F00?logo=tensorflow)](https://www.tensorflow.org/)
-
-[🚀 Demo](#-demo) • [✨ Fitur](#-fitur-unggulan) • [📦 Instalasi](#-instalasi) • [🤖 AI/ML](#-aiml-features) • [📖 Dokumentasi](#-dokumentasi)
 
 </div>
 
@@ -23,258 +18,199 @@
 ## 📋 Daftar Isi
 
 - [Tentang InfoKanMas](#-tentang-infokanmas)
-- [Masalah yang Diselesaikan](#-masalah-yang-diselesaikan)
-- [Fitur Unggulan](#-fitur-unggulan)
-- [Arsitektur Sistem](#-arsitektur-sistem)
-- [Tech Stack](#-tech-stack)
-- [AI/ML Features](#-aiml-features)
+- [Latar Belakang](#-latar-belakang)
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi](#-teknologi)
 - [Instalasi](#-instalasi)
-- [Penggunaan](#-penggunaan)
-- [Demo Scenarios](#-demo-scenarios)
-- [Kontribusi](#-kontribusi)
 - [Roadmap](#-roadmap)
-- [Tim](#-tim)
+- [Tim Pengembang](#-tim-pengembang)
 - [Lisensi](#-lisensi)
 
 ---
 
 ## 🎯 Tentang InfoKanMas
 
-**InfoKanMas (Informasi Keterbukaan Anggaran Masyarakat)** adalah platform revolusioner yang menggabungkan transparansi, akuntabilitas, dan kecerdasan buatan untuk mengawasi pengelolaan dana sosial pemerintah. Platform ini menciptakan ekosistem digital yang menghubungkan tiga stakeholder utama:
+InfoKanMas adalah platform monitoring real-time untuk semua jenis dana publik dengan sistem validasi berlapis menggunakan teknologi AI/ML. Platform ini dirancang untuk meningkatkan transparansi dan akuntabilitas dalam pengelolaan anggaran daerah di Indonesia.
 
-- 🏢 **Admin Pusat** - Monitoring dan approval anggaran dengan AI recommendation
-- 🏛️ **Admin Daerah** - Pengajuan RAB dan pelaporan realisasi program
-- 👥 **Masyarakat** - Akses informasi transparan dan pelaporan partisipatif
+### Stakeholder Utama
 
-### 🌟 Visi
+**Admin Pusat** - Monitoring dan approval anggaran dengan AI recommendation
+
+**Admin Daerah** - Pengajuan RAB dan pelaporan realisasi program
+
+**Masyarakat** - Akses informasi transparan dan pelaporan partisipatif
+
+### Visi
 
 Mewujudkan pengelolaan anggaran publik yang transparan, akuntabel, dan bebas korupsi melalui pemanfaatan teknologi AI/ML untuk Indonesia yang lebih baik.
 
 ---
 
-## 🔍 Masalah yang Diselesaikan
+## 📖 Latar Belakang
 
-### ❌ Kondisi Saat Ini
+Pengelolaan anggaran publik di Indonesia masih menghadapi berbagai tantangan serius terkait transparansi dan akuntabilitas. Berdasarkan studi kasus di Kabupaten Purbalingga, Jawa Tengah, ditemukan beberapa pola penyimpangan yang umum terjadi.
 
-| Masalah | Dampak |
-|---------|--------|
-| 📄 **Proses Manual & Lambat** | Approval RAB memakan waktu 2-4 minggu |
-| 🕵️ **Deteksi Fraud Terlambat** | Korupsi baru terdeteksi setelah audit tahunan |
-| 🤷 **Subjektivitas Tinggi** | Keputusan approval bergantung pada "siapa yang mengajukan" |
-| 📊 **Data Tersebar** | Informasi anggaran sulit diakses dan tidak terintegrasi |
-| 😔 **Rendahnya Partisipasi Publik** | Masyarakat tidak tahu kemana uang pajak mereka pergi |
+### Kasus yang Terdokumentasi
 
-### ✅ Solusi InfoKanMas
+**Pembangunan Jembatan Merah (2022-2023)**
+- Nilai Proyek: Rp 13,2 miliar
+- Masalah: Manipulasi laporan pekerjaan dan kualitas konstruksi tidak sesuai spesifikasi
+- Dampak: Material di bawah standar, jembatan hanya dapat dilalui kendaraan kecil
 
-| Solusi | Manfaat |
-|--------|---------|
-| 🤖 **AI-Powered Automation** | Approval RAB dalam hitungan jam, bukan minggu |
-| 🚨 **Real-time Fraud Detection** | Deteksi anomali sebelum dana dicairkan |
-| 📈 **Objektif & Data-Driven** | Keputusan berdasarkan score AI yang konsisten |
-| 🌐 **Platform Terpusat** | Satu dashboard untuk semua data anggaran |
-| 💬 **Transparansi Total** | Masyarakat bisa pantau setiap rupiah dana publik |
+**Dugaan Penggelembungan Dana MCK Desa Bojanegara (2024)**
+- Nilai Proyek: Rp 30 juta (Dana Desa)
+- Masalah: Ukuran bangunan (1,5 x 3 meter) tidak sebanding dengan anggaran
+- Dampak: Tidak ada transparansi rincian penggunaan dana
 
----
+**Mark-up Proyek Jalan Desa Sumberejo (2024)**
+- Nilai Proyek: Rp 1 miliar
+- Laporan: Jalan 2 km dengan ketebalan aspal 10 cm
+- Realitas: Hanya 1,5 km terealisasi dengan ketebalan 3-4 cm
+- Estimasi kerugian: Rp 400 juta
 
-## ✨ Fitur Unggulan
+**Ketidaktepatan Data Penerima Bantuan Sosial (2020-2022)**
+- Temuan: 7% data penerima tidak valid
+- Masalah: Penerima sudah meninggal, nominal tidak sesuai laporan
 
-### 🤖 **1. Fraud Detection System**
+### Pola Penyimpangan
 
-```
-┌─────────────────────────────────────────────┐
-│  RAB Submission → AI Analysis → Red Flags   │
-│                                             │
-│  ✓ Anomaly Detection                        │
-│  ✓ Document Authenticity Check              │
-│  ✓ Pattern Recognition                      │
-│  ✓ Real-time Fraud Risk Scoring             │
-└─────────────────────────────────────────────┘
-```
-
-**Deteksi Otomatis:**
-- 🔴 Anggaran konsumsi tidak wajar
-- 🔴 Dokumen palsu atau dimanipulasi
-- 🔴 Duplikasi pengajuan
-- 🔴 Pola vendor mencurigakan
-
-### 📊 **2. Smart RAB Scoring**
-
-Penilaian otomatis kelayakan RAB berdasarkan:
-
-| Kriteria | Bobot | Deskripsi |
-|----------|-------|-----------|
-| **Completeness** | 30% | Kelengkapan dokumen dan detail |
-| **Feasibility** | 25% | Kewajaran anggaran vs output |
-| **Impact** | 20% | Estimasi manfaat program |
-| **Track Record** | 15% | Performa historis daerah |
-| **Urgency** | 10% | Prioritas program |
-
-**Output:** Score 0-100 dengan rekomendasi **Approve** / **Review** / **Reject**
-
-### 🔮 **3. Budget Forecasting**
-
-Prediksi kebutuhan anggaran berbasis machine learning:
-
-```python
-# Contoh Output Prediksi
-Q3 2024: Rp 2.5 Miliar (+15% dari Q2)
-├── Kesehatan: Rp 800 Juta (↑ 20%)
-├── Pendidikan: Rp 900 Juta (↑ 12%)
-├── Infrastruktur: Rp 600 Juta (↓ 5%)
-└── Sosial: Rp 200 Juta (→ stabil)
-
-Confidence Interval: 85-92%
-```
-
-### 📈 **4. Real-time Spending Analytics**
-
-- 📊 Dashboard interaktif dengan visualisasi data
-- 🚨 Alert otomatis untuk anomali spending
-- 📉 Perbandingan anggaran vs realisasi
-- 🎯 Benchmark dengan daerah sejenis
-
-### 🌐 **5. Public Transparency Portal**
-
-Portal terbuka untuk masyarakat:
-- ✅ Lihat alokasi anggaran per program
-- ✅ Tracking realisasi program real-time
-- ✅ AI-generated insights dan temuan anomali
-- ✅ Laporan partisipatif dari warga
+Dari berbagai kasus di atas, teridentifikasi pola-pola berikut:
+- Mark-up anggaran dan manipulasi volume pekerjaan
+- Penyalahgunaan dana desa
+- Kesalahan data penerima bantuan sosial
+- Kurangnya dokumentasi dan verifikasi lapangan
+- Minimnya partisipasi publik dalam pengawasan
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## ✨ Fitur Utama
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                    🌐 FRONTEND LAYER                       │
-│         React.js + Tailwind CSS + Chart.js/Recharts        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Admin Pusat  │  │ Admin Daerah │  │   Public     │      │
-│  │  Dashboard   │  │   Portal     │  │  Dashboard   │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-└───────────────────────┬────────────────────────────────────┘
-                        │ REST API (JWT Auth)
-┌───────────────────────┴────────────────────────────────────┐
-│                    ⚙️ BACKEND LAYER                        │
-│              Laravel 10 + MySQL + Redis                    │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │    Auth    │  │    RAB     │  │  Spending  │            │
-│  │  Service   │  │ Management │  │  Tracker   │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-└───────────────────────┬────────────────────────────────────┘
-                        │ HTTP/REST
-┌───────────────────────┴────────────────────────────────────┐
-│                    🤖 AI/ML LAYER                          │
-│         Python + Flask/FastAPI + Scikit-learn              │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │   Fraud    │  │    RAB     │  │   Budget   │            │
-│  │ Detection  │  │  Scoring   │  │ Prediction │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-└────────────────────────────────────────────────────────────┘
-```
+### 🔍 Cakupan Monitoring
+
+Platform ini memonitor enam kategori utama anggaran daerah:
+
+**Bantuan Sosial & Bantuan Langsung**
+
+Sembako, bantuan tunai, beasiswa dengan validasi NIK dan konfirmasi penerima langsung
+
+**Pembangunan Infrastruktur**
+
+Jalan, jembatan, gedung publik dengan sistem milestone bertahap dan dokumentasi wajib
+
+**Perjalanan Dinas**
+
+Transport, akomodasi, uang harian dengan GPS tracking dan dokumentasi kegiatan
+
+**Belanja Operasional**
+
+ATK, konsumsi, utilitas dengan validasi harga pasar dan dokumentasi penggunaan
+
+**Pengadaan Barang/Jasa**
+
+Komputer, kendaraan, peralatan dengan e-tender transparan dan verifikasi barang
+
+**Kegiatan/Event**
+
+Seminar, pelatihan, festival dengan daftar hadir digital dan dokumentasi peserta
+
+### 🛡️ Sistem Validasi Berlapis
+
+**Layer 1: AI Price Check**
+
+Membandingkan harga dengan HSPK dan harga pasar real-time, alert otomatis jika markup >20%
+
+**Layer 2: Document Validation**
+
+Verifikasi keaslian dokumen dengan computer vision, deteksi manipulasi dan dokumen palsu
+
+**Layer 3: GPS & Location Tracking**
+
+Memastikan kegiatan benar terjadi di lokasi yang diklaim dengan timeline tracking
+
+**Layer 4: Photo/Video Evidence**
+
+Dokumentasi visual setiap tahap dengan analisis before-after menggunakan AI
+
+**Layer 5: Direct Confirmation**
+
+Konfirmasi langsung dari penerima manfaat via SMS/WhatsApp dengan QR code tracking
+
+**Layer 6: Public Monitoring**
+
+Portal transparan untuk akses publik dengan sistem pelaporan partisipatif
+
+**Layer 7: Independent Audit**
+
+Random sampling untuk verifikasi lapangan oleh tim surveyor independen
+
+### 🤖 Kecerdasan Buatan
+
+**Fraud Detection System**
+
+Deteksi otomatis untuk anggaran tidak wajar, dokumen palsu, duplikasi pengajuan, dan pola vendor mencurigakan
+
+**Smart RAB Scoring**
+
+Penilaian otomatis kelayakan RAB berdasarkan Completeness (30%), Feasibility (25%), Impact (20%), Track Record (15%), dan Urgency (10%)
+
+Output berupa score 0-100 dengan rekomendasi: Auto-approve (≥80), Manual review (50-79), atau Reject (<50)
+
+**Budget Forecasting**
+
+Prediksi kebutuhan anggaran menggunakan time series analysis dengan confidence interval 85-92%
+
+**Real-time Analytics**
+
+Dashboard interaktif dengan alert otomatis untuk anomali spending dan perbandingan dengan daerah sejenis
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Teknologi
 
-### Frontend
-```json
-{
-  "framework": "React.js 18.x",
-  "styling": "Tailwind CSS",
-  "charts": "Recharts / Chart.js",
-  "http": "Axios",
-  "state": "React Hooks"
-}
+### Arsitektur Sistem
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  FRONTEND LAYER                      │
+│      React.js + Tailwind CSS + Recharts             │
+│  Admin Pusat | Admin Daerah | Public Portal         │
+└────────────────────┬────────────────────────────────┘
+                     │ REST API (JWT Auth)
+┌────────────────────┴────────────────────────────────┐
+│                  BACKEND LAYER                       │
+│         Laravel 10 + MySQL + Redis                   │
+│  Auth Service | RAB Management | Spending Tracker    │
+└────────────────────┬────────────────────────────────┘
+                     │ HTTP/REST
+┌────────────────────┴────────────────────────────────┐
+│                  AI/ML LAYER                         │
+│      Python + Flask/FastAPI + Scikit-learn          │
+│  Fraud Detection | RAB Scoring | Budget Prediction  │
+└─────────────────────────────────────────────────────┘
 ```
 
-### Backend
-```json
-{
-  "framework": "Laravel 10",
-  "database": "MySQL 8.0",
-  "cache": "Redis",
-  "auth": "Laravel Sanctum (JWT)",
-  "queue": "Laravel Queue"
-}
-```
+### Tech Stack
 
-### AI/ML
-```json
-{
-  "language": "Python 3.9+",
-  "api": "Flask / FastAPI",
-  "ml": "Scikit-learn",
-  "data": "Pandas + NumPy",
-  "models": [
-    "Isolation Forest (Fraud Detection)",
-    "Random Forest (RAB Scoring)",
-    "ARIMA / Linear Regression (Forecasting)"
-  ]
-}
-```
+**Frontend**
+- Framework: React.js 18.x
+- Styling: Tailwind CSS
+- Charts: Recharts / Chart.js
+- HTTP Client: Axios
+- State Management: React Hooks
 
----
+**Backend**
+- Framework: Laravel 10
+- Database: MySQL 8.0
+- Cache: Redis
+- Authentication: Laravel Sanctum (JWT)
+- Queue: Laravel Queue
 
-## 🤖 AI/ML Features
-
-### 1️⃣ Fraud Detection Engine
-
-**Algoritma:** Isolation Forest + One-Class SVM
-
-**Features yang Dianalisis:**
-```python
-features = [
-    'budget_per_beneficiary_ratio',    # Rasio anggaran per penerima manfaat
-    'administrative_cost_ratio',        # Rasio biaya administrasi
-    'submission_timing',                # Pola waktu pengajuan
-    'vendor_pattern_score',             # Pola vendor
-    'document_consistency_score',       # Konsistensi dokumen
-    'historical_performance',           # Track record daerah
-]
-```
-
-**Output:**
-- **Fraud Risk Score:** 0-100 (0 = sangat aman, 100 = sangat mencurigakan)
-- **Risk Level:** Low / Medium / High / Critical
-- **Red Flags:** List spesifik anomali yang terdeteksi
-
-### 2️⃣ RAB Quality Scoring
-
-**Algoritma:** Weighted Scoring + Random Forest Classifier
-
-**Scoring Formula:**
-```
-Final Score = (0.30 × Completeness) + 
-              (0.25 × Feasibility) + 
-              (0.20 × Impact) + 
-              (0.15 × Track Record) + 
-              (0.10 × Urgency)
-```
-
-**Automatic Recommendation:**
-- ✅ **Score ≥ 80:** Auto-Approve
-- ⚠️ **Score 50-79:** Manual Review
-- ❌ **Score < 50:** Reject + Investigation
-
-### 3️⃣ Budget Prediction Model
-
-**Algoritma:** Time Series Analysis (ARIMA / Prophet)
-
-**Input Data:**
-- Historical spending 2-3 tahun
-- Seasonality patterns
-- External factors (populasi, inflasi, kebijakan)
-
-**Output:**
-```
-Prediksi 6-12 bulan ke depan:
-├── Point Forecast
-├── Confidence Interval (95%)
-├── Trend Analysis
-└── Anomaly Detection
-```
+**AI/ML**
+- Language: Python 3.9+
+- API Framework: Flask / FastAPI
+- ML Library: Scikit-learn
+- Data Processing: Pandas + NumPy
+- Models: Isolation Forest, Random Forest, ARIMA
 
 ---
 
@@ -282,295 +218,98 @@ Prediksi 6-12 bulan ke depan:
 
 ### Prerequisites
 
-```bash
-# Pastikan sudah terinstall:
+Pastikan sistem Anda telah terinstall:
 - Node.js >= 16.x
 - PHP >= 8.1
 - Composer
 - MySQL >= 8.0
 - Python >= 3.9
-- Redis (optional, untuk caching)
-```
 
-### 1️⃣ Clone Repository
-
-```bash
-git clone https://github.com/your-org/infokanmas.git
-cd infokanmas
-```
-
-### 2️⃣ Setup Backend (Laravel)
+### Setup Backend
 
 ```bash
 cd backend
-
-# Install dependencies
 composer install
-
-# Copy environment file
 cp .env.example .env
-
-# Generate application key
 php artisan key:generate
-
-# Setup database
 php artisan migrate --seed
-
-# Start server
 php artisan serve
 ```
 
-**Configure `.env`:**
-```env
-DB_DATABASE=infokanmas
-DB_USERNAME=root
-DB_PASSWORD=your_password
-
-AI_API_URL=http://localhost:5000
-```
-
-### 3️⃣ Setup Frontend (React)
+### Setup Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Setup environment
 cp .env.example .env
-
-# Start development server
 npm start
 ```
 
-**Configure `.env`:**
-```env
-REACT_APP_API_URL=http://localhost:8000/api
-REACT_APP_AI_API_URL=http://localhost:5000
-```
-
-### 4️⃣ Setup AI/ML Service (Python)
+### Setup AI/ML Service
 
 ```bash
 cd ai-service
-
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# atau
-venv\Scripts\activate     # Windows
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Train initial models (optional)
-python train_models.py
-
-# Start ML API
 python app.py
 ```
 
-### 5️⃣ Akses Aplikasi
+### Akses Aplikasi
 
-```
-Frontend:  http://localhost:3000
-Backend:   http://localhost:8000
-AI API:    http://localhost:5000
-```
-
----
-
-## 🚀 Penggunaan
-
-### 👤 Login Credentials (Demo)
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin Pusat | admin.pusat@infokanmas.id | password123 |
-| Admin Daerah | admin.sleman@infokanmas.id | password123 |
-| Public | - | (No login required) |
-
-### 📝 Flow Pengajuan RAB
-
-```
-1. Login sebagai Admin Daerah
-   ↓
-2. Buka menu "Ajukan RAB Baru"
-   ↓
-3. Isi form RAB:
-   - Nama Program
-   - Kategori
-   - Total Anggaran
-   - Jumlah Penerima Manfaat
-   - Detail Item Anggaran
-   - Upload Dokumen Pendukung
-   ↓
-4. Submit → AI langsung analisis (2-3 detik)
-   ↓
-5. Lihat AI Score & Red Flags
-   ↓
-6. Admin Pusat review & approve/reject
-```
-
-### 📊 Dashboard Analytics
-
-**Admin Pusat:**
-- 📈 Overview anggaran nasional
-- 🎯 RAB pending approval dengan AI recommendation
-- 🚨 Alert fraud detection
-- 📊 Budget forecasting
-
-**Admin Daerah:**
-- 📋 Status pengajuan RAB
-- 💰 Tracking realisasi anggaran
-- 📸 Upload dokumentasi kegiatan
-- 📈 Performance dashboard
-
-**Masyarakat:**
-- 🌐 Explore program per daerah
-- 💸 Tracking dana per kategori
-- 🔍 Search & filter program
-- 📢 Laporan partisipatif
-
----
-
-## 🎬 Demo Scenarios
-
-### Scenario 1: ✅ Normal RAB (Auto-Approve)
-
-```
-Input:
-- Program: "Bantuan Sembako 1000 KK"
-- Total: Rp 120 Juta
-- Durasi: 3 bulan
-
-AI Analysis:
-✓ Score: 92/100
-✓ Fraud Risk: Low (8%)
-✓ Completeness: Excellent
-✓ Feasibility: Realistic
-
-Recommendation: ✅ AUTO-APPROVE
-Processing Time: 3 seconds
-```
-
-### Scenario 2: ⚠️ Suspicious RAB (Manual Review)
-
-```
-Input:
-- Program: "Workshop Sosialisasi"
-- Total: Rp 500 Juta
-- Durasi: 2 hari
-
-AI Analysis:
-⚠️ Score: 54/100
-⚠️ Fraud Risk: Medium (48%)
-
-Red Flags Detected:
-- ⚠️ Administrative cost 28% (normal: 10-15%)
-- ⚠️ Budget per participant 3x higher than average
-- ⚠️ Unrealistic timeline for output
-
-Recommendation: ⚠️ MANUAL REVIEW REQUIRED
-```
-
-### Scenario 3: ❌ Fraudulent RAB (Auto-Reject)
-
-```
-Input:
-- Program: "Pembangunan Fasilitas Publik"
-- Total: Rp 2 Miliar
-- Durasi: 1 minggu
-
-AI Analysis:
-❌ Score: 23/100
-❌ Fraud Risk: Critical (89%)
-
-Red Flags Detected:
-- 🚨 Document metadata inconsistent
-- 🚨 Duplicate items from rejected RAB-2024-042
-- 🚨 Vendor pattern matches known fraud network
-- 🚨 Timeline physically impossible
-- 🚨 Budget 5x higher than comparable programs
-
-Recommendation: ❌ AUTO-REJECT + FLAG FOR INVESTIGATION
-```
-
----
-
-## 🤝 Kontribusi
-
-Kami sangat terbuka untuk kontribusi! Berikut cara berkontribusi:
-
-### 🐛 Melaporkan Bug
-
-1. Buka [Issues](https://github.com/your-org/infokanmas/issues)
-2. Pilih "Bug Report" template
-3. Isi detail bug dengan lengkap
-
-### 💡 Mengajukan Fitur Baru
-
-1. Buka [Issues](https://github.com/your-org/infokanmas/issues)
-2. Pilih "Feature Request" template
-3. Jelaskan use case dan expected behavior
-
-### 🔧 Pull Request
-
-```bash
-# 1. Fork repository
-# 2. Clone fork Anda
-git clone https://github.com/your-username/infokanmas.git
-
-# 3. Buat branch baru
-git checkout -b feature/amazing-feature
-
-# 4. Commit changes
-git commit -m "Add amazing feature"
-
-# 5. Push ke branch
-git push origin feature/amazing-feature
-
-# 6. Buat Pull Request
-```
-
-**PR Guidelines:**
-- ✅ Tulis deskripsi jelas
-- ✅ Include screenshots jika UI changes
-- ✅ Pastikan tests passing
-- ✅ Follow coding standards
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- AI/ML API: http://localhost:5000
 
 ---
 
 ## 🗺️ Roadmap
 
-### 🎯 Phase 1: MVP (Completed ✅)
-- [x] Multi-role authentication
-- [x] RAB submission & approval
-- [x] Basic fraud detection
-- [x] Public transparency portal
+### Phase 1: MVP Development
 
-### 🚀 Phase 2: Advanced AI (Q1 2025)
-- [ ] Deep Learning untuk OCR dokumen
-- [ ] NLP untuk analisis laporan masyarakat
-- [ ] Graph Neural Network untuk deteksi fraud network
-- [ ] Computer Vision untuk validasi foto kegiatan
+**Status**: Selesai dalam 6 hari (2 hari perencanaan + 4 hari development)
 
-### 🌐 Phase 3: Ecosystem (Q2 2025)
-- [ ] Mobile App (iOS & Android)
-- [ ] Public API untuk researcher
-- [ ] Blockchain integration untuk audit trail
-- [ ] Integration dengan LHKPN & LPSE
+**Deliverables**:
+- Multi-role authentication system
+- Basic RAB submission dan approval workflow
+- Simple fraud detection model
+- Public transparency dashboard
+- Core API endpoints
 
-### 🏆 Phase 4: National Scale (Q3-Q4 2025)
-- [ ] Deployment ke 514 kabupaten/kota
-- [ ] Federated learning untuk privacy-preserving AI
-- [ ] Real-time dashboard untuk KPK & BPK
-- [ ] Impact measurement dashboard
+### Phase 2: AI Enhancement
+
+**Target**: 3-4 bulan setelah Phase 1
+
+**Fitur**:
+- Advanced fraud detection dengan deep learning
+- OCR untuk ekstraksi data otomatis
+- NLP untuk analisis laporan masyarakat
+- Computer vision untuk validasi foto
+- Graph neural network untuk deteksi fraud network
+
+### Phase 3: Mobile Application
+
+**Target**: 4-5 bulan setelah Phase 2
+
+**Fitur**:
+- Mobile app untuk Admin Daerah
+- Mobile app untuk penerima manfaat
+- GPS tracking terintegrasi
+- Offline mode
+
+### Phase 4: Integration & Scale
+
+**Target**: 6+ bulan setelah Phase 3
+
+**Fitur**:
+- Integrasi dengan SIPD
+- Integrasi dengan e-Budgeting
+- API terbuka untuk peneliti
+- Multi-region deployment
 
 ---
 
-## 👥 Tim
+## 👥 Tim Pengembang
 
 <table>
   <tr>
@@ -578,63 +317,97 @@ git push origin feature/amazing-feature
       <a href="https://github.com/VortechLabs">
         <img 
           src="https://i.ibb.co.com/Lzc8y7jn/ibe.jpg" 
-          width="120" 
-          height="120" 
-          alt="VortechLabs" 
+          width="100px" 
+          alt="Al Zaki Ibra Ramadani"
         />
       </a>
-      <br /><sub><b>Al Zaki Ibra Ramadani</b></sub>
-      <br /><sub><b>Frontend Developer</b></sub>
-      <br />React.js • UI/UX
+      <br />
+      <sub><b>Al Zaki Ibra Ramadani</b></sub>
+      <br />
+      <sub>Frontend Developer</sub>
     </td>
     <td align="center">
       <a href="https://github.com/SyifaIsnan">
         <img 
           src="https://i.ibb.co.com/3ydwfDdM/Whats-App-Image-2025-10-04-at-16-23-13.jpg" 
-          width="120" 
-          height="120" 
-          alt="Backend Developer"
+          width="100px" 
+          alt="Syifa Isnantyana Putri"
         />
       </a>
-      <br /><sub><b>Syifa Isnantyana Putri</b></sub>
-      <br /><sub><b>Backend Developer</b></sub>
-      <br />Laravel • API Design
+      <br />
+      <sub><b>Syifa Isnantyana Putri</b></sub>
+      <br />
+      <sub>Backend Developer</sub>
     </td>
     <td align="center">
       <a href="https://github.com/aisalth">
         <img 
           src="https://i.ibb.co.com/KjXQKTZf/Tak-berjudul17-20251004195320-2.png" 
-          width="120" 
-          height="120" 
-          alt="ML Engineer"
+          width="100px" 
+          alt="Aisyah Altho Funisa"
         />
       </a>
-      <br /><sub><b>Aisyah Altho Funisa</b></sub>
-      <br /><sub><b>ML Engineer</b></sub>
-      <br />Python • AI/ML Models
+      <br />
+      <sub><b>Aisyah Altho Funisa</b></sub>
+      <br />
+      <sub>ML Engineer</sub>
     </td>
   </tr>
 </table>
 
+**Timeline Pengembangan**:
+- Hari 1-2: Perencanaan dan diskusi konsep
+- Hari 3-6: Development intensif (4 hari)
+
+### Kontribusi
+
+Proyek ini terbuka untuk kontribusi. Kami menyambut kontribusi dalam bentuk:
+- Code contribution (frontend, backend, ML)
+- Bug reports dan feature requests
+- Dokumentasi dan tutorial
+- Testing dan quality assurance
+
+Lihat [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
+
 ---
 
-## 📊 Metrics & Impact
+## 📊 Dampak yang Diharapkan
 
-### 📈 Performance Metrics
+### Dampak Finansial
 
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Fraud Detection Accuracy | > 85% | **91.2%** ✅ |
-| False Positive Rate | < 15% | **9.8%** ✅ |
-| API Response Time | < 300ms | **187ms** ✅ |
-| RAB Processing Time | < 6 hours | **2.3 hours** ✅ |
+Berdasarkan estimasi konservatif untuk kabupaten dengan APBD Rp 2 Triliun:
 
-### 💰 Business Impact (Projected)
+**Estimasi Kebocoran Tanpa Sistem**:
+- Infrastruktur: 15-20% (Rp 90-120 M)
+- Operasional: 10-15% (Rp 30-45 M)
+- Bantuan Sosial: 20-25% (Rp 40-50 M)
+- Perjalanan Dinas: 30-40% (Rp 30-40 M)
+- Total kebocoran: Rp 190-255 Miliar per tahun
 
-- 💸 **Potensi Penghematan:** 15-20% dari total anggaran
-- ⏱️ **Time Reduction:** 70% (dari 2 hari → 6 jam)
-- 🔍 **Fraud Detection Rate:** +150% vs manual review
-- 📊 **Processing Capacity:** 500 RAB/hari (vs 20 RAB/hari manual)
+**Dengan InfoKanMas**:
+- Total savings: Rp 135-220 Miliar per tahun
+- Biaya implementasi: Rp 1 Miliar (one-time)
+- Biaya operasional: Rp 800 Juta per tahun
+- ROI tahun pertama: 7,400% - 12,100%
+- Break-even time: 1 bulan
+
+### Dampak Non-Finansial
+
+**Peningkatan Transparansi**
+
+Semua program dapat diakses publik dengan dokumentasi lengkap dan monitoring real-time
+
+**Peningkatan Akuntabilitas**
+
+Validasi berlapis mencegah penyimpangan dengan audit trail lengkap
+
+**Peningkatan Kepercayaan Publik**
+
+Partisipasi masyarakat dalam pengawasan dan transparansi total
+
+**Efisiensi Birokrasi**
+
+Otomasi proses approval dan pengurangan paperwork
 
 ---
 
@@ -654,48 +427,43 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
 ---
 
-## 📞 Kontak & Support
+## 📞 Kontak
 
-- 📧 Email: info@infokanmas.id
-- 🌐 Website: https://infokanmas.id
-- 📱 Twitter: [@InfoKanMas](https://twitter.com/infokanmas)
-- 💬 Telegram: [InfoKanMas Community](https://t.me/infokanmas)
+**Email**: info@infokanmas.id
 
-### 🆘 Butuh Bantuan?
+**Website**: https://infokanmas.id (under construction)
 
-- 📖 [Dokumentasi Lengkap](https://docs.infokanmas.id)
-- 💬 [Discord Community](https://discord.gg/infokanmas)
-- 🎥 [Video Tutorial](https://youtube.com/@infokanmas)
-- ❓ [FAQ](https://infokanmas.id/faq)
+**GitHub**: https://github.com/infokanmas
+
+### Dokumentasi
+
+- Dokumentasi lengkap: https://docs.infokanmas.id (coming soon)
+- API Documentation: https://api.infokanmas.id/docs (coming soon)
+- Video tutorial: https://youtube.com/@infokanmas (coming soon)
 
 ---
 
-## 🙏 Acknowledgments
+## 🙏 Ucapan Terima Kasih
 
-Terima kasih kepada:
+Proyek ini terinspirasi dari berbagai inisiatif transparansi anggaran di Indonesia dan dunia. Terima kasih kepada:
 
-- 🏛️ Tim Hackathon untuk kesempatan luar biasa ini
-- 🤖 OpenAI & Anthropic untuk AI/ML inspiration
-- 💻 Open source community untuk amazing tools
-- 🇮🇩 Rakyat Indonesia untuk motivasi membangun negeri
+- Komisi Pemberantasan Korupsi (KPK) untuk data dan insight
+- Badan Pemeriksa Keuangan (BPK) untuk metodologi audit
+- Open Government Partnership (OGP) Indonesia
+- Komunitas open source
+- Para peneliti dan aktivis anti-korupsi
 
 ---
 
 <div align="center">
 
-### 🌟 Star Repository Ini!
+**Dibuat dengan komitmen untuk Indonesia yang lebih transparan dan akuntabel**
 
-Jika Anda tertarik dengan transparansi anggaran dan teknologi AI untuk kebaikan sosial, beri kami ⭐️!
-
-**Dibuat dengan ❤️ untuk Indonesia yang Lebih Baik**
+Jika Anda tertarik dengan transparansi anggaran dan teknologi untuk kebaikan sosial, beri kami ⭐
 
 [⬆ Kembali ke Atas](#-infokanmas)
 
