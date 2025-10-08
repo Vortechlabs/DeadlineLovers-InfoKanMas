@@ -103,7 +103,7 @@ function AdminKabupatenBottomBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-20 lg:hidden">
       {/* Background */}
       <div className="bg-white border-t border-gray-200">
         {/* Main container */}

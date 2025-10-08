@@ -23,7 +23,11 @@ import {
   Wrench,
   LandPlot,
   School,
-  Heart
+  Heart,
+  Send,
+  Eye,
+  MessageSquare,
+  FolderOpen
 } from 'lucide-react';
 
 function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
@@ -34,6 +38,7 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
   const getActiveTab = () => {
     const path = location.pathname;
     if (path.includes('/dashboard')) return 'dashboard';
+    if (path.includes('/pengajuan')) return 'pengajuan';
     if (path.includes('/proyek')) return 'proyek';
     if (path.includes('/anggaran')) return 'anggaran';
     if (path.includes('/warga')) return 'warga';
@@ -42,6 +47,7 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
     if (path.includes('/laporan')) return 'laporan';
     if (path.includes('/pengaduan')) return 'pengaduan';
     if (path.includes('/progress')) return 'progress';
+    if (path.includes('/monitoring')) return 'monitoring';
     if (path.includes('/profile')) return 'profile';
     if (path.includes('/settings')) return 'settings';
     return 'dashboard';
@@ -62,6 +68,14 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           active: activeTab === 'dashboard' 
         },
         { 
+          id: 'monitoring', 
+          label: 'Monitoring Program', 
+          icon: Eye, 
+          path: '/admin-desa/monitoring', 
+          active: activeTab === 'monitoring',
+          badge: '12' 
+        },
+        { 
           id: 'progress', 
           label: 'Progress Harian', 
           icon: Activity, 
@@ -69,72 +83,47 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           active: activeTab === 'progress',
           badge: '8' 
         },
-        { 
-          id: 'pengaduan', 
-          label: 'Pengaduan Warga', 
-          icon: AlertCircle, 
-          path: '/admin-desa/pengaduan', 
-          active: activeTab === 'pengaduan',
-          badge: '5' 
-        },
       ]
     },
     {
-      category: 'Manajemen Proyek',
+      category: 'Pengajuan Program',
       items: [
         { 
+          id: 'pengajuan', 
+          label: 'Ajukan Program', 
+          icon: Send, 
+          path: '/admin-desa/pengajuan', 
+          active: activeTab === 'pengajuan',
+          badge: 'NEW' 
+        },
+        { 
           id: 'proyek', 
-          label: 'Proyek Desa', 
-          icon: Building, 
+          label: 'Program Desa', 
+          icon: FolderOpen, 
           path: '/admin-desa/proyek', 
           active: activeTab === 'proyek',
-          badge: '12' 
+          badge: '15' 
         },
         { 
           id: 'infrastruktur', 
           label: 'Infrastruktur', 
           icon: Wrench, 
           path: '/admin-desa/infrastruktur', 
-          active: activeTab === 'infrastruktur' 
-        },
-        { 
-          id: 'pengerjaan', 
-          label: 'Tim Pengerjaan', 
-          icon: Users, 
-          path: '/admin-desa/pengerjaan', 
-          active: activeTab === 'pengerjaan' 
-        },
-      ]
-    },
-    {
-      category: 'Keuangan & Anggaran',
-      items: [
-        { 
-          id: 'anggaran', 
-          label: 'Anggaran Desa', 
-          icon: DollarSign, 
-          path: '/admin-desa/anggaran', 
-          active: activeTab === 'anggaran' 
+          active: activeTab === 'infrastruktur',
+          badge: '7' 
         },
         { 
           id: 'bansos', 
-          label: 'Bansos & Bantuan', 
+          label: 'Bansos Desa', 
           icon: Heart, 
           path: '/admin-desa/bansos', 
           active: activeTab === 'bansos',
-          badge: 'NEW' 
-        },
-        { 
-          id: 'pengeluaran', 
-          label: 'Realiasi Dana', 
-          icon: ClipboardList, 
-          path: '/admin-desa/pengeluaran', 
-          active: activeTab === 'pengeluaran' 
+          badge: '3' 
         },
       ]
     },
     {
-      category: 'Data & Laporan',
+      category: 'Data & Dokumentasi',
       items: [
         { 
           id: 'warga', 
@@ -144,18 +133,74 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           active: activeTab === 'warga' 
         },
         { 
-          id: 'laporan', 
-          label: 'Laporan Bulanan', 
+          id: 'penerima', 
+          label: 'Penerima Manfaat', 
+          icon: User, 
+          path: '/admin-desa/penerima', 
+          active: activeTab === 'penerima',
+          badge: '250' 
+        },
+        { 
+          id: 'dokumentasi', 
+          label: 'Dokumentasi', 
           icon: FileText, 
+          path: '/admin-desa/dokumentasi', 
+          active: activeTab === 'dokumentasi',
+          badge: '45' 
+        },
+      ]
+    },
+    {
+      category: 'Keuangan & Laporan',
+      items: [
+        { 
+          id: 'anggaran', 
+          label: 'Anggaran Desa', 
+          icon: DollarSign, 
+          path: '/admin-desa/anggaran', 
+          active: activeTab === 'anggaran' 
+        },
+        { 
+          id: 'realisasi', 
+          label: 'Realisasi Dana', 
+          icon: ClipboardList, 
+          path: '/admin-desa/realisasi', 
+          active: activeTab === 'realisasi' 
+        },
+        { 
+          id: 'laporan', 
+          label: 'Laporan Keuangan', 
+          icon: BarChart3, 
           path: '/admin-desa/laporan', 
           active: activeTab === 'laporan' 
         },
+      ]
+    },
+    {
+      category: 'Interaksi & Layanan',
+      items: [
         { 
-          id: 'lokasi', 
+          id: 'pengaduan', 
+          label: 'Pengaduan Warga', 
+          icon: AlertCircle, 
+          path: '/admin-desa/pengaduan', 
+          active: activeTab === 'pengaduan',
+          badge: '5' 
+        },
+        { 
+          id: 'koordinasi', 
+          label: 'Koordinasi Kecamatan', 
+          icon: MessageSquare, 
+          path: '/admin-desa/koordinasi', 
+          active: activeTab === 'koordinasi',
+          badge: '2' 
+        },
+        { 
+          id: 'peta', 
           label: 'Peta Desa', 
           icon: MapPin, 
-          path: '/admin-desa/lokasi', 
-          active: activeTab === 'lokasi' 
+          path: '/admin-desa/peta', 
+          active: activeTab === 'peta' 
         },
       ]
     }
@@ -214,7 +259,7 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
           <div className="flex items-center space-x-2">
             <img src="/logo.png" alt="logo" className='h-10 w-10'/>
             <div>
-              <h1 className="text-xl font-bold text-gray-800">InfoKanMas</h1>
+              <h1 className="text-xl font-bold text-gray-800">SiTRA Desa</h1>
               <p className="text-xs text-gray-500">Admin Desa Sukamaju</p>
             </div>
           </div>
@@ -255,7 +300,7 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
         <div className="space-y-2">
           <button className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-3' : 'justify-start px-4'} py-3 text-gray-600 hover:bg-gray-100/80 rounded-xl transition-all duration-300 group relative`}>
             <HelpCircle className="w-5 h-5 flex-shrink-0" />
-            {!sidebarCollapsed && <span className="ml-3 font-medium text-sm">Bantuan</span>}
+            {!sidebarCollapsed && <span className="ml-3 font-medium text-sm">Bantuan & Panduan</span>}
             {sidebarCollapsed && (
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap z-50">
                 Bantuan
@@ -281,8 +326,9 @@ function AdminDesaSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
                 <User className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">Kepala Desa</p>
+                <p className="text-sm font-semibold text-gray-900 truncate">Admin Desa</p>
                 <p className="text-xs text-gray-500 truncate">Desa Sukamaju</p>
+                <p className="text-xs text-green-600 font-medium mt-1">Aktif • Online</p>
               </div>
             </div>
           </div>

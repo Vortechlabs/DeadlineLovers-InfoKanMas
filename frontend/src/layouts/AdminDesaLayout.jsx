@@ -55,7 +55,7 @@ export const AdminDesaLayout = () => {
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto mb-28 md:mb-0">
           <div className="mx-auto w-full">
             <Outlet />
           </div>

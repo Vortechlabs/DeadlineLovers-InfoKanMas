@@ -55,7 +55,7 @@ export const AdminLayout = () => {
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0 mb-20 md:mb-0">
           <div className="mx-auto w-full">
             <Outlet />
           </div>

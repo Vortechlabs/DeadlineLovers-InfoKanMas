@@ -1,6 +1,11 @@
 import AdminDesaLayout from "@/layouts/AdminDesaLayout";
 import { AdminLayout } from "@/layouts/AdminLayout";
+import AdminDesaAjukanProgram from "@/pages/admin-desa/AjukanProgram";
 import AdminDesaDashboard from "@/pages/admin-desa/dashboard";
+import AdminDesaMonitoringProgram from "@/pages/admin-desa/monitoring-program";
+import AdminDesaPengaduanWarga from "@/pages/admin-desa/pengaduan-masyarakat";
+import AdminDesaProgramDesa from "@/pages/admin-desa/program-desa";
+import AdminDesaProgressHarian from "@/pages/admin-desa/progress-harian";
 import AdminProfilePage from "@/pages/admin-kabupaten/admin-kabupaten-profile";
 import AnalyticsDashboard from "@/pages/admin-kabupaten/analytics";
 import CompliancePage from "@/pages/admin-kabupaten/compliance";
@@ -25,20 +30,24 @@ const AdminDesaRoutes = [
         element: <AdminDesaDashboard />,
       },
       {
-        path: "pengajuan",
-        element: <ReviewRABPage />,
+        path: "progress",
+        element: <AdminDesaProgressHarian />,
+      },
+      {
+        path: "pengaduan",
+        element: <AdminDesaPengaduanWarga />,
       },
       {
         path: "monitoring",
-        element: <MonitoringPage />,
+        element: <AdminDesaMonitoringProgram />,
       },
       {
-        path: "laporan",
-        element: <LaporanPage />,
+        path: "pengajuan",
+        element: <AdminDesaAjukanProgram />,
       },
       {
-        path: "daerah",
-        element: <DataDaerahPage />,
+        path: "proyek",
+        element: <AdminDesaProgramDesa />,
       },
       {
         path: "pengaduan",
