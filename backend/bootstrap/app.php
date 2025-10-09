@@ -12,12 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Route Middleware (Alias)
+        // ✅ PASTIKAN sanctum middleware ada di sini
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+
         $middleware->alias([
             'admin.desa' => \App\Http\Middleware\AdminDesaMiddleware::class,
             'admin.dinas' => \App\Http\Middleware\AdminDinasMiddleware::class,
             'admin.kabupaten' => \App\Http\Middleware\AdminKabupatenMiddleware::class,
-            'admin.kecamatan' => \App\Http\Middleware\AdminKecamatanMIddleware::class,
+            'admin.kecamatan' => \App\Http\Middleware\AdminKecamatanMiddleware::class,
             'can.verify' => \App\Http\Middleware\CanVerifyProgram::class,
             'can.approve' => \App\Http\Middleware\CanApproveProgram::class,
             'program.ownership' => \App\Http\Middleware\ProgramOwnership::class,

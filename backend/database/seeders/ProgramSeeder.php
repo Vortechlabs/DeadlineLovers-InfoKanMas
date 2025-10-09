@@ -356,7 +356,7 @@ class ProgramSeeder extends Seeder
                 ['Persiapan dan Administrasi', 'Penyiapan dokumen dan perizinan', 10, '2024-09-01', '2024-09-10', 'selesai'],
                 ['Pekerjaan Tanah', 'Galian dan perataan tanah', 20, '2024-09-11', '2024-09-25', 'selesai'],
                 ['Pondasi Base Course', 'Pemasangan pondasi batu', 25, '2024-09-26', '2024-10-15', 'selesai'],
-                ['Pengaspalan', 'Penuangan aspal hotmix', 30, '2024-10-16', '2024-11-10', 'dalam_pengerjaan'], // Ganti 'berjalan' menjadi 'dalam_pengerjaan'
+                ['Pengaspalan', 'Penuangan aspal hotmix', 30, '2024-10-16', '2024-11-10', 'dalam_pengerjaan'],
                 ['Finishing dan Marka Jalan', 'Pemasangan rambu dan marka jalan', 15, '2024-11-11', '2024-11-30', 'menunggu'],
             ];
         } elseif (str_contains($program->nama_program, 'Drainase')) {
