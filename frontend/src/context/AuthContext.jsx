@@ -1,3 +1,4 @@
+// contexts/AuthContext.js
 import apiClient from "@/services/GlobalApi";
 import React, {
   createContext,
@@ -13,112 +14,94 @@ const AuthContext = createContext(undefined);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [tapel, setTapel] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [lastLogin, setLastLogin] = useState(null);
   const navigate = useNavigate();
 
-  const persistAuthData = useCallback(
-    (userData, authToken, remember, selectedTapel) => {
-      // Clear both storages first
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("tapel");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("user");
-      sessionStorage.removeItem("tapel");
+  const persistAuthData = useCallback((userData, authToken, remember) => {
+    console.log("Persisting auth data:", { userData, authToken, remember });
 
-      const storage = remember ? localStorage : sessionStorage;
+    // Clear both storages first
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
 
-      if (authToken) storage.setItem("token", authToken);
-      if (userData) {
-        storage.setItem("user", JSON.stringify(userData));
-        setLastLogin(userData.last_login_at || null);
-      }
-      if (selectedTapel) {
-        storage.setItem("tapel", JSON.stringify(selectedTapel));
-        setTapel(selectedTapel);
-      }
+    const storage = remember ? localStorage : sessionStorage;
 
-      if (authToken) {
-        apiClient.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${authToken}`;
-      }
-    },
-    []
-  );
+    if (authToken) {
+      storage.setItem("token", authToken);
+      setToken(authToken);
+    }
+
+    if (userData) {
+      storage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+    }
+
+    // Set authorization header for API client
+    if (authToken) {
+      apiClient.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${authToken}`;
+    }
+  }, []);
 
   const clearAuthData = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("tapel");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    sessionStorage.removeItem("tapel");
     delete apiClient.defaults.headers.common["Authorization"];
     setUser(null);
     setToken(null);
-    setTapel(null);
-    setLastLogin(null);
   }, []);
 
-  const fetchUserWithPermissions = useCallback(async (authToken) => {
+  const fetchUserProfile = useCallback(async (authToken) => {
     try {
-      apiClient.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${authToken}`;
-      
-      const response = await apiClient.get("/user");
-      return response.data.user;
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-      throw error;
-    }
-  }, []);
+      console.log("Fetching user profile with token:", authToken);
 
-  const fetchTapelById = useCallback(async (tapelId) => {
-    try {
-      const response = await apiClient.get(`/tapel/${tapelId}`);
+      const response = await apiClient.get("/user/me");
+      console.log("User profile response:", response.data);
+
       return response.data.data;
     } catch (error) {
-      console.error("Failed to fetch tapel data:", error);
-      return null;
+      console.error("Failed to fetch user profile:", error);
+      throw error;
     }
   }, []);
 
   const initializeAuth = useCallback(async () => {
     setIsLoading(true);
-    
+
     try {
       let storedToken = localStorage.getItem("token");
       let storedUser = localStorage.getItem("user");
-      let storedTapel = localStorage.getItem("tapel");
       let isRemembered = true;
 
       if (!storedToken) {
         storedToken = sessionStorage.getItem("token");
         storedUser = sessionStorage.getItem("user");
-        storedTapel = sessionStorage.getItem("tapel");
         isRemembered = false;
       }
 
-      if (storedToken && storedUser) {
+      console.log("Initializing auth with token:", storedToken);
+
+      if (storedToken) {
         try {
-          const freshUserData = await fetchUserWithPermissions(storedToken);
-          
-          let tapelData = null;
-          if (storedTapel) {
-            tapelData = JSON.parse(storedTapel);
-          }
+          // Set header dulu sebelum fetch user profile
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${storedToken}`;
+
+          // Validasi token dengan mengambil data user terbaru
+          const freshUserData = await fetchUserProfile(storedToken);
 
           if (freshUserData) {
             setUser(freshUserData);
             setToken(storedToken);
-            setTapel(tapelData);
-            setLastLogin(freshUserData.last_login_at || null);
 
+            // Update storage dengan data terbaru
             const storage = isRemembered ? localStorage : sessionStorage;
             storage.setItem("user", JSON.stringify(freshUserData));
           }
@@ -129,8 +112,6 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
         setToken(null);
-        setTapel(null);
-        setLastLogin(null);
       }
     } catch (error) {
       console.error("Auth initialization failed:", error);
@@ -139,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
       setIsInitialized(true);
     }
-  }, [clearAuthData, fetchUserWithPermissions]);
+  }, [clearAuthData, fetchUserProfile]);
 
   useEffect(() => {
     initializeAuth();
@@ -149,41 +130,66 @@ export const AuthProvider = ({ children }) => {
     async (credentials) => {
       setIsLoading(true);
       try {
-        const response = await apiClient.post(
-          "/auth/login",
-          credentials
-        );
-        
-        const { token: authToken } = response.data;
+        console.log("Attempting login with:", credentials);
 
-        const completeUserData = await fetchUserWithPermissions(authToken);
-        const tapelData = await fetchTapelById(credentials.tapel);
-        
-        if (completeUserData && tapelData) {
+        // Login request
+        const response = await apiClient.post("/Auth/login", credentials);
+        console.log("Login response:", response.data);
+
+        const { data } = response.data;
+        const authToken = data.access_token;
+        const userData = data.user;
+
+        console.log("Received token:", authToken);
+        console.log("Received user:", userData);
+
+        // Set header untuk request selanjutnya
+        apiClient.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${authToken}`;
+
+        // Get fresh user data
+        const completeUserData = await fetchUserProfile(authToken);
+        console.log("Complete user data:", completeUserData);
+
+        if (completeUserData) {
           setUser(completeUserData);
           setToken(authToken);
-          setTapel(tapelData);
-          setLastLogin(completeUserData.last_login_at || null);
 
-          persistAuthData(completeUserData, authToken, credentials.remember, tapelData);
+          // Persist data based on remember me
+          persistAuthData(completeUserData, authToken, credentials.remember);
 
-          const roleName = completeUserData.role.name;
-          if (roleName === 'admin') {
-            navigate('/admin/dashboard', { replace: true });
-          } else if (roleName === 'teacher') {
-            navigate('/teacher/dashboard', { replace: true });
+          // Redirect based on role
+          const role = completeUserData.role;
+          console.log("User role:", role);
+
+          if (role === "admin_kabupaten") {
+            navigate("/admin-kabupaten/dashboard", { replace: true });
+          } else if (role === "admin_dinas") {
+            navigate("/admin-dinas/dashboard", { replace: true });
+          } else if (role === "admin_kecamatan") {
+            navigate("/admin-kecamatan/dashboard", { replace: true });
+          } else if (role === "admin_desa") {
+            navigate("/admin-desa/dashboard", { replace: true });
+          } else if (role === "user") {
+            navigate("/masyarakat/dashboard", { replace: true });
           } else {
-            navigate('/', { replace: true });
+            navigate("/", { replace: true });
           }
+
+          return completeUserData;
         }
       } catch (error) {
         console.error("Login failed:", error);
-        throw error;
+        // Throw error dengan message yang lebih spesifik
+        const errorMessage =
+          error.response?.data?.message || error.message || "Login gagal";
+        throw new Error(errorMessage);
       } finally {
         setIsLoading(false);
       }
     },
-    [persistAuthData, fetchUserWithPermissions, fetchTapelById, navigate]
+    [persistAuthData, fetchUserProfile, navigate]
   );
 
   const logout = useCallback(async () => {
@@ -199,47 +205,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token, navigate, clearAuthData]);
 
-  const handleGoogleLogin = useCallback(() => {
-    window.location.href = `${apiClient.defaults.baseURL}/auth/google`;
-  }, []);
-
-  const handleGoogleCallback = useCallback(
-    async (googleToken) => {
-      setIsLoading(true);
-      try {
-        const completeUserData = await fetchUserWithPermissions(googleToken);
-        
-        if (completeUserData) {
-          setUser(completeUserData);
-          setToken(googleToken);
-          setLastLogin(new Date().toISOString());
-
-          sessionStorage.setItem("token", googleToken);
-          sessionStorage.setItem("user", JSON.stringify(completeUserData));
-
-          if (completeUserData.role.name === "admin") {
-            navigate("/admin/dashboard", { replace: true });
-          } else if (completeUserData.role.name === "teacher") {
-            navigate("/teacher/dashboard", { replace: true });
-          } else {
-            navigate("/student/dashboard", { replace: true });
-          }
-
-          return true;
-        }
-        return false;
-      } catch (error) {
-        console.error("Google callback failed:", error);
-        clearAuthData();
-        navigate("/auth/login", { replace: true });
-        return false;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [navigate, clearAuthData, fetchUserWithPermissions]
-  );
-
   const isAuthenticated = React.useMemo(() => {
     return !!user && !!token && isInitialized;
   }, [user, token, isInitialized]);
@@ -248,29 +213,13 @@ export const AuthProvider = ({ children }) => {
     () => ({
       user,
       token,
-      tapel,
       isLoading,
       isInitialized,
       login,
       logout,
-      handleGoogleLogin,
-      handleGoogleCallback,
       isAuthenticated,
-      lastLogin,
     }),
-    [
-      user,
-      token,
-      tapel,
-      isLoading,
-      isInitialized,
-      lastLogin,
-      login,
-      logout,
-      handleGoogleLogin,
-      handleGoogleCallback,
-      isAuthenticated,
-    ]
+    [user, token, isLoading, isInitialized, login, logout, isAuthenticated]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

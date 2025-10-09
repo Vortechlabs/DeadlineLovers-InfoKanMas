@@ -45,13 +45,11 @@ export default function AppRoutes() {
           key={route.path}
           path={route.path}
           element={
-            route.element
-            //   <ProtectedRoute
-            //     roles={route.roles}
-            //     permissions={route.permissions}
-            //   >
-            //     {route.element}
-            //   </ProtectedRoute>
+              <ProtectedRoute
+                roles={route.roles}
+              >
+                {route.element}
+              </ProtectedRoute>
           }
         >
           {route.children?.map((child) => (
@@ -66,13 +64,11 @@ export default function AppRoutes() {
           key={route.path}
           path={route.path}
           element={
-            route.element
-            //   <ProtectedRoute
-            //     roles={route.roles}
-            //     permissions={route.permissions}
-            //   >
-            //     {route.element}
-            //   </ProtectedRoute>
+              <ProtectedRoute
+                roles={route.roles}
+              >
+                {route.element}
+              </ProtectedRoute>
           }
         >
           {route.children?.map((child) => (
@@ -87,13 +83,11 @@ export default function AppRoutes() {
           key={route.path}
           path={route.path}
           element={
-            route.element
-            //   <ProtectedRoute
-            //     roles={route.roles}
-            //     permissions={route.permissions}
-            //   >
-            //     {route.element}
-            //   </ProtectedRoute>
+              <ProtectedRoute
+                roles={route.roles}
+              >
+                {route.element}
+              </ProtectedRoute>
           }
         >
           {route.children?.map((child) => (

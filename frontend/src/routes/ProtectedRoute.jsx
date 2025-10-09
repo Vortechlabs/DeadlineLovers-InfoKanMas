@@ -5,7 +5,6 @@ import { Loader2 } from "lucide-react";
 export default function ProtectedRoute({
   children,
   roles = [],
-  permissions = [],
   redirectTo = "/auth/login",
 }) {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -27,21 +26,9 @@ export default function ProtectedRoute({
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  // Check role first
-  if (roles.length > 0 && !roles.includes(user.role.name)) {
+  // Check role only (tanpa permission)
+  if (roles.length > 0 && !roles.includes(user.role)) {
     return <Navigate to="/" state={{ from: location }} replace />;
-  }
-
-  // Then check permissions if needed
-  if (permissions.length > 0) {
-    const userPermissions = user.role.permissions || [];
-    const hasPermission = permissions.some(permission => 
-      userPermissions.includes(permission)
-    );
-
-    if (!hasPermission) {
-      return <Navigate to="/" state={{ from: location }} replace />;
-    }
   }
 
   return <>{children}</>;

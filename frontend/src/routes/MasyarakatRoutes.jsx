@@ -2,6 +2,7 @@ import MasyarakatLayout from "@/layouts/MasyarakatLayout";
 import MasyarakatDashboard from "@/pages/masyarakat/dasboard";
 import MasyarakatInfrastruktur from "@/pages/masyarakat/infrastruktur";
 import MasyarakatKonfirmasi from "@/pages/masyarakat/konfirmasi-penerimaan";
+import ProfilePage from "@/pages/masyarakat/masyarakat-profile";
 import MasyarakatPemantauan from "@/pages/masyarakat/pemantauan";
 import MasyarakatSemuaProgram from "@/pages/masyarakat/program";
 import MasyarakatBansos from "@/pages/masyarakat/program-bansos";
@@ -12,7 +13,7 @@ const MasyarakatRoutes = [
   {
     path: "/masyarakat",
     element: <MasyarakatLayout />,
-    roles: ["masyarakat"],
+    roles: ["user"],
     children: [
       {
         path: "",
@@ -49,6 +50,10 @@ const MasyarakatRoutes = [
       {
         path: "verifikasi",
         element: <VerifikasiNominal />,
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />,
       },
     ],
   },

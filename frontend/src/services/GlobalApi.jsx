@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// Konfigurasi base URL untuk Vite
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:8000';
+  return `${envUrl}/api/V1`;
+};
+
 const apiClient = axios.create({
-  baseURL: 'https://api-elearning.smkn1pbg.sch.id/api/v1',
+  baseURL: getBaseUrl(),
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -34,10 +40,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Cek apakah dari endpoint yang sensitif
       const requestURL = error.config?.url || '';
 
-      // Kalau bukan endpoint login penting (contoh: ubah password), jangan logout langsung
+      // Kalau bukan endpoint login penting, logout
       if (!requestURL.includes('/users') || requestURL.endsWith('/me')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

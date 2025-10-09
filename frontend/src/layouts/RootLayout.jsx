@@ -7,7 +7,7 @@ export const RootLayout = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="flex-1 ">
+      <main className="flex-1 mt-20">
         <Outlet />
       </main>
       <Footer />
