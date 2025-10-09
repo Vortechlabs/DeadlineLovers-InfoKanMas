@@ -16,20 +16,20 @@ Route::prefix("V1")->group(function () {
         Route::get("me", [AuthController::class, "me"])->middleware('auth:sanctum');
     });
 
-Route::get('/test', function () {
-    return ['message' => 'API working'];
-});
+    Route::get('/test', function () {
+        return ['message' => 'API working'];
+    });
 
-// Test authentication
-Route::get('/test-auth', function (Request $request) {
-    $user = auth()->user();
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => $user ? $user->id : null,
-        'user_name' => $user ? $user->nama : null,
-        'token_valid' => !is_null($user)
-    ]);
-})->middleware('auth:sanctum');
+    // Test authentication
+    Route::get('/test-auth', function (Request $request) {
+        $user = auth()->user();
+        return response()->json([
+            'authenticated' => auth()->check(),
+            'user_id' => $user ? $user->id : null,
+            'user_name' => $user ? $user->nama : null,
+            'token_valid' => !is_null($user)
+        ]);
+    })->middleware('auth:sanctum');
 
     Route::prefix('program')->group(function () {
         // Public routes - bisa diakses tanpa login
@@ -51,6 +51,9 @@ Route::get('/test-auth', function (Request $request) {
             Route::post('/{id}/approve', [ProgramController::class, 'approve'])->middleware(['can.approve', 'program.ownership']);
             Route::post('/{id}/reject', [ProgramController::class, 'reject'])->middleware(['can.verify', 'program.ownership']);
             Route::post('/{id}/change-status', [ProgramController::class, 'changeStatus'])->middleware(['admin.kabupaten', 'program.ownership']);
+            Route::post('/{id}/progress', [ProgramController::class, 'updateProgress'])->middleware(['auth:sanctum', 'program.ownership']);
+            Route::post('/{id}/dokumentasi', [ProgramController::class, 'uploadDokumentasi'])->middleware(['auth:sanctum', 'program.ownership']);
+            Route::get('/{id}/export', [ProgramController::class, 'exportProgram'])->middleware(['auth:sanctum', 'program.ownership']);
         });
     });
 

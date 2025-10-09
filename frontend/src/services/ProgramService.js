@@ -1,46 +1,98 @@
+// ProgramService.js - PERBAIKI DENGAN INI
 import apiClient from './GlobalApi';
 
 class ProgramService {
+  // Get semua program dengan filter
+  async getPrograms(filters = {}) {
+    try {
+      const response = await apiClient.get('/program', { params: filters });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching programs:', error);
+      throw error;
+    }
+  }
+
+  // Get detail program
+  async getProgramDetail(id) {
+    try {
+      const response = await apiClient.get(`/program/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching program detail:', error);
+      throw error;
+    }
+  }
+
+  // Update progress program
+  async updateProgress(programId, progressData) {
+    try {
+      const response = await apiClient.post(`/program/${programId}/progress`, progressData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating progress:', error);
+      throw error;
+    }
+  }
+
+  // Upload dokumentasi progress
+  async uploadProgressDocument(programId, progressId, file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('progress_id', progressId);
+      formData.append('jenis', this.getFileType(file.type));
+
+      const response = await apiClient.post(
+        `/program/${programId}/dokumentasi`, 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+  }
+
+  // Delete program
+  async deleteProgram(id) {
+    try {
+      const response = await apiClient.delete(`/program/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting program:', error);
+      throw error;
+    }
+  }
+
+  // Export program
+  async exportProgram(id) {
+    try {
+      const response = await apiClient.get(`/program/${id}/export`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error exporting program:', error);
+      throw error;
+    }
+  }
+
   // Get metadata untuk form create
   async getCreateMetadata() {
     const response = await apiClient.get('/program/create/metadata');
     return response.data;
   }
 
-  // Create program baru dengan file upload
+  // Create program baru
   async createProgram(programData) {
-    // Transform data dari frontend ke format backend
     const transformedData = this.transformProgramData(programData);
-    
-    // Create FormData untuk handle file upload
-    const formData = new FormData();
-    
-    // Append main program data sebagai JSON string
-    formData.append('program_data', JSON.stringify(transformedData));
-    
-    // Append files
-    if (programData.dokumen.proposal) {
-      formData.append('proposal', programData.dokumen.proposal);
-    }
-    if (programData.dokumen.gambarTeknis) {
-      formData.append('gambar_teknis', programData.dokumen.gambarTeknis);
-    }
-    if (programData.dokumen.suratPermohonan) {
-      formData.append('surat_permohonan', programData.dokumen.suratPermohonan);
-    }
-    
-    // Append multiple photos
-    if (programData.dokumen.fotoLokasi && programData.dokumen.fotoLokasi.length > 0) {
-      programData.dokumen.fotoLokasi.forEach((file, index) => {
-        formData.append(`foto_lokasi[${index}]`, file);
-      });
-    }
-
-    const response = await apiClient.post('/program', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post('/program', transformedData);
     return response.data;
   }
 
@@ -52,7 +104,6 @@ class ProgramService {
 
   // Transform data dari frontend ke format backend
   transformProgramData(formData) {
-    // Mapping kategori dari string ke ID
     const kategoriMapping = {
       'infrastruktur': 1,
       'bansos': 2, 
@@ -63,7 +114,6 @@ class ProgramService {
       'ekonomi': 7
     };
 
-    // Mapping prioritas
     const prioritasMapping = {
       'sangat_tinggi': 'darurat',
       'tinggi': 'tinggi',
@@ -71,39 +121,33 @@ class ProgramService {
       'rendah': 'rendah'
     };
 
-    // Transform RAB items
     const rabItems = formData.items.map(item => ({
       nama_item: item.nama,
-      deskripsi: item.nama, // atau bisa kosong
+      deskripsi: item.nama,
       volume: parseFloat(item.volume) || 0,
       satuan: item.satuan,
       harga_satuan: parseFloat(item.hargaSatuan) || 0
     }));
 
     return {
-      // Informasi dasar program
       nama_program: formData.namaProgram,
       deskripsi: formData.deskripsi,
-      kategori_program_id: kategoriMapping[formData.kategori] || 6, // default ke lainnya
-      jenis_program: 'desa', // default untuk admin desa
-      tingkat_pengusul: 'desa', // default untuk admin desa
-      wilayah_id: parseInt(formData.lokasi) || 6, // Gunakan ID wilayah dari form
+      kategori_program_id: kategoriMapping[formData.kategori] || 6,
+      jenis_program: 'desa',
+      tingkat_pengusul: 'desa',
+      wilayah_id: 6,
       tahun_anggaran: new Date().getFullYear(),
       prioritas: prioritasMapping[formData.prioritas] || 'sedang',
       tanggal_mulai: formData.tanggalMulai,
       tanggal_selesai: formData.tanggalSelesai,
       target_penerima_manfaat: parseInt(formData.targetPenerimaManfaat) || 0,
-      anggaran_total: parseFloat(formData.totalAnggaran) || 0,
-
-      // RAB items
+      anggaran_total: formData.totalAnggaran,
       rab_items: rabItems,
-
-      // Tahapan (opsional, bisa dibuat default)
       tahapan: this.generateDefaultTahapan(formData)
     };
   }
 
-  // Generate tahapan default berdasarkan jenis program
+  // Generate tahapan default
   generateDefaultTahapan(formData) {
     const baseTahapan = [
       {
@@ -136,6 +180,13 @@ class ProgramService {
     const date = new Date(dateString);
     date.setDate(date.getDate() + days);
     return date.toISOString().split('T')[0];
+  }
+
+  // Helper untuk menentukan jenis file
+  getFileType(mimeType) {
+    if (mimeType.startsWith('image/')) return 'foto';
+    if (mimeType.startsWith('video/')) return 'video';
+    return 'dokumen';
   }
 }
 

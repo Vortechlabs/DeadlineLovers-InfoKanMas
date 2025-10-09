@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import MonitoringService from '@/services/MonitoringService';
 import { 
   X, 
   MapPin, 
@@ -12,13 +15,18 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  Send,
   Building,
   Heart,
-  School
+  School,
+  Eye,
+  ExternalLink
 } from 'lucide-react';
 
-const ProgramModal = ({ program, onClose }) => {
+const ProgramModal = ({ program, onClose, onStatusUpdate }) => {
+  const { user } = useAuth();
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [showMoreDokumen, setShowMoreDokumen] = useState(false);
+
   const getStatusColor = (status) => {
     const colors = {
       menunggu_persetujuan: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -77,7 +85,80 @@ const ProgramModal = ({ program, onClose }) => {
     }
   };
 
+  const handleStatusUpdate = async (newStatus, catatan = '') => {
+    if (!program.backendData) {
+      toast.error('Data program tidak lengkap');
+      return;
+    }
+
+    try {
+      setUpdatingStatus(true);
+      
+      // Map frontend status ke backend status
+      const statusMapping = {
+        'diverifikasi_kecamatan': 'diverifikasi_kecamatan',
+        'rejected': 'rejected',
+        'approved': 'approved',
+        'berjalan': 'berjalan',
+        'selesai': 'selesai'
+      };
+
+      const backendStatus = statusMapping[newStatus];
+      
+      if (!backendStatus) {
+        toast.error('Status tidak valid');
+        return;
+      }
+
+      await MonitoringService.updateProgramStatus(program.backendData.id, backendStatus, catatan);
+      toast.success('Status program berhasil diupdate');
+      onStatusUpdate?.(); // Callback untuk refresh data
+      onClose();
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      const errorMessage = error.response?.data?.message || 'Gagal mengupdate status program';
+      toast.error(errorMessage);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleExportDetail = async () => {
+    try {
+      toast.info('Mempersiapkan export...');
+      // Implementasi export detail program
+      // await MonitoringService.exportProgramDetail(program.backendData.id);
+      toast.success('Export detail program berhasil');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Gagal mengexport detail program');
+    }
+  };
+
+  const handleViewDocument = (document) => {
+    if (program.backendData?.dokumen) {
+      const doc = program.backendData.dokumen.find(d => d.jenis_dokumen === document);
+      if (doc?.file_path) {
+        const fileUrl = `${import.meta.env.VITE_API_BASE_URL}/storage/${doc.file_path}`;
+        window.open(fileUrl, '_blank');
+      } else {
+        toast.error('Dokumen tidak tersedia');
+      }
+    } else {
+      toast.info('Fitur preview dokumen akan segera tersedia');
+    }
+  };
+
   const KategoriIcon = getKategoriIcon(program.kategori);
+
+  // Data dokumen dari backend
+  const dokumenList = program.backendData?.dokumen || [];
+  const groupedDokumen = {
+    proposal: dokumenList.filter(d => d.jenis_dokumen === 'proposal'),
+    surat_permohonan: dokumenList.filter(d => d.jenis_dokumen === 'surat_permohonan'),
+    gambar_teknis: dokumenList.filter(d => d.jenis_dokumen === 'gambar_teknis'),
+    foto_lokasi: dokumenList.filter(d => d.jenis_dokumen === 'foto_lokasi')
+  };
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center p-4 z-50">
@@ -90,12 +171,16 @@ const ProgramModal = ({ program, onClose }) => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{program.nama}</h2>
-              <p className="text-sm text-gray-500">ID: {program.id}</p>
+              <p className="text-sm text-gray-500">
+                {program.kode_program || `ID: ${program.id}`}
+                {program.backendData?.tahun_anggaran && ` • Tahun ${program.backendData.tahun_anggaran}`}
+              </p>
             </div>
           </div>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={updatingStatus}
           >
             <X size={20} />
           </button>
@@ -133,6 +218,59 @@ const ProgramModal = ({ program, onClose }) => {
                   <p className="text-sm text-gray-600 mb-2">Detail Status</p>
                   <p className="text-sm text-gray-700">{program.statusDetail}</p>
                 </div>
+
+                {/* Action Buttons untuk Admin */}
+                {user?.role === 'admin_kecamatan' && program.status === 'menunggu_persetujuan' && (
+                  <div className="flex gap-2 pt-2">
+                    <button 
+                      onClick={() => handleStatusUpdate('diverifikasi_kecamatan', 'Program telah diverifikasi')}
+                      disabled={updatingStatus}
+                      className={`px-3 py-1 bg-green-600 text-white rounded text-sm transition-colors flex-1 ${
+                        updatingStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'
+                      }`}
+                    >
+                      {updatingStatus ? 'Memproses...' : 'Setujui'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const catatan = prompt('Masukkan alasan penolakan:');
+                        if (catatan) handleStatusUpdate('rejected', catatan);
+                      }}
+                      disabled={updatingStatus}
+                      className={`px-3 py-1 bg-red-600 text-white rounded text-sm transition-colors flex-1 ${
+                        updatingStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-700'
+                      }`}
+                    >
+                      Tolak
+                    </button>
+                  </div>
+                )}
+
+                {user?.role === 'admin_kabupaten' && program.status === 'menunggu_persetujuan' && (
+                  <div className="flex gap-2 pt-2">
+                    <button 
+                      onClick={() => handleStatusUpdate('approved', 'Program telah disetujui')}
+                      disabled={updatingStatus}
+                      className={`px-3 py-1 bg-green-600 text-white rounded text-sm transition-colors flex-1 ${
+                        updatingStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'
+                      }`}
+                    >
+                      {updatingStatus ? 'Memproses...' : 'Approve'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const catatan = prompt('Masukkan alasan penolakan:');
+                        if (catatan) handleStatusUpdate('rejected', catatan);
+                      }}
+                      disabled={updatingStatus}
+                      className={`px-3 py-1 bg-red-600 text-white rounded text-sm transition-colors flex-1 ${
+                        updatingStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-700'
+                      }`}
+                    >
+                      Tolak
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -156,6 +294,12 @@ const ProgramModal = ({ program, onClose }) => {
                   <span className="text-gray-600">Penanggung Jawab</span>
                   <span className="font-medium">{program.penanggungJawab}</span>
                 </div>
+                {program.backendData?.target_penerima_manfaat && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Target Penerima</span>
+                    <span className="font-medium">{program.backendData.target_penerima_manfaat} orang</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -173,7 +317,7 @@ const ProgramModal = ({ program, onClose }) => {
                 <div className="text-center text-gray-500">
                   <MapPin size={24} className="mx-auto mb-2" />
                   <p className="text-sm">Peta Lokasi</p>
-                  <p className="text-xs">Desa {program.lokasi}</p>
+                  <p className="text-xs">{program.lokasi}</p>
                 </div>
               </div>
             </div>
@@ -227,6 +371,21 @@ const ProgramModal = ({ program, onClose }) => {
                 </p>
               </div>
             </div>
+            
+            {/* Detail RAB dari Backend */}
+            {program.backendData?.rab_items && program.backendData.rab_items.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Detail Rencana Anggaran</h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {program.backendData.rab_items.map((item, index) => (
+                    <div key={index} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                      <span className="text-gray-700">{item.nama_item}</span>
+                      <span className="font-medium">{formatCurrency(item.total)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Deskripsi */}
@@ -273,7 +432,9 @@ const ProgramModal = ({ program, onClose }) => {
           {/* Dokumentasi */}
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-gray-900 mb-3">Dokumentasi</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            
+            {/* Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Image size={20} className="text-blue-600" />
@@ -296,7 +457,93 @@ const ProgramModal = ({ program, onClose }) => {
                 <p className="text-xs text-gray-500">Dokumen</p>
               </div>
             </div>
+
+            {/* Detail Dokumen dari Backend */}
+            {dokumenList.length > 0 && (
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-sm font-medium text-gray-900">Dokumen Program</h4>
+                  <button 
+                    onClick={() => setShowMoreDokumen(!showMoreDokumen)}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {showMoreDokumen ? 'Sembunyikan' : 'Lihat Semua'}
+                  </button>
+                </div>
+
+                {(showMoreDokumen || dokumenList.length <= 3) ? (
+                  <div className="space-y-2">
+                    {Object.entries(groupedDokumen).map(([jenis, dokumenArray]) => (
+                      dokumenArray.length > 0 && (
+                        <div key={jenis} className="p-3 bg-gray-50 rounded-lg">
+                          <h5 className="text-sm font-medium text-gray-900 mb-2 capitalize">
+                            {jenis.replace('_', ' ')}
+                          </h5>
+                          <div className="space-y-1">
+                            {dokumenArray.map((doc, idx) => (
+                              <div key={idx} className="flex items-center justify-between text-sm">
+                                <span className="text-gray-700 truncate flex-1">{doc.nama_dokumen}</span>
+                                <button
+                                  onClick={() => handleViewDocument(jenis)}
+                                  className="ml-2 p-1 hover:bg-blue-100 rounded transition-colors"
+                                  title="Lihat dokumen"
+                                >
+                                  <Eye size={14} className="text-blue-600" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 text-sm">
+                    {dokumenList.length} dokumen tersedia
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Informasi Tambahan dari Backend */}
+          {program.backendData && (
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Informasi Tambahan</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                {program.backendData.created_by && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Dibuat Oleh</span>
+                    <span className="font-medium">{program.backendData.creator?.nama || 'Admin'}</span>
+                  </div>
+                )}
+                {program.backendData.verified_by && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Diverifikasi Oleh</span>
+                    <span className="font-medium">{program.backendData.verifier?.nama || 'Admin Kecamatan'}</span>
+                  </div>
+                )}
+                {program.backendData.approved_by && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Disetujui Oleh</span>
+                    <span className="font-medium">{program.backendData.approver?.nama || 'Admin Kabupaten'}</span>
+                  </div>
+                )}
+                {program.backendData.catatan_verifikasi && (
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Catatan Verifikasi: </span>
+                    <span className="font-medium">{program.backendData.catatan_verifikasi}</span>
+                  </div>
+                )}
+                {program.backendData.catatan_approval && (
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Catatan Approval: </span>
+                    <span className="font-medium">{program.backendData.catatan_approval}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -310,11 +557,15 @@ const ProgramModal = ({ program, onClose }) => {
             <button 
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              disabled={updatingStatus}
             >
-              Tutup
+              {updatingStatus ? 'Memproses...' : 'Tutup'}
             </button>
             
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <button 
+              onClick={handleExportDetail}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
               <Download size={16} />
               Export Detail
             </button>

@@ -7,7 +7,8 @@ import {
   Download, 
   FileText,
   Send,
-  Copy
+  Copy,
+  TrendingUp // Import icon untuk update progress
 } from 'lucide-react';
 
 const ActionMenu = ({ 
@@ -15,7 +16,8 @@ const ActionMenu = ({
   onViewDetails, 
   onEditProgram, 
   onDeleteProgram, 
-  onExportProgram 
+  onExportProgram,
+  onUpdateProgress // Tambahkan prop ini
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -40,10 +42,18 @@ const ActionMenu = ({
       color: 'text-gray-700'
     },
     {
+      label: 'Update Progress',
+      icon: TrendingUp,
+      action: () => onUpdateProgress(program),
+      color: 'text-green-600',
+      show: program.status === 'dalam_pengerjaan' // Hanya tampil untuk program yang sedang berjalan
+    },
+    {
       label: 'Edit Program',
       icon: Edit,
       action: () => onEditProgram(program),
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      show: program.status === 'menunggu_persetujuan' || program.status === 'ditolak' // Hanya bisa edit program yang belum/sudah ditolak
     },
     {
       label: 'Duplikat Program',

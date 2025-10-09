@@ -1,4 +1,3 @@
-// services/GlobalApi.js
 import axios from 'axios';
 
 // Konfigurasi base URL untuk Vite

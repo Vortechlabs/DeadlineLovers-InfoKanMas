@@ -385,7 +385,7 @@ class ProgramController extends Controller
     {
         $documentTypes = [
             'proposal' => 'proposal',
-            'gambar_teknis' => 'gambar_teknis', 
+            'gambar_teknis' => 'gambar_teknis',
             'surat_permohonan' => 'surat_permohonan'
         ];
 
@@ -412,12 +412,12 @@ class ProgramController extends Controller
     {
         $originalName = $file->getClientOriginalName();
         $filePath = $file->store('program_documents/' . $programId, 'public');
-        
+
         $namaDokumen = $jenisDokumen;
         if ($jenisDokumen === 'foto_lokasi' && $index !== null) {
             $namaDokumen = 'foto_lokasi_' . ($index + 1);
         }
-        
+
         ProgramDokumenModel::create([
             'program_id' => $programId,
             'jenis_dokumen' => $jenisDokumen,
@@ -769,5 +769,89 @@ class ProgramController extends Controller
             'message' => 'Status program berhasil diubah.',
             'data' => $program
         ], 200);
+    }
+
+    // ProgramController.php - TAMBAHKAN
+    public function updateProgress($id, Request $request)
+    {
+        try {
+            $program = Program::findOrFail($id);
+
+            $validated = $request->validate([
+                'tahapan_id' => 'required|exists:program_tahapan,id',
+                'persentase' => 'required|integer|min:0|max:100',
+                'deskripsi_progress' => 'required|string',
+                'anggaran_terpakai' => 'nullable|numeric|min:0',
+                'tanggal_progress' => 'required|date'
+            ]);
+
+            // Update progress tahapan
+            $tahapan = ProgramTahapan::find($validated['tahapan_id']);
+            $tahapan->update([
+                'persentase' => $validated['persentase'],
+                'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan'
+            ]);
+
+            // Create progress record
+            $progress = ProgramProgress::create([
+                'program_id' => $program->id,
+                'tahapan_id' => $validated['tahapan_id'],
+                'persentase' => $validated['persentase'],
+                'deskripsi_progress' => $validated['deskripsi_progress'],
+                'anggaran_terpakai' => $validated['anggaran_terpakai'] ?? 0,
+                'dilaporkan_oleh' => auth()->id(),
+                'tanggal_progress' => $validated['tanggal_progress']
+            ]);
+
+            // Update realisasi anggaran program
+            $program->increment('realisasi_anggaran', $validated['anggaran_terpakai'] ?? 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Progress berhasil diupdate',
+                'data' => $progress
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate progress: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function uploadDokumentasi($id, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'progress_id' => 'required|exists:program_progress,id',
+                'file' => 'required|file|max:10240', // 10MB max
+                'jenis' => 'required|in:foto,video,dokumen'
+            ]);
+
+            $file = $request->file('file');
+            $path = $file->store('program-dokumentasi', 'public');
+
+            $dokumentasi = ProgramDokumentasi::create([
+                'progress_id' => $validated['progress_id'],
+                'jenis' => $validated['jenis'],
+                'file_path' => $path,
+                'file_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumentasi berhasil diupload',
+                'data' => $dokumentasi
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal upload dokumentasi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

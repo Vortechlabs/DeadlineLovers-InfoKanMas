@@ -1,8 +1,53 @@
 import React from 'react';
 import { TrendingUp, Clock, CheckCircle, AlertCircle, DollarSign, FileText } from 'lucide-react';
 
-const ProgramStats = ({ programData }) => {
-  const stats = [
+const ProgramStats = ({ programData, statistics }) => {
+  // Gunakan data dari backend jika tersedia, fallback ke frontend calculation
+  const statsData = statistics ? [
+    {
+      title: 'Total Program',
+      value: statistics.total_program,
+      icon: FileText,
+      color: 'blue',
+      description: 'semua program desa'
+    },
+    {
+      title: 'Dalam Pengerjaan',
+      value: programData.filter(p => p.status === 'dalam_pengerjaan').length,
+      icon: TrendingUp,
+      color: 'green',
+      description: 'sedang berjalan'
+    },
+    {
+      title: 'Menunggu Persetujuan',
+      value: programData.filter(p => p.status === 'menunggu_persetujuan').length,
+      icon: Clock,
+      color: 'yellow',
+      description: 'perlu tindakan'
+    },
+    {
+      title: 'Selesai',
+      value: programData.filter(p => p.status === 'selesai').length,
+      icon: CheckCircle,
+      color: 'purple',
+      description: 'program tuntas'
+    },
+    {
+      title: 'Total Anggaran',
+      value: `Rp ${(statistics.total_anggaran / 1000000).toFixed(0)} Jt`,
+      icon: DollarSign,
+      color: 'green',
+      description: 'total diajukan'
+    },
+    {
+      title: 'Realisasi',
+      value: `Rp ${(statistics.total_realisasi / 1000000).toFixed(0)} Jt`,
+      icon: DollarSign,
+      color: 'blue',
+      description: 'total terealisasi'
+    }
+  ] : [
+    // Fallback ke frontend calculation
     {
       title: 'Total Program',
       value: programData.length,
@@ -49,7 +94,7 @@ const ProgramStats = ({ programData }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-      {stats.map((stat, index) => {
+      {statsData.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <div key={index} className="bg-white rounded-2xl p-4 border border-gray-200 hover:shadow-lg transition-all duration-300">

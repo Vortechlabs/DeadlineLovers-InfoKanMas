@@ -1,7 +1,15 @@
 import React from 'react';
-import { Eye, Download, Grid, List } from 'lucide-react';
+import { Eye, Download, Grid, List, RefreshCw } from 'lucide-react';
 
-const MonitoringHeader = ({ totalPrograms, programsActive, onExport, viewMode, onViewModeChange }) => {
+const MonitoringHeader = ({ 
+  totalPrograms, 
+  programsActive, 
+  onExport, 
+  onRefresh,
+  viewMode, 
+  onViewModeChange,
+  exporting 
+}) => {
   return (
     <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 sm:px-6 py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -20,6 +28,15 @@ const MonitoringHeader = ({ totalPrograms, programsActive, onExport, viewMode, o
         </div>
         
         <div className="flex items-center gap-3 flex-wrap">
+          {/* Refresh Button */}
+          <button
+            onClick={onRefresh}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
+            title="Refresh data"
+          >
+            <RefreshCw size={16} />
+          </button>
+
           {/* View Mode Toggle */}
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
             <button
@@ -46,10 +63,22 @@ const MonitoringHeader = ({ totalPrograms, programsActive, onExport, viewMode, o
           
           <button 
             onClick={onExport}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+            disabled={exporting}
+            className={`px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              exporting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+            }`}
           >
-            <Download size={16} />
-            Export Laporan
+            {exporting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                Export Laporan
+              </>
+            )}
           </button>
         </div>
       </div>
