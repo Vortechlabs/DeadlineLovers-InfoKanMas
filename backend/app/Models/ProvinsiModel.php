@@ -13,12 +13,21 @@ class ProvinsiModel extends Model
 
     protected $fillable = [
         'nama_provinsi',
-        'kode_provinsi',
     ];
 
-      public function kabupaten()
+    public function kabupaten()
     {
         return $this->hasMany(KabupatenModel::class);
+    }
+
+    public function kecamatan()
+    {
+        return $this->hasMany(KecamatanModel::class);
+    }
+
+    public function desa()
+    {
+        return $this->hasMany(DesaModel::class);
     }
 
     // Relasi ke Wilayah

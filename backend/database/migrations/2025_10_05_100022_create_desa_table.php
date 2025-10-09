@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('desa', function (Blueprint $table) {
             $table->id();
             $table->string('nama_desa');
+            $table->foreignId('kecamatan')->constrained('kecamatan')->onDelete('cascade');
+            $table->foreignId('kabupaten')->constrained('kabupaten')->onDelete('cascade');
+            $table->foreignId('provinsi')->constrained('provinsi')->onDelete('cascade');
             $table->timestamps();
         });
     }

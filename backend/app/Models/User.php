@@ -2,47 +2,79 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = 'users';
+
     protected $fillable = [
-        'name',
+        'nama',
         'email',
+        'telepon',
+        'umur',
+        'rt',
+        'rw',
+        'alamat_lengkap',
+        'role',
+        'email_verified_at',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * 🔗 Relasi ke tabel wilayah
+     * Setiap user punya satu alamat lengkap (FK ke tabel wilayah)
      */
-    protected function casts(): array
+    public function wilayah()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(WilayahModel::class, 'alamat_lengkap');
+    }
+
+    public function program()
+    {
+        return $this->hasMany(ProgramModel::class);
+    }
+
+    /**
+     * 🔐 Fungsi Role Check
+     */
+    public function isAdminKabupaten()
+    {
+        return $this->role === 'admin_kabupaten';
+    }
+
+    public function isAdminKecamatan()
+    {
+        return $this->role === 'admin_kecamatan';
+    }
+
+    public function isAdminDesa()
+    {
+        return $this->role === 'admin_desa';
+    }
+
+    public function isAdminDinas()
+    {
+        return $this->role === 'admin_dinas';
+    }
+
+    public function isUser()
+    {
+        return $this->role === 'user';
     }
 }

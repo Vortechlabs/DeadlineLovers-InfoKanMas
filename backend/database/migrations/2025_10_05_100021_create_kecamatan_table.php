@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('kecamatan', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kecamatan');
+            $table->foreignId('kabupaten')->constrained('kabupaten')->onDelete('cascade');
+            $table->foreignId('provinsi')->constrained('provinsi')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('wilayah', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('desa_id')->constrained('desa')->onDelete('cascade');
-            $table->foreignId('kecamatan_id')->constrained('kecamatan')->onDelete('cascade');
-            $table->foreignId('kabupaten_id')->constrained('kabupaten')->onDelete('cascade');
-            $table->foreignId('provinsi_id')->constrained('provinsi')->onDelete('cascade');
+            $table->foreignId('desa')->constrained('desa')->onDelete('cascade');
+            $table->foreignId('kecamatan')->constrained('kecamatan')->onDelete('cascade');
+            $table->foreignId('kabupaten')->constrained('kabupaten')->onDelete('cascade');
+            $table->foreignId('provinsi')->constrained('provinsi')->onDelete('cascade');
             $table->timestamps();
         });
     }

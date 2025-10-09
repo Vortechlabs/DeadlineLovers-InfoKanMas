@@ -13,21 +13,22 @@ class KabupatenModel extends Model
 
     protected $fillable = [
         'nama_kabupaten',
-        'jumlah_penduduk',
-        'provinsi_id',
+        'provinsi', // foreign key
     ];
 
-    
     /**
-     * Relasi ke Provinsi (Many to One)
-     * Banyak kabupaten berada di satu provinsi
+     * 🔗 Relasi ke Provinsi
+     * Setiap kabupaten berada di satu provinsi
      */
     public function provinsi()
     {
         return $this->belongsTo(ProvinsiModel::class);
     }
 
-
+    /**
+     * 🔗 Relasi ke Kecamatan
+     * Satu kabupaten memiliki banyak kecamatan
+     */
     public function wilayah()
     {
         return $this->hasMany(WilayahModel::class);
