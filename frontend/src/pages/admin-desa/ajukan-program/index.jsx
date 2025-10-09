@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import ProgramService from '@/services/ProgramService';
 import ProgramHeader from './ProgramHeader';
 import StepWizard from './StepWizard';
 import ProgramForm from './ProgramForm';
@@ -11,6 +13,10 @@ import SuccessToast from './SuccessToast';
 const AdminDesaAjukanProgram = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPreview, setShowPreview] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [metadata, setMetadata] = useState(null);
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     // Step 1: Informasi Program
     namaProgram: '',
@@ -22,6 +28,7 @@ const AdminDesaAjukanProgram = () => {
     deskripsi: '',
     tanggalMulai: '',
     tanggalSelesai: '',
+    targetPenerimaManfaat: 0,
 
     // Step 2: RAB (Rencana Anggaran Biaya)
     items: [
@@ -52,6 +59,21 @@ const AdminDesaAjukanProgram = () => {
     { number: 4, title: 'Review & Submit', description: 'Finalisasi pengajuan' }
   ];
 
+  // Load metadata saat component mount
+  useEffect(() => {
+    loadMetadata();
+  }, []);
+
+  const loadMetadata = async () => {
+    try {
+      const response = await ProgramService.getCreateMetadata();
+      setMetadata(response.data);
+    } catch (error) {
+      console.error('Failed to load metadata:', error);
+      toast.error('Gagal memuat data form');
+    }
+  };
+
   const handleNextStep = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -65,39 +87,61 @@ const AdminDesaAjukanProgram = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     try {
-      // Simulasi proses submit
-      toast.custom((t) => <SuccessToast toastId={t} programData={formData} />, {
+      // Submit ke backend
+      const response = await ProgramService.createProgram(formData);
+      
+      // Show success toast dengan data dari backend
+      toast.custom((t) => (
+        <SuccessToast 
+          toastId={t} 
+          programData={formData}
+          backendResponse={response}
+        />
+      ), {
         duration: 5000,
       });
 
       // Reset form setelah submit berhasil
-      setFormData({
-        namaProgram: '',
-        kategori: '',
-        jenis: 'pembangunan',
-        prioritas: 'sedang',
-        lokasi: '',
-        penanggungJawab: '',
-        deskripsi: '',
-        tanggalMulai: '',
-        tanggalSelesai: '',
-        items: [{ id: 1, nama: '', volume: '', satuan: '', hargaSatuan: '', total: 0 }],
-        totalAnggaran: 0,
-        dokumen: {
-          proposal: null,
-          gambarTeknis: null,
-          suratPermohonan: null,
-          fotoLokasi: []
-        }
-      });
-      
-      setCurrentStep(1);
-      setShowPreview(false);
+      resetForm();
       
     } catch (error) {
-      toast.error('Gagal mengajukan program. Silakan coba lagi.');
+      console.error('Submit failed:', error);
+      const errorMessage = error.response?.data?.message || 'Gagal mengajukan program. Silakan coba lagi.';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      namaProgram: '',
+      kategori: '',
+      jenis: 'pembangunan',
+      prioritas: 'sedang',
+      lokasi: '',
+      penanggungJawab: user?.nama || '', // Default ke nama user
+      deskripsi: '',
+      tanggalMulai: '',
+      tanggalSelesai: '',
+      targetPenerimaManfaat: 0,
+      items: [{ id: 1, nama: '', volume: '', satuan: '', hargaSatuan: '', total: 0 }],
+      totalAnggaran: 0,
+      dokumen: {
+        proposal: null,
+        gambarTeknis: null,
+        suratPermohonan: null,
+        fotoLokasi: []
+      }
+    });
+    
+    setCurrentStep(1);
+    setShowPreview(false);
   };
 
   const updateFormData = (newData) => {
@@ -112,6 +156,7 @@ const AdminDesaAjukanProgram = () => {
             formData={formData}
             onUpdate={updateFormData}
             onNext={handleNextStep}
+            metadata={metadata}
           />
         );
       case 2:
@@ -155,9 +200,23 @@ const AdminDesaAjukanProgram = () => {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-medium shadow-lg shadow-green-500/25"
+                  disabled={isSubmitting}
+                  className={`px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg transition-all font-medium shadow-lg shadow-green-500/25 flex items-center gap-2 ${
+                    isSubmitting 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:from-green-600 hover:to-emerald-700'
+                  }`}
                 >
-                  🚀 Ajukan ke Kecamatan
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Mengajukan...
+                    </>
+                  ) : (
+                    <>
+                      🚀 Ajukan ke Kecamatan
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -194,6 +253,7 @@ const AdminDesaAjukanProgram = () => {
             programData={formData}
             onClose={() => setShowPreview(false)}
             onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         )}
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle, X, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
-const SuccessToast = ({ toastId, programData }) => {
+const SuccessToast = ({ toastId, programData, backendResponse }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -11,6 +11,8 @@ const SuccessToast = ({ toastId, programData }) => {
       maximumFractionDigits: 0
     }).format(amount);
   };
+
+  const programCode = backendResponse?.data?.kode_program || 'PRG-XXXXXX';
 
   return (
     <div className="w-80 bg-white rounded-xl border border-green-200 shadow-lg overflow-hidden">
@@ -37,6 +39,9 @@ const SuccessToast = ({ toastId, programData }) => {
             {programData.namaProgram}
           </h3>
           <p className="text-xs text-gray-600">
+            Kode: <span className="font-mono">{programCode}</span>
+          </p>
+          <p className="text-xs text-gray-600 mt-1">
             Berhasil diajukan ke Kecamatan
           </p>
         </div>
@@ -58,7 +63,7 @@ const SuccessToast = ({ toastId, programData }) => {
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
           <p className="text-xs text-yellow-800 text-center">
-            🕒 Estimasi proses: 3-5 hari kerja
+            🕒 Status: <span className="font-semibold">DRAFT</span> - Siap diajukan ke Kecamatan
           </p>
         </div>
 

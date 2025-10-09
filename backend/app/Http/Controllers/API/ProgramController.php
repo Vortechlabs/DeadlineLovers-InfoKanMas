@@ -4,19 +4,17 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\KategoriProgramModel;
-use App\Models\Program;
+use App\Models\ProgramDokumenModel;
 use App\Models\ProgramModel;
-use App\Models\ProgramRab;
 use App\Models\ProgramRabModel;
-use App\Models\ProgramTahapan;
-use App\Models\KategoriProgram;
 use App\Models\ProgramTahapanModel;
-use App\Models\Wilayah;
 use App\Models\WilayahModel;
+use App\Models\ProgramDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
@@ -27,9 +25,9 @@ class ProgramController extends Controller
     {
         $user = Auth::user();
         $query = ProgramModel::with([
-            'kategori', 
-            'wilayah', 
-            'penanggungJawab', 
+            'kategori',
+            'wilayah',
+            'penanggungJawab',
             'creator',
             'verifier',
             'approver'
@@ -40,7 +38,7 @@ class ProgramController extends Controller
             if ($user->role === 'admin_desa') {
                 $query->where('wilayah_id', $user->alamat_lengkap);
             } elseif ($user->role === 'admin_kecamatan') {
-                $query->whereHas('wilayah', function($q) use ($user) {
+                $query->whereHas('wilayah', function ($q) use ($user) {
                     $q->where('parent_id', $user->alamat_lengkap);
                 });
             }
@@ -82,17 +80,17 @@ class ProgramController extends Controller
             'wilayah',
             'penanggungJawab',
             'creator',
-            'verifier', 
+            'verifier',
             'approver',
             'rabItems',
             'tahapan',
-            'progress' => function($query) {
+            'progress' => function ($query) {
                 $query->with(['pelapor', 'validator', 'dokumentasi'])
-                      ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
             },
-            'issues' => function($query) {
+            'issues' => function ($query) {
                 $query->with(['pelapor', 'penanggungJawab'])
-                      ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
             },
             'dokumen'
         ])->find($id);
@@ -141,7 +139,7 @@ class ProgramController extends Controller
 
         $kategori = KategoriProgramModel::all();
         $wilayah = WilayahModel::where('tingkat', 'desa')->get();
-        
+
         $user = Auth::user();
         $wilayahUser = $user->alamat;
 
@@ -173,7 +171,7 @@ class ProgramController extends Controller
             if ($user->role === 'admin_desa') {
                 $query->where('wilayah_id', $user->alamat_lengkap);
             } elseif ($user->role === 'admin_kecamatan') {
-                $query->whereHas('wilayah', function($q) use ($user) {
+                $query->whereHas('wilayah', function ($q) use ($user) {
                     $q->where('parent_id', $user->alamat_lengkap);
                 });
             }
@@ -205,9 +203,9 @@ class ProgramController extends Controller
         // Filter by search term
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_program', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%");
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
@@ -233,7 +231,7 @@ class ProgramController extends Controller
             if ($user->role === 'admin_desa') {
                 $query->where('wilayah_id', $user->alamat_lengkap);
             } elseif ($user->role === 'admin_kecamatan') {
-                $query->whereHas('wilayah', function($q) use ($user) {
+                $query->whereHas('wilayah', function ($q) use ($user) {
                     $q->where('parent_id', $user->alamat_lengkap);
                 });
             }
@@ -279,7 +277,7 @@ class ProgramController extends Controller
     }
 
     /**
-     * 💾 STORE — Menyimpan program baru
+     * 💾 STORE — Menyimpan program baru dengan file upload
      */
     public function store(Request $request)
     {
@@ -291,7 +289,10 @@ class ProgramController extends Controller
             ], 401);
         }
 
-        $validator = Validator::make($request->all(), [
+        // Parse program data dari JSON string
+        $programData = json_decode($request->program_data, true);
+
+        $validator = Validator::make($programData, [
             'nama_program' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'kategori_program_id' => 'required|exists:kategori_program,id',
@@ -317,16 +318,16 @@ class ProgramController extends Controller
         try {
             DB::beginTransaction();
 
-            $programData = $request->all();
             $programData['created_by'] = Auth::id();
             $programData['penanggung_jawab_id'] = Auth::id();
             $programData['status_program'] = 'draft';
+            $programData['kode_program'] = $this->generateKodeProgram();
 
             $program = ProgramModel::create($programData);
 
             // Jika ada RAB items
-            if ($request->has('rab_items') && is_array($request->rab_items)) {
-                foreach ($request->rab_items as $index => $rabItem) {
+            if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
+                foreach ($programData['rab_items'] as $index => $rabItem) {
                     ProgramRabModel::create([
                         'program_id' => $program->id,
                         'nama_item' => $rabItem['nama_item'],
@@ -341,8 +342,8 @@ class ProgramController extends Controller
             }
 
             // Jika ada tahapan
-            if ($request->has('tahapan') && is_array($request->tahapan)) {
-                foreach ($request->tahapan as $index => $tahapan) {
+            if (isset($programData['tahapan']) && is_array($programData['tahapan'])) {
+                foreach ($programData['tahapan'] as $index => $tahapan) {
                     ProgramTahapanModel::create([
                         'program_id' => $program->id,
                         'nama_tahapan' => $tahapan['nama_tahapan'],
@@ -356,12 +357,15 @@ class ProgramController extends Controller
                 }
             }
 
+            // ✅ SIMPAN FILE DOKUMEN
+            $this->saveProgramDocuments($program->id, $request);
+
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Program berhasil dibuat',
-                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan'])
+                'message' => 'Program dan dokumen berhasil dibuat',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
             ], 201);
 
         } catch (\Exception $e) {
@@ -372,6 +376,68 @@ class ProgramController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Simpan dokumen program
+     */
+    private function saveProgramDocuments($programId, $request)
+    {
+        $documentTypes = [
+            'proposal' => 'proposal',
+            'gambar_teknis' => 'gambar_teknis', 
+            'surat_permohonan' => 'surat_permohonan'
+        ];
+
+        // Simpan file single
+        foreach ($documentTypes as $fieldName => $jenisDokumen) {
+            if ($request->hasFile($fieldName)) {
+                $file = $request->file($fieldName);
+                $this->saveSingleDocument($programId, $file, $jenisDokumen);
+            }
+        }
+
+        // Simpan multiple foto lokasi
+        if ($request->hasFile('foto_lokasi')) {
+            foreach ($request->file('foto_lokasi') as $index => $foto) {
+                $this->saveSingleDocument($programId, $foto, 'foto_lokasi', $index);
+            }
+        }
+    }
+
+    /**
+     * Simpan single document
+     */
+    private function saveSingleDocument($programId, $file, $jenisDokumen, $index = null)
+    {
+        $originalName = $file->getClientOriginalName();
+        $filePath = $file->store('program_documents/' . $programId, 'public');
+        
+        $namaDokumen = $jenisDokumen;
+        if ($jenisDokumen === 'foto_lokasi' && $index !== null) {
+            $namaDokumen = 'foto_lokasi_' . ($index + 1);
+        }
+        
+        ProgramDokumenModel::create([
+            'program_id' => $programId,
+            'jenis_dokumen' => $jenisDokumen,
+            'nama_dokumen' => $namaDokumen,
+            'file_path' => $filePath,
+            'file_name' => $originalName,
+            'mime_type' => $file->getMimeType(),
+            'file_size' => $file->getSize(),
+            'keterangan' => 'Dokumen ' . $jenisDokumen . ' program'
+        ]);
+    }
+
+    /**
+     * Generate kode program unik
+     */
+    private function generateKodeProgram()
+    {
+        $date = now()->format('YmdHis');
+        $random = rand(100, 999);
+        return "PRG-{$date}{$random}";
     }
 
     /**

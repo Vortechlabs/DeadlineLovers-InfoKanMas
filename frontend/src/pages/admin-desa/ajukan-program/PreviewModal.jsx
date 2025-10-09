@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Download, Send, FileText, DollarSign, MapPin, Calendar, User, CheckCircle } from 'lucide-react';
 
-const PreviewModal = ({ programData, onClose, onSubmit }) => {
+const PreviewModal = ({ programData, onClose, onSubmit, isSubmitting }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -33,7 +33,7 @@ const PreviewModal = ({ programData, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
@@ -219,10 +219,22 @@ const PreviewModal = ({ programData, onClose, onSubmit }) => {
             
             <button 
               onClick={onSubmit}
-              className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-medium shadow-lg shadow-green-500/25 flex items-center gap-2"
+              disabled={isSubmitting}
+              className={`px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg transition-all font-medium shadow-lg shadow-green-500/25 flex items-center gap-2 ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-green-600 hover:to-emerald-700'
+              }`}
             >
-              <Send size={16} />
-              🚀 Ajukan Sekarang
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Mengajukan...
+                </>
+              ) : (
+                <>
+                  <Send size={16} />
+                  🚀 Ajukan Sekarang
+                </>
+              )}
             </button>
           </div>
         </div>

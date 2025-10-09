@@ -48,6 +48,24 @@ class ProgramModel extends Model
         'realisasi_anggaran' => 'decimal:2',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($program) {
+            if (empty($program->kode_program)) {
+                $program->kode_program = self::generateKodeProgram();
+            }
+        });
+    }
+
+    public static function generateKodeProgram()
+    {
+        $date = now()->format('YmdHis');
+        $random = rand(100, 999);
+        return "PRG-{$date}{$random}";
+    }
+
     // Relationships
     public function kategori(): BelongsTo
     {
@@ -124,11 +142,12 @@ class ProgramModel extends Model
     public function getProgressPercentageAttribute(): float
     {
         $totalTahapan = $this->tahapan()->count();
-        if ($totalTahapan === 0) return 0;
+        if ($totalTahapan === 0)
+            return 0;
 
         $totalPersentase = $this->tahapan()->sum('persentase');
         $completedPersentase = $this->tahapan()->where('status', 'selesai')->sum('persentase');
-        
+
         return $totalPersentase > 0 ? ($completedPersentase / $totalPersentase) * 100 : 0;
     }
 }

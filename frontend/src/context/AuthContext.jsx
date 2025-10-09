@@ -94,12 +94,10 @@ export const AuthProvider = ({ children }) => {
     try {
       let storedToken = localStorage.getItem("token");
       let storedUser = localStorage.getItem("user");
-      let isRemembered = true;
 
       if (!storedToken) {
         storedToken = sessionStorage.getItem("token");
         storedUser = sessionStorage.getItem("user");
-        isRemembered = false;
       }
 
       console.log("Initializing auth with token:", storedToken);

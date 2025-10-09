@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Upload, FileText, Image, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, Image, X, CheckCircle, AlertCircle, Plus } from 'lucide-react';
 
 const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
   const fileInputRef = useRef({});
@@ -83,8 +83,8 @@ const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
   };
 
   const getFileIcon = (fileType) => {
-    if (fileType.includes('image')) return Image;
-    if (fileType.includes('pdf')) return FileText;
+    if (fileType?.includes('image')) return Image;
+    if (fileType?.includes('pdf')) return FileText;
     return FileText;
   };
 
@@ -291,8 +291,5 @@ const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
     </div>
   );
 };
-
-// Tambahkan import Plus yang missing
-import { Plus } from 'lucide-react';
 
 export default DocumentUpload;
