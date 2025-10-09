@@ -57,19 +57,36 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   }, []);
 
-  const fetchUserProfile = useCallback(async (authToken) => {
-    try {
-      console.log("Fetching user profile with token:", authToken);
+  // Function untuk handle redirect berdasarkan role
+  const redirectBasedOnRole = useCallback((userData) => {
+    const role = userData?.role;
+    console.log("Redirecting based on role:", role);
 
-      const response = await apiClient.get("/user/me");
-      console.log("User profile response:", response.data);
-
-      return response.data.data;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      throw error;
-    }
-  }, []);
+    // Beri sedikit delay untuk memastikan state sudah ter-update
+    setTimeout(() => {
+      switch (role) {
+        case "admin_kabupaten":
+          navigate("/admin-kabupaten/dashboard", { replace: true });
+          break;
+        case "admin_dinas":
+          navigate("/admin-dinas/dashboard", { replace: true });
+          break;
+        case "admin_kecamatan":
+          navigate("/admin-kecamatan/dashboard", { replace: true });
+          break;
+        case "admin_desa":
+          navigate("/admin-desa/dashboard", { replace: true });
+          break;
+        case "user":
+        case "masyarakat":
+          navigate("/masyarakat/dashboard", { replace: true });
+          break;
+        default:
+          navigate("/", { replace: true });
+          break;
+      }
+    }, 100);
+  }, [navigate]);
 
   const initializeAuth = useCallback(async () => {
     setIsLoading(true);
@@ -87,24 +104,18 @@ export const AuthProvider = ({ children }) => {
 
       console.log("Initializing auth with token:", storedToken);
 
-      if (storedToken) {
+      if (storedToken && storedUser) {
         try {
-          // Set header dulu sebelum fetch user profile
+          // Set header untuk request selanjutnya
           apiClient.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${storedToken}`;
 
-          // Validasi token dengan mengambil data user terbaru
-          const freshUserData = await fetchUserProfile(storedToken);
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+          setToken(storedToken);
 
-          if (freshUserData) {
-            setUser(freshUserData);
-            setToken(storedToken);
-
-            // Update storage dengan data terbaru
-            const storage = isRemembered ? localStorage : sessionStorage;
-            storage.setItem("user", JSON.stringify(freshUserData));
-          }
+          console.log("Auth initialized with stored user:", userData);
         } catch (error) {
           console.error("Token validation failed:", error);
           clearAuthData();
@@ -120,7 +131,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
       setIsInitialized(true);
     }
-  }, [clearAuthData, fetchUserProfile]);
+  }, [clearAuthData]);
 
   useEffect(() => {
     initializeAuth();
@@ -143,45 +154,33 @@ export const AuthProvider = ({ children }) => {
         console.log("Received token:", authToken);
         console.log("Received user:", userData);
 
+        if (!authToken || !userData) {
+          throw new Error("Invalid response from server");
+        }
+
         // Set header untuk request selanjutnya
         apiClient.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${authToken}`;
 
-        // Get fresh user data
-        const completeUserData = await fetchUserProfile(authToken);
-        console.log("Complete user data:", completeUserData);
+        // Gunakan user data langsung dari login response
+        // Tidak perlu fetch ulang ke /user/me
+        setUser(userData);
+        setToken(authToken);
 
-        if (completeUserData) {
-          setUser(completeUserData);
-          setToken(authToken);
+        // Persist data based on remember me
+        persistAuthData(userData, authToken, credentials.remember);
 
-          // Persist data based on remember me
-          persistAuthData(completeUserData, authToken, credentials.remember);
+        // Redirect based on role
+        redirectBasedOnRole(userData);
 
-          // Redirect based on role
-          const role = completeUserData.role;
-          console.log("User role:", role);
+        return userData;
 
-          if (role === "admin_kabupaten") {
-            navigate("/admin-kabupaten/dashboard", { replace: true });
-          } else if (role === "admin_dinas") {
-            navigate("/admin-dinas/dashboard", { replace: true });
-          } else if (role === "admin_kecamatan") {
-            navigate("/admin-kecamatan/dashboard", { replace: true });
-          } else if (role === "admin_desa") {
-            navigate("/admin-desa/dashboard", { replace: true });
-          } else if (role === "user") {
-            navigate("/masyarakat/dashboard", { replace: true });
-          } else {
-            navigate("/", { replace: true });
-          }
-
-          return completeUserData;
-        }
       } catch (error) {
         console.error("Login failed:", error);
-        // Throw error dengan message yang lebih spesifik
+        // Clear auth data jika login gagal
+        clearAuthData();
+        
         const errorMessage =
           error.response?.data?.message || error.message || "Login gagal";
         throw new Error(errorMessage);
@@ -189,7 +188,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
       }
     },
-    [persistAuthData, fetchUserProfile, navigate]
+    [persistAuthData, redirectBasedOnRole, clearAuthData]
   );
 
   const logout = useCallback(async () => {
