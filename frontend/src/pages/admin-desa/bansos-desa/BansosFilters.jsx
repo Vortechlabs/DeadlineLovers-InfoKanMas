@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, Grid, List, BarChart3 } from 'lucide-react';
+import { Search, Filter, Grid, BarChart3, ListOrdered } from 'lucide-react';
 
 const BansosFilters = ({
   filterStatus,
@@ -107,7 +107,7 @@ const BansosFilters = ({
             }`}
             title="List View"
           >
-            <List size={16} />
+            <ListOrdered size={16} />
           </button>
           <button
             onClick={() => setViewMode('chart')}
