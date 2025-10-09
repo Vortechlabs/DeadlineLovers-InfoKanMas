@@ -1,3 +1,4 @@
+// services/GlobalApi.js
 import axios from 'axios';
 
 // Konfigurasi base URL untuk Vite
@@ -12,11 +13,9 @@ const apiClient = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  // HAPUS withCredentials: true karena tidak compatible dengan multiple origins
+  // withCredentials: true,
 });
-
-// Tambahkan properti kustom
-apiClient.storageBaseUrl = 'http://localhost:8000';
 
 // Request Interceptor
 apiClient.interceptors.request.use(
@@ -43,7 +42,7 @@ apiClient.interceptors.response.use(
       const requestURL = error.config?.url || '';
 
       // Kalau bukan endpoint login penting, logout
-      if (!requestURL.includes('/users') || requestURL.endsWith('/me')) {
+      if (!requestURL.includes('/auth/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         sessionStorage.removeItem('token');
