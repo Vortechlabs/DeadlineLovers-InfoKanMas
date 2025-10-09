@@ -1,19 +1,14 @@
 import AdminDesaLayout from "@/layouts/AdminDesaLayout";
-import { AdminLayout } from "@/layouts/AdminLayout";
-import AdminDesaAjukanProgram from "@/pages/admin-desa/AjukanProgram";
+import AdminDesaAjukanProgram from "@/pages/admin-desa/ajukan-program";
+import AdminDesaBansosDesa from "@/pages/admin-desa/bansos-desa";
 import AdminDesaDashboard from "@/pages/admin-desa/dashboard";
+import AdminDesaDataWarga from "@/pages/admin-desa/data-warga";
+import AdminDesaInfrastruktur from "@/pages/admin-desa/infrastruktur";
 import AdminDesaMonitoringProgram from "@/pages/admin-desa/monitoring-program";
+import AdminDesaPenerimaManfaat from "@/pages/admin-desa/penerima-manfaat";
 import AdminDesaPengaduanWarga from "@/pages/admin-desa/pengaduan-masyarakat";
 import AdminDesaProgramDesa from "@/pages/admin-desa/program-desa";
 import AdminDesaProgressHarian from "@/pages/admin-desa/progress-harian";
-import AdminProfilePage from "@/pages/admin-kabupaten/admin-kabupaten-profile";
-import AnalyticsDashboard from "@/pages/admin-kabupaten/analytics";
-import CompliancePage from "@/pages/admin-kabupaten/compliance";
-import DataDaerahPage from "@/pages/admin-kabupaten/data-daerah";
-import LaporanPage from "@/pages/admin-kabupaten/laporan";
-import LaporanMasyarakatPage from "@/pages/admin-kabupaten/laporan-masyarkat";
-import MonitoringPage from "@/pages/admin-kabupaten/monitoring";
-import ReviewRABPage from "@/pages/admin-kabupaten/rab-review";
 
 const AdminDesaRoutes = [
   {
@@ -50,20 +45,20 @@ const AdminDesaRoutes = [
         element: <AdminDesaProgramDesa />,
       },
       {
-        path: "pengaduan",
-        element: <LaporanMasyarakatPage />,
+        path: "infrastruktur",
+        element: <AdminDesaInfrastruktur />,
       },
       {
-        path: "analytics",
-        element: <AnalyticsDashboard />,
+        path: "bansos",
+        element: <AdminDesaBansosDesa />,
       },
       {
-        path: "compliance",
-        element: <CompliancePage />,
+        path: "warga",
+        element: <AdminDesaDataWarga />,
       },
       {
-        path: "profile",
-        element: <AdminProfilePage />,
+        path: "penerima",
+        element: <AdminDesaPenerimaManfaat />,
       },
     ],
   },
