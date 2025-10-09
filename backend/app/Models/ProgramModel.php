@@ -14,6 +14,7 @@ class ProgramModel extends Model
     protected $fillable = [
         'nama_program',
         'deskripsi',
+        'kategori_program',
         'jenis_program',
         'tingkat_pengusul',
         'alamat',
@@ -62,5 +63,10 @@ class ProgramModel extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function kategoriprogram()
+    {
+        return $this->belongsTo(KategoriProgramModel::class);
     }
 }

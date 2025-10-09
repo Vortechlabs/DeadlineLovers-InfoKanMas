@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*','http://localhost:5173', 'https://superadequately-unbagged-sandra.ngrok-free.dev'],
+    'allowed_origins' => ['http://localhost:5173', 'https://superadequately-unbagged-sandra.ngrok-free.dev', 'https://infokanmas.netlify.app'],
 
     'allowed_origins_patterns' => [],
 
