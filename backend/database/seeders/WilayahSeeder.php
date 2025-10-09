@@ -9,7 +9,14 @@ class WilayahSeeder extends Seeder
 {
     public function run(): void
     {
+        // Nonaktifkan foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Truncate tabel wilayah
         DB::table('wilayah')->truncate();
+        
+        // Aktifkan kembali foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $wilayah = [
             // ==================== PROVINSI ====================
@@ -62,24 +69,6 @@ class WilayahSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            [
-                'kode_wilayah' => '33.03.04',
-                'nama_wilayah' => 'Kecamatan Bukateja',
-                'tingkat' => 'kecamatan',
-                'parent_id' => 2, // Kabupaten Purbalingga
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode_wilayah' => '33.03.05',
-                'nama_wilayah' => 'Kecamatan Kejobong',
-                'tingkat' => 'kecamatan',
-                'parent_id' => 2, // Kabupaten Purbalingga
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
 
             // ==================== DESA ====================
             // Desa di Kecamatan Kalimanah
@@ -111,71 +100,13 @@ class WilayahSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
-            // Desa di Kecamatan Kutasari
-            [
-                'kode_wilayah' => '33.03.02.2001',
-                'nama_wilayah' => 'Desa Kutasari',
-                'tingkat' => 'desa',
-                'parent_id' => 4, // Kecamatan Kutasari
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode_wilayah' => '33.03.02.2002',
-                'nama_wilayah' => 'Desa Candinata',
-                'tingkat' => 'desa',
-                'parent_id' => 4, // Kecamatan Kutasari
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode_wilayah' => '33.03.02.2003',
-                'nama_wilayah' => 'Desa Karangreja',
-                'tingkat' => 'desa',
-                'parent_id' => 4, // Kecamatan Kutasari
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            // Desa di Kecamatan Mrebet
-            [
-                'kode_wilayah' => '33.03.03.2001',
-                'nama_wilayah' => 'Desa Mrebet',
-                'tingkat' => 'desa',
-                'parent_id' => 5, // Kecamatan Mrebet
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode_wilayah' => '33.03.03.2002',
-                'nama_wilayah' => 'Desa Balingasal',
-                'tingkat' => 'desa',
-                'parent_id' => 5, // Kecamatan Mrebet
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode_wilayah' => '33.03.03.2003',
-                'nama_wilayah' => 'Desa Cipaku',
-                'tingkat' => 'desa',
-                'parent_id' => 5, // Kecamatan Mrebet
-                'polygon' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
             // ==================== DUSUN ====================
             // Dusun di Desa Kalimanah Kulon
             [
                 'kode_wilayah' => '33.03.01.2001.001',
                 'nama_wilayah' => 'Dusun Krajan',
                 'tingkat' => 'dusun',
-                'parent_id' => 8, // Desa Kalimanah Kulon
+                'parent_id' => 6, // Desa Kalimanah Kulon
                 'polygon' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -184,7 +115,7 @@ class WilayahSeeder extends Seeder
                 'kode_wilayah' => '33.03.01.2001.002',
                 'nama_wilayah' => 'Dusun Kaliputih',
                 'tingkat' => 'dusun',
-                'parent_id' => 8, // Desa Kalimanah Kulon
+                'parent_id' => 6, // Desa Kalimanah Kulon
                 'polygon' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -195,7 +126,7 @@ class WilayahSeeder extends Seeder
                 'kode_wilayah' => '33.03.01.2002.001',
                 'nama_wilayah' => 'Dusun Tengah',
                 'tingkat' => 'dusun',
-                'parent_id' => 9, // Desa Kalimanah Wetan
+                'parent_id' => 7, // Desa Kalimanah Wetan
                 'polygon' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -204,7 +135,7 @@ class WilayahSeeder extends Seeder
                 'kode_wilayah' => '33.03.01.2002.002',
                 'nama_wilayah' => 'Dusun Wetan',
                 'tingkat' => 'dusun',
-                'parent_id' => 9, // Desa Kalimanah Wetan
+                'parent_id' => 7, // Desa Kalimanah Wetan
                 'polygon' => null,
                 'created_at' => now(),
                 'updated_at' => now(),

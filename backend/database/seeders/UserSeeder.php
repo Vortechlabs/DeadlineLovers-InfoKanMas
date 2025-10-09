@@ -10,7 +10,14 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Nonaktifkan foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Truncate tabel users
         DB::table('users')->truncate();
+        
+        // Aktifkan kembali foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $users = [
             // ==================== ADMIN DINAS ====================
@@ -83,7 +90,7 @@ class UserSeeder extends Seeder
                 'umur' => 48,
                 'rt' => '001',
                 'rw' => '001',
-                'alamat_lengkap' => 8, // Desa Kalimanah Kulon
+                'alamat_lengkap' => 6, // Desa Kalimanah Kulon
                 'role' => 'admin_desa',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
@@ -97,7 +104,7 @@ class UserSeeder extends Seeder
                 'umur' => 42,
                 'rt' => '002',
                 'rw' => '001',
-                'alamat_lengkap' => 9, // Desa Kalimanah Wetan
+                'alamat_lengkap' => 7, // Desa Kalimanah Wetan
                 'role' => 'admin_desa',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
@@ -113,7 +120,7 @@ class UserSeeder extends Seeder
                 'umur' => 35,
                 'rt' => '001',
                 'rw' => '001',
-                'alamat_lengkap' => 19, // Dusun Krajan, Kalimanah Kulon
+                'alamat_lengkap' => 8, // Dusun Krajan, Kalimanah Kulon
                 'role' => 'user',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
@@ -127,7 +134,7 @@ class UserSeeder extends Seeder
                 'umur' => 28,
                 'rt' => '002',
                 'rw' => '001',
-                'alamat_lengkap' => 20, // Dusun Kaliputih, Kalimanah Kulon
+                'alamat_lengkap' => 9, // Dusun Kaliputih, Kalimanah Kulon
                 'role' => 'user',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
@@ -141,7 +148,7 @@ class UserSeeder extends Seeder
                 'umur' => 32,
                 'rt' => '001',
                 'rw' => '001',
-                'alamat_lengkap' => 21, // Dusun Tengah, Kalimanah Wetan
+                'alamat_lengkap' => 10, // Dusun Tengah, Kalimanah Wetan
                 'role' => 'user',
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
