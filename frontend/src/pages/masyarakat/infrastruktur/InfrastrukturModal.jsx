@@ -38,7 +38,7 @@ const InfrastrukturModal = ({ project, onClose }) => {
       Lightbulb: Lightbulb,
       Sprout: Sprout
     };
-    return icons[iconName] || Road;
+    return icons[iconName] || Building;
   };
 
   const getStatusColor = (status) => {
@@ -394,7 +394,7 @@ const InfrastrukturModal = ({ project, onClose }) => {
   return (
     <>
       {/* Main Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-xs">
         <div 
           className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}

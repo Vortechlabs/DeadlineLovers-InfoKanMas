@@ -37,6 +37,8 @@ function MasyarakatSidebar({ sidebarCollapsed, setSidebarCollapsed }) {
     if (path.includes("/rating")) return "rating";
     if (path.includes("/laporan")) return "laporan";
     if (path.includes("/pemantauan")) return "pemantauan";
+    if (path.includes("/scan-qr")) return "scan-qr";
+    if (path.includes("/verifikasi")) return "verifikasi";
     if (path.includes("/profile")) return "profile";
     return "dashboard";
   };
