@@ -6,24 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('wilayah', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('desa')->constrained('desa')->onDelete('cascade');
-            $table->foreignId('kecamatan')->constrained('kecamatan')->onDelete('cascade');
-            $table->foreignId('kabupaten')->constrained('kabupaten')->onDelete('cascade');
-            $table->foreignId('provinsi')->constrained('provinsi')->onDelete('cascade');
+            $table->string('kode_wilayah')->unique();
+            $table->string('nama_wilayah');
+            $table->enum('tingkat', ['dusun', 'desa', 'kecamatan', 'kabupaten', 'provinsi']);
+            $table->foreignId('parent_id')->nullable()->constrained('wilayah')->onDelete('cascade');
+            $table->text('polygon')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('wilayah');
