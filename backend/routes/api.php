@@ -17,42 +17,25 @@ Route::prefix("V1")->group(function () {
     });
 
     Route::prefix('program')->group(function () {
-        // Public routes - semua bisa lihat
+        // Public routes - bisa diakses tanpa login
         Route::get('/', [ProgramController::class, 'index']);
-        Route::get('/filter/search', [ProgramController::class, 'filter']);
-        Route::get('/statistics/all', [ProgramController::class, 'statistics']);
-        Route::get('/{id}', [ProgramController::class, 'show'])->middleware('program.ownership');
+        Route::get('/filter', [ProgramController::class, 'filter']);
+        Route::get('/statistics', [ProgramController::class, 'statistics']);
+        Route::get('/{id}', [ProgramController::class, 'show']);
 
-        // Protected routes
-        Route::middleware('auth:sanctum')->group(function () {
-            // Hanya admin desa yang bisa buat program
+        // Protected routes - butuh login
+        Route::middleware(['auth:sanctum'])->group(function () {
+            Route::get('/create/metadata', [ProgramController::class, 'create'])->middleware('admin.desa');
             Route::post('/', [ProgramController::class, 'store'])->middleware('admin.desa');
-            
-            // Hanya admin desa yang bisa update/delete program miliknya
-            Route::put('/{id}', [ProgramController::class, 'update'])
-                ->middleware(['admin.desa', 'program.ownership']);
-            Route::delete('/{id}', [ProgramController::class, 'destroy'])
-                ->middleware(['admin.desa', 'program.ownership']);
+            Route::put('/{id}', [ProgramController::class, 'update'])->middleware(['admin.desa', 'program.ownership']);
+            Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware(['admin.desa', 'program.ownership']);
 
-            // Program workflow dengan middleware spesifik
-            Route::post('/{id}/submit', [ProgramController::class, 'submit'])
-                ->middleware(['admin.desa', 'program.ownership']);
-            
-            Route::post('/{id}/verify', [ProgramController::class, 'verify'])
-                ->middleware(['can.verify', 'program.ownership']);
-            
-            Route::post('/{id}/approve', [ProgramController::class, 'approve'])
-                ->middleware(['can.approve', 'program.ownership']);
-            
-            Route::post('/{id}/reject', [ProgramController::class, 'reject'])
-                ->middleware(['can.verify', 'program.ownership']);
-            
-            Route::post('/{id}/change-status', [ProgramController::class, 'changeStatus'])
-                ->middleware(['admin.desa', 'program.ownership']);
-
-            // Form metadata - hanya admin desa
-            Route::get('/create/metadata', [ProgramController::class, 'create'])
-                ->middleware('admin.desa');
+            // Workflow routes
+            Route::post('/{id}/submit', [ProgramController::class, 'submit'])->middleware(['admin.desa', 'program.ownership']);
+            Route::post('/{id}/verify', [ProgramController::class, 'verify'])->middleware(['can.verify', 'program.ownership']);
+            Route::post('/{id}/approve', [ProgramController::class, 'approve'])->middleware(['can.approve', 'program.ownership']);
+            Route::post('/{id}/reject', [ProgramController::class, 'reject'])->middleware(['can.verify', 'program.ownership']);
+            Route::post('/{id}/change-status', [ProgramController::class, 'changeStatus'])->middleware(['admin.kabupaten', 'program.ownership']);
         });
     });
 

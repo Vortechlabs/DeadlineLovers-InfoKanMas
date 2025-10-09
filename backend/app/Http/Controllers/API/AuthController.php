@@ -11,95 +11,152 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-public function register(Request $request){
-    $validate = Validator::make($request->all(), [
-        'nama' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'telepon' => 'required|string|max:15',
-        'umur' => 'required|integer|min:1|max:120',
-        'rt' => 'required|string|max:10',
-        'rw' => 'required|string|max:10',
-        'alamat_lengkap' => 'required|integer',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
-
-    if($validate->fails()){
-        return response()->json([
-            'success' => false,
-            'error' => $validate->errors(),
-        ], 422); // Changed from 403 to 422 for validation errors
-    }
-
-    $user = User::create([
-        'nama' => $request->nama,
-        'email' => $request->email,
-        'telepon' => $request->telepon,
-        'umur' => $request->umur,
-        'rt' => $request->rt,
-        'rw' => $request->rw,
-        'alamat_lengkap' => $request->alamat_lengkap,
-        'role' => 'user', 
-        'password' => Hash::make($request->password),
+    /**
+     * 🔐 LOGIN — Authentikasi user
+     */
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
         ]);
 
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'user' => $user,
-        ],
-        'message' => 'User berhasil didaftarkan!',
-    ], 201);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-    if (!$user) {
-    return response()->json([
-        'success' => false,
-        'message' => 'User tidak ditemukan.',
-    ], 404);
-    }
+        // Cek credentials
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau password salah'
+            ], 401);
+        }
 
-}
+        // Dapatkan user yang sudah terautentikasi
+        $user = Auth::user();
+        
+        // Pastikan user ada dan bisa membuat token
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
 
-    public function me(Request $request)
-    {
+        // Buat token Sanctum
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'success' => true,
-            'data' => $request->user(), // otomatis ambil user dari token Sanctum
+            'message' => 'Login berhasil',
+            'data' => [
+                'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer'
+            ]
         ], 200);
     }
 
-
-    public function login(Request $request){
-        $validate = Validator::make($request->all(), [
-            'email'=>'required|string|email|max:255',
-            'password'=>'required|string|min:8',
+    /**
+     * 📝 REGISTER — Pendaftaran user baru
+     */
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'telepon' => 'required|string|max:15',
+            'umur' => 'required|integer|min:17|max:100',
+            'rt' => 'required|string|max:3',
+            'rw' => 'required|string|max:3',
+            'alamat_lengkap' => 'required|exists:wilayah,id',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'sometimes|in:user,admin_desa,admin_kecamatan,admin_kabupaten,admin_dinas',
         ]);
 
-        if($validate->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                'success'=> false,
-                'error'=> $validate->errors(),
-            ] ,403);
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $user = User::where('email',$request->email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            $user = User::create([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'telepon' => $request->telepon,
+                'umur' => $request->umur,
+                'rt' => $request->rt,
+                'rw' => $request->rw,
+                'alamat_lengkap' => $request->alamat_lengkap,
+                'role' => $request->role ?? 'user',
+                'password' => Hash::make($request->password),
+                'email_verified_at' => now(), // Auto verify untuk demo
+            ]);
 
-        return response()->json([  
-            'success'=>true,
-            'data'=> [
-                'user'=>$user,
-                'access_token'=>$token,
-                'token_type'=>'Bearer'
-            ],
-            'message'=>'Anda berhasil login!',
-        ], );
+            // Buat token untuk user baru
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registrasi berhasil',
+                'data' => [
+                    'user' => $user,
+                    'access_token' => $token,
+                    'token_type' => 'Bearer'
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registrasi gagal',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function logout(Request $request){   
-        $request->user()->currentAccessToken()->delete();
+    /**
+     * 🚪 LOGOUT — Logout user
+     */
+    public function logout(Request $request)
+    {
+        try {
+            // Hapus token current user
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout berhasil'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout gagal',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 👤 ME — Get current user data
+     */
+    public function me(Request $request)
+    {
+        $user = $request->user()->load('alamat');
+
         return response()->json([
-            'success'=>true,
-            'message'=> 'Logout Berhasil'
-        ],200);
+            'success' => true,
+            'message' => 'Data user berhasil diambil',
+            'data' => $user
+        ], 200);
     }
 }

@@ -3,148 +3,277 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\KategoriProgramModel;
 use App\Models\Program;
 use App\Models\ProgramModel;
+use App\Models\ProgramRab;
+use App\Models\ProgramRabModel;
+use App\Models\ProgramTahapan;
+use App\Models\KategoriProgram;
+use App\Models\ProgramTahapanModel;
+use App\Models\Wilayah;
+use App\Models\WilayahModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ProgramController extends Controller
 {
     /**
-     * 📦 INDEX — Menampilkan semua data program dengan JOIN
+     * 📦 INDEX — Menampilkan semua data program dengan filter berdasarkan role
      */
-    public function index()
+    public function index(Request $request)
     {
-        $programs = DB::table('program')
-            ->leftJoin('users as creator', 'program.created_by', '=', 'creator.id')
-            ->leftJoin('users as verifier', 'program.verified_by', '=', 'verifier.id')
-            ->leftJoin('users as approver', 'program.approved_by', '=', 'approver.id')
-            ->leftJoin('wilayah', 'program.alamat', '=', 'wilayah.id')
-            ->leftJoin('desa', 'wilayah.desa', '=', 'desa.id')
-            ->leftJoin('kecamatan', 'wilayah.kecamatan', '=', 'kecamatan.id')
-            ->leftJoin('kabupaten', 'wilayah.kabupaten', '=', 'kabupaten.id')
-            ->leftJoin('provinsi', 'wilayah.provinsi', '=', 'provinsi.id')
-            ->select(
-                'program.id',
-                'program.nama_program',
-                'program.deskripsi',
-                'program.jenis_program',
-                'program.tingkat_pengusul',
-                'program.tahun_anggaran',
-                'program.status_program',
-                'program.tanggal_mulai',
-                'program.tanggal_selesai',
-                'program.target_penerima_manfaat',
-                'program.catatan_verifikasi',
-                'program.catatan_approval',
-                'program.created_at',
-                'program.updated_at',
-                'creator.nama as dibuat_oleh',
-                'verifier.nama as diverifikasi_oleh',
-                'approver.nama as disetujui_oleh',
-                'desa.nama_desa',
-                'kecamatan.nama_kecamatan',
-                'kabupaten.nama_kabupaten',
-                'provinsi.nama_provinsi'
-            )
-            ->orderBy('program.created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+        $query = ProgramModel::with([
+            'kategori', 
+            'wilayah', 
+            'penanggungJawab', 
+            'creator',
+            'verifier',
+            'approver'
+        ]);
+
+        // Filter berdasarkan role user (jika user sudah login)
+        if ($user) {
+            if ($user->role === 'admin_desa') {
+                $query->where('wilayah_id', $user->alamat_lengkap);
+            } elseif ($user->role === 'admin_kecamatan') {
+                $query->whereHas('wilayah', function($q) use ($user) {
+                    $q->where('parent_id', $user->alamat_lengkap);
+                });
+            }
+            // Admin kabupaten & dinas bisa lihat semua
+        } else {
+            // Untuk user yang belum login, hanya tampilkan program yang approved/berjalan/selesai
+            $query->whereIn('status_program', ['approved', 'berjalan', 'selesai']);
+        }
+
+        // Filter opsional
+        if ($request->has('status') && $request->status) {
+            $query->where('status_program', $request->status);
+        }
+
+        if ($request->has('kategori') && $request->kategori) {
+            $query->where('kategori_program_id', $request->kategori);
+        }
+
+        if ($request->has('tahun') && $request->tahun) {
+            $query->where('tahun_anggaran', $request->tahun);
+        }
+
+        $programs = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
+            'message' => 'Data program berhasil diambil',
             'data' => $programs
         ], 200);
     }
 
     /**
-     * 🔎 FILTER — Filter program berdasarkan role & status
-     * FITUR BARU: Filter by status, wilayah, tahun, jenis program
-     */
-    public function filter(Request $request)
-    {
-        $query = DB::table('program')
-            ->leftJoin('users as creator', 'program.created_by', '=', 'creator.id')
-            ->leftJoin('wilayah', 'program.alamat', '=', 'wilayah.id')
-            ->select(
-                'program.id',
-                'program.nama_program',
-                'program.deskripsi',
-                'program.status_program',
-                'program.tahun_anggaran',
-                'program.tanggal_mulai',
-                'program.tanggal_selesai',
-                'creator.nama as dibuat_oleh'
-            );
-
-        // Filter by status
-        if ($request->has('status') && $request->status != '') {
-            $query->where('program.status_program', $request->status);
-        }
-
-        // Filter by tahun anggaran
-        if ($request->has('tahun') && $request->tahun != '') {
-            $query->where('program.tahun_anggaran', $request->tahun);
-        }
-
-        // Filter by jenis program
-        if ($request->has('jenis_program') && $request->jenis_program != '') {
-            $query->where('program.jenis_program', $request->jenis_program);
-        }
-
-        // Filter by wilayah
-        if ($request->has('wilayah_id') && $request->wilayah_id != '') {
-            $query->where('program.alamat', $request->wilayah_id);
-        }
-
-        $programs = $query->orderBy('program.created_at', 'desc')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $programs
-        ], 200);
-    }
-
-    /**
-     * 🔍 SHOW — Menampilkan satu data program berdasarkan ID
+     * 🔍 SHOW — Menampilkan detail program lengkap
      */
     public function show($id)
     {
-        $program = DB::table('program')
-            ->leftJoin('users as creator', 'program.created_by', '=', 'creator.id')
-            ->leftJoin('users as verifier', 'program.verified_by', '=', 'verifier.id')
-            ->leftJoin('users as approver', 'program.approved_by', '=', 'approver.id')
-            ->select('program.*', 'creator.nama as dibuat_oleh', 'verifier.nama as diverifikasi_oleh', 'approver.nama as disetujui_oleh')
-            ->where('program.id', $id)
-            ->first();
+        $program = ProgramModel::with([
+            'kategori',
+            'wilayah',
+            'penanggungJawab',
+            'creator',
+            'verifier', 
+            'approver',
+            'rabItems',
+            'tahapan',
+            'progress' => function($query) {
+                $query->with(['pelapor', 'validator', 'dokumentasi'])
+                      ->orderBy('created_at', 'desc');
+            },
+            'issues' => function($query) {
+                $query->with(['pelapor', 'penanggungJawab'])
+                      ->orderBy('created_at', 'desc');
+            },
+            'dokumen'
+        ])->find($id);
 
         if (!$program) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Program tidak ditemukan.'
             ], 404);
         }
 
+        // Cek akses untuk user yang belum login
+        $user = Auth::user();
+        if (!$user && !in_array($program->status_program, ['approved', 'berjalan', 'selesai'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk melihat program ini.'
+            ], 403);
+        }
+
+        // Hitung progress keseluruhan
+        $progressPercentage = $program->progress_percentage;
+
         return response()->json([
-            'status' => 'success',
-            'data' => $program
+            'success' => true,
+            'message' => 'Detail program berhasil diambil',
+            'data' => [
+                'program' => $program,
+                'progress_percentage' => $progressPercentage
+            ]
         ], 200);
     }
 
     /**
-     * ➕ CREATE — Menampilkan form create (metadata untuk form)
-     * FITUR BARU: Return enum options & wilayah list untuk form
+     * 📋 CREATE — Metadata untuk form create program
      */
     public function create()
     {
-        $wilayah = DB::table('wilayah')->select('id', 'nama')->get();
+        // Hanya user yang login yang bisa akses
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk mengakses fitur ini.'
+            ], 401);
+        }
+
+        $kategori = KategoriProgramModel::all();
+        $wilayah = WilayahModel::where('tingkat', 'desa')->get();
+        
+        $user = Auth::user();
+        $wilayahUser = $user->alamat;
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
+            'message' => 'Metadata form create program',
             'data' => [
-                'wilayah' => $wilayah,
-                'jenis_program' => ['desa', 'kecamatan', 'dinas', 'kabupaten'],
-                'status_program' => ['draft', 'diajukan', 'diverifikasi_kecamatan', 'approved', 'rejected', 'berjalan', 'selesai']
+                'kategori_program' => $kategori,
+                'wilayah_list' => $wilayah,
+                'default_wilayah' => $wilayahUser,
+                'jenis_program_options' => ['desa', 'kecamatan', 'dinas', 'kabupaten'],
+                'tingkat_pengusul_options' => ['desa', 'kecamatan', 'dinas', 'kabupaten'],
+                'prioritas_options' => ['rendah', 'sedang', 'tinggi', 'darurat'],
+                'status_options' => ['draft', 'diajukan', 'diverifikasi_kecamatan', 'approved', 'rejected', 'berjalan', 'selesai']
+            ]
+        ], 200);
+    }
+
+    /**
+     * 🔎 FILTER — Filter program dengan berbagai kriteria
+     */
+    public function filter(Request $request)
+    {
+        $user = Auth::user();
+        $query = ProgramModel::with(['kategori', 'wilayah', 'penanggungJawab']);
+
+        // Filter berdasarkan role (jika user login)
+        if ($user) {
+            if ($user->role === 'admin_desa') {
+                $query->where('wilayah_id', $user->alamat_lengkap);
+            } elseif ($user->role === 'admin_kecamatan') {
+                $query->whereHas('wilayah', function($q) use ($user) {
+                    $q->where('parent_id', $user->alamat_lengkap);
+                });
+            }
+        } else {
+            // Untuk user yang belum login, hanya tampilkan program yang approved/berjalan/selesai
+            $query->whereIn('status_program', ['approved', 'berjalan', 'selesai']);
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            $query->where('status_program', $request->status);
+        }
+
+        // Filter by kategori
+        if ($request->has('kategori_id') && $request->kategori_id) {
+            $query->where('kategori_program_id', $request->kategori_id);
+        }
+
+        // Filter by tahun
+        if ($request->has('tahun_anggaran') && $request->tahun_anggaran) {
+            $query->where('tahun_anggaran', $request->tahun_anggaran);
+        }
+
+        // Filter by prioritas
+        if ($request->has('prioritas') && $request->prioritas) {
+            $query->where('prioritas', $request->prioritas);
+        }
+
+        // Filter by search term
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_program', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        $programs = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data program filtered berhasil diambil',
+            'data' => $programs
+        ], 200);
+    }
+
+    /**
+     * 📊 STATISTICS — Statistik program
+     */
+    public function statistics()
+    {
+        $user = Auth::user();
+        $query = ProgramModel::query();
+
+        // Filter berdasarkan role (jika user login)
+        if ($user) {
+            if ($user->role === 'admin_desa') {
+                $query->where('wilayah_id', $user->alamat_lengkap);
+            } elseif ($user->role === 'admin_kecamatan') {
+                $query->whereHas('wilayah', function($q) use ($user) {
+                    $q->where('parent_id', $user->alamat_lengkap);
+                });
+            }
+        } else {
+            // Untuk user yang belum login, hanya hitung program yang approved/berjalan/selesai
+            $query->whereIn('status_program', ['approved', 'berjalan', 'selesai']);
+        }
+
+        $totalProgram = $query->count();
+        $totalAnggaran = $query->sum('anggaran_total');
+        $totalRealisasi = $query->sum('realisasi_anggaran');
+
+        $byStatus = $query->clone()
+            ->groupBy('status_program')
+            ->selectRaw('status_program, count(*) as total')
+            ->get();
+
+        $byKategori = $query->clone()
+            ->join('kategori_program', 'program.kategori_program_id', '=', 'kategori_program.id')
+            ->groupBy('kategori_program.id', 'kategori_program.nama_kategori')
+            ->selectRaw('kategori_program.nama_kategori, count(*) as total')
+            ->get();
+
+        $byYear = $query->clone()
+            ->groupBy('tahun_anggaran')
+            ->selectRaw('tahun_anggaran, count(*) as total, sum(anggaran_total) as total_anggaran')
+            ->orderBy('tahun_anggaran', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Statistik program berhasil diambil',
+            'data' => [
+                'total_program' => $totalProgram,
+                'total_anggaran' => (float) $totalAnggaran,
+                'total_realisasi' => (float) $totalRealisasi,
+                'sisa_anggaran' => (float) $totalAnggaran - $totalRealisasi,
+                'by_status' => $byStatus,
+                'by_kategori' => $byKategori,
+                'by_year' => $byYear,
             ]
         ], 200);
     }
@@ -154,34 +283,99 @@ class ProgramController extends Controller
      */
     public function store(Request $request)
     {
-        $validation = $request->validate([
+        // Cek auth
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk membuat program.'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
             'nama_program' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'kategori_program_id' => 'required|exists:kategori_program,id',
             'jenis_program' => 'required|in:desa,kecamatan,dinas,kabupaten',
             'tingkat_pengusul' => 'required|in:desa,kecamatan,dinas,kabupaten',
-            'alamat' => 'nullable|integer',
-            'tahun_anggaran' => 'required|integer|min:2000|max:2100',
-            'status_program' => 'in:draft,diajukan,diverifikasi_kecamatan,approved,rejected,berjalan,selesai',
+            'wilayah_id' => 'required|exists:wilayah,id',
+            'tahun_anggaran' => 'required|integer|min:2020|max:2030',
+            'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'target_penerima_manfaat' => 'nullable|integer|min:0',
+            'anggaran_total' => 'required|numeric|min:0',
         ]);
 
-        // Auto set created_by dari auth user
-        $validation['created_by'] = Auth::id() ?? $request->created_by;
-        $validation['status_program'] = $validation['status_program'] ?? 'draft';
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        $program = ProgramModel::create($validation);
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil ditambahkan.'
-        ], 201);
+            $programData = $request->all();
+            $programData['created_by'] = Auth::id();
+            $programData['penanggung_jawab_id'] = Auth::id();
+            $programData['status_program'] = 'draft';
+
+            $program = ProgramModel::create($programData);
+
+            // Jika ada RAB items
+            if ($request->has('rab_items') && is_array($request->rab_items)) {
+                foreach ($request->rab_items as $index => $rabItem) {
+                    ProgramRabModel::create([
+                        'program_id' => $program->id,
+                        'nama_item' => $rabItem['nama_item'],
+                        'deskripsi' => $rabItem['deskripsi'] ?? null,
+                        'volume' => $rabItem['volume'],
+                        'satuan' => $rabItem['satuan'],
+                        'harga_satuan' => $rabItem['harga_satuan'],
+                        'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
+                        'urutan' => $index + 1,
+                    ]);
+                }
+            }
+
+            // Jika ada tahapan
+            if ($request->has('tahapan') && is_array($request->tahapan)) {
+                foreach ($request->tahapan as $index => $tahapan) {
+                    ProgramTahapanModel::create([
+                        'program_id' => $program->id,
+                        'nama_tahapan' => $tahapan['nama_tahapan'],
+                        'deskripsi' => $tahapan['deskripsi'] ?? null,
+                        'persentase' => $tahapan['persentase'],
+                        'tanggal_mulai_rencana' => $tahapan['tanggal_mulai_rencana'],
+                        'tanggal_selesai_rencana' => $tahapan['tanggal_selesai_rencana'],
+                        'status' => 'menunggu',
+                        'urutan' => $index + 1,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program berhasil dibuat',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan'])
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat program',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * ✏️ UPDATE — Mengubah data program
+     * ✏️ UPDATE — Mengupdate data program
      */
     public function update(Request $request, $id)
     {
@@ -189,168 +383,62 @@ class ProgramController extends Controller
 
         if (!$program) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Program tidak ditemukan.'
             ], 404);
         }
 
-        $validation = $request->validate([
+        // Cek ownership
+        $user = Auth::user();
+        if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk mengedit program ini.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
             'nama_program' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'kategori_program_id' => 'required|exists:kategori_program,id',
             'jenis_program' => 'required|in:desa,kecamatan,dinas,kabupaten',
             'tingkat_pengusul' => 'required|in:desa,kecamatan,dinas,kabupaten',
-            'alamat' => 'nullable|integer|exists:wilayah,id',
-            'tahun_anggaran' => 'required|integer|min:2000|max:2100',
-            'status_program' => 'in:draft,diajukan,diverifikasi_kecamatan,approved,rejected,berjalan,selesai',
+            'wilayah_id' => 'required|exists:wilayah,id',
+            'tahun_anggaran' => 'required|integer|min:2020|max:2030',
+            'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'target_penerima_manfaat' => 'nullable|integer|min:0',
+            'anggaran_total' => 'required|numeric|min:0',
         ]);
 
-        $program->update($validation);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil diperbarui.'
-        ], 200);
-    }
-
-    /**
-     * ✅ VERIFY — Verifikasi program (admin_kecamatan)
-     * FITUR BARU: Perubahan status ke diverifikasi_kecamatan
-     */
-    public function verify(Request $request, $id)
-    {
-        $program = ProgramModel::find($id);
-
-        if (!$program) {
+        if ($validator->fails()) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Program tidak ditemukan.'
-            ], 404);
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $validation = $request->validate([
-            'catatan_verifikasi' => 'nullable|string',
-        ]);
-
-        $program->update([
-            'status_program' => 'diverifikasi_kecamatan',
-            'verified_by' => Auth::id(),
-            'tanggal_verifikasi' => now(),
-            'catatan_verifikasi' => $validation['catatan_verifikasi'] ?? null,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil diverifikasi.'
-        ], 200);
-    }
-
-    /**
-     * 👍 APPROVE — Approve program (admin_kabupaten)
-     * FITUR BARU: Perubahan status ke approved
-     */
-    public function approve(Request $request, $id)
-    {
-        $program = ProgramModel::find($id);
-
-        if (!$program) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Program tidak ditemukan.'
-            ], 404);
-        }
-
-        $validation = $request->validate([
-            'catatan_approval' => 'nullable|string',
-        ]);
-
-        $program->update([
-            'status_program' => 'approved',
-            'approved_by' => Auth::id(),
-            'tanggal_approval' => now(),
-            'catatan_approval' => $validation['catatan_approval'] ?? null,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil disetujui.'
-        ], 200);
-    }
-
-    /**
-     * 👎 REJECT — Reject program (admin_kabupaten)
-     * FITUR BARU: Perubahan status ke rejected dengan alasan
-     */
-    public function reject(Request $request, $id)
-    {
-        $program = ProgramModel::find($id);
-
-        if (!$program) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Program tidak ditemukan.'
-            ], 404);
-        }
-
-        $validation = $request->validate([
-            'catatan_approval' => 'required|string',
-        ]);
-
-        $program->update([
-            'status_program' => 'rejected',
-            'approved_by' => Auth::id(),
-            'tanggal_approval' => now(),
-            'catatan_approval' => $validation['catatan_approval'],
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil ditolak.'
-        ], 200);
-    }
-
-    /**
-     * 🚀 SUBMIT — Submit program ke level atas
-     * FITUR BARU: Ubah status draft menjadi diajukan
-     */
-    public function submit(Request $request, $id)
-    {
-        $program = ProgramModel::find($id);
-
-        if (!$program) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Program tidak ditemukan.'
-            ], 404);
-        }
-
+        // Hanya bisa edit program dengan status draft
         if ($program->status_program !== 'draft') {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Hanya program dengan status draft yang dapat diajukan.'
+                'success' => false,
+                'message' => 'Hanya program dengan status draft yang dapat diubah.'
             ], 400);
         }
 
-        $program->update([
-            'status_program' => 'diajukan',
-        ]);
+        $program->update($request->all());
 
         return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Program berhasil diajukan.'
+            'success' => true,
+            'message' => 'Program berhasil diperbarui',
+            'data' => $program->load(['kategori', 'wilayah'])
         ], 200);
     }
 
     /**
-     * 🗑️ DESTROY — Menghapus data program
-     * Hanya bisa hapus program dengan status draft
+     * 🗑️ DESTROY — Menghapus program
      */
     public function destroy($id)
     {
@@ -358,14 +446,24 @@ class ProgramController extends Controller
 
         if (!$program) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Program tidak ditemukan.'
             ], 404);
         }
 
+        // Cek ownership
+        $user = Auth::user();
+        if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk menghapus program ini.'
+            ], 403);
+        }
+
+        // Hanya bisa hapus program dengan status draft
         if ($program->status_program !== 'draft') {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Hanya program dengan status draft yang dapat dihapus.'
             ], 400);
         }
@@ -373,43 +471,193 @@ class ProgramController extends Controller
         $program->delete();
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'message' => 'Program berhasil dihapus.'
         ], 200);
     }
 
     /**
-     * 📊 STATISTICS — Statistik program
-     * FITUR BARU: Tampilkan stat total, by status, by year
+     * 🚀 SUBMIT — Submit program untuk verifikasi
      */
-    public function statistics()
+    public function submit(Request $request, $id)
     {
-        $totalProgram = ProgramModel::count();
-        $totalAnggaran = DB::table('program')->sum('total_anggaran') ?? 0;
-        $byStatus = DB::table('program')
-            ->groupBy('status_program')
-            ->selectRaw('status_program, count(*) as total')
-            ->get();
-        $byYear = DB::table('program')
-            ->groupBy('tahun_anggaran')
-            ->selectRaw('tahun_anggaran, count(*) as total')
-            ->orderBy('tahun_anggaran', 'desc')
-            ->get();
+        $program = ProgramModel::find($id);
+
+        if (!$program) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program tidak ditemukan.'
+            ], 404);
+        }
+
+        // Cek ownership
+        $user = Auth::user();
+        if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk submit program ini.'
+            ], 403);
+        }
+
+        if ($program->status_program !== 'draft') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya program dengan status draft yang dapat diajukan.'
+            ], 400);
+        }
+
+        $program->update([
+            'status_program' => 'diajukan'
+        ]);
 
         return response()->json([
-            'status' => 'success',
-            'data' => [
-                'total_program' => $totalProgram,
-                'total_anggaran' => $totalAnggaran,
-                'by_status' => $byStatus,
-                'by_year' => $byYear,
-            ]
+            'success' => true,
+            'message' => 'Program berhasil diajukan untuk verifikasi.',
+            'data' => $program
         ], 200);
     }
 
     /**
-     * 🔄 CHANGE STATUS — Ubah status program manual
-     * FITUR BARU: Untuk admin_kabupaten update status
+     * ✅ VERIFY — Verifikasi program (admin_kecamatan)
+     */
+    public function verify(Request $request, $id)
+    {
+        $program = ProgramModel::find($id);
+
+        if (!$program) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program tidak ditemukan.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'catatan_verifikasi' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if ($program->status_program !== 'diajukan') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya program dengan status diajukan yang dapat diverifikasi.'
+            ], 400);
+        }
+
+        $program->update([
+            'status_program' => 'diverifikasi_kecamatan',
+            'verified_by' => Auth::id(),
+            'tanggal_verifikasi' => now(),
+            'catatan_verifikasi' => $request->catatan_verifikasi,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Program berhasil diverifikasi.',
+            'data' => $program
+        ], 200);
+    }
+
+    /**
+     * 👍 APPROVE — Approve program (admin_kabupaten/dinas)
+     */
+    public function approve(Request $request, $id)
+    {
+        $program = ProgramModel::find($id);
+
+        if (!$program) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program tidak ditemukan.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'catatan_approval' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if ($program->status_program !== 'diverifikasi_kecamatan') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya program dengan status diverifikasi_kecamatan yang dapat disetujui.'
+            ], 400);
+        }
+
+        $program->update([
+            'status_program' => 'approved',
+            'approved_by' => Auth::id(),
+            'tanggal_approval' => now(),
+            'catatan_approval' => $request->catatan_approval,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Program berhasil disetujui.',
+            'data' => $program
+        ], 200);
+    }
+
+    /**
+     * 👎 REJECT — Menolak program
+     */
+    public function reject(Request $request, $id)
+    {
+        $program = ProgramModel::find($id);
+
+        if (!$program) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Program tidak ditemukan.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'catatan' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $catatanField = $user->role === 'admin_kecamatan' ? 'catatan_verifikasi' : 'catatan_approval';
+
+        $program->update([
+            'status_program' => 'rejected',
+            'verified_by' => $user->role === 'admin_kecamatan' ? $user->id : $program->verified_by,
+            'approved_by' => $user->role === 'admin_kecamatan' ? null : $user->id,
+            'tanggal_verifikasi' => $user->role === 'admin_kecamatan' ? now() : $program->tanggal_verifikasi,
+            'tanggal_approval' => $user->role === 'admin_kecamatan' ? null : now(),
+            $catatanField => $request->catatan,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Program berhasil ditolak.',
+            'data' => $program
+        ], 200);
+    }
+
+    /**
+     * 🔄 CHANGE STATUS — Ubah status program (admin khusus)
      */
     public function changeStatus(Request $request, $id)
     {
@@ -417,21 +665,43 @@ class ProgramController extends Controller
 
         if (!$program) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Program tidak ditemukan.'
             ], 404);
         }
 
-        $validation = $request->validate([
+        $validator = Validator::make($request->all(), [
             'status_program' => 'required|in:draft,diajukan,diverifikasi_kecamatan,approved,rejected,berjalan,selesai',
+            'catatan' => 'nullable|string|max:1000',
         ]);
 
-        $program->update($validation);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $updateData = ['status_program' => $request->status_program];
+
+        // Set verified/approved berdasarkan status
+        if ($request->status_program === 'diverifikasi_kecamatan') {
+            $updateData['verified_by'] = Auth::id();
+            $updateData['tanggal_verifikasi'] = now();
+            $updateData['catatan_verifikasi'] = $request->catatan;
+        } elseif ($request->status_program === 'approved') {
+            $updateData['approved_by'] = Auth::id();
+            $updateData['tanggal_approval'] = now();
+            $updateData['catatan_approval'] = $request->catatan;
+        }
+
+        $program->update($updateData);
 
         return response()->json([
-            'status' => 'success',
-            'data' => $program,
-            'message' => 'Status program berhasil diubah.'
+            'success' => true,
+            'message' => 'Status program berhasil diubah.',
+            'data' => $program
         ], 200);
     }
 }

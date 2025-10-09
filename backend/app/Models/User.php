@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'nama',
@@ -110,18 +111,18 @@ class User extends Authenticatable
         return in_array($this->role, ['admin_kabupaten', 'admin_dinas']);
     }
 
-    public function getAlamatLengkapAttribute(): string
-    {
-        if (!$this->alamat) return '';
+    // public function getAlamatLengkapAttribute(): string
+    // {
+    //     if (!$this->alamat) return '';
 
-        $hierarchy = [];
-        $current = $this->alamat;
+    //     $hierarchy = [];
+    //     $current = $this->alamat;
         
-        while ($current) {
-            $hierarchy[] = $current->nama_wilayah;
-            $current = $current->parent;
-        }
+    //     while ($current) {
+    //         $hierarchy[] = $current->nama_wilayah;
+    //         $current = $current->parent;
+    //     }
         
-        return implode(', ', array_reverse($hierarchy)) . " RT {$this->rt}/RW {$this->rw}";
-    }
+    //     return implode(', ', array_reverse($hierarchy)) . " RT {$this->rt}/RW {$this->rw}";
+    // }
 }
