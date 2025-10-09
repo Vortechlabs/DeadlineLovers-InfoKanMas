@@ -5,26 +5,22 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminDinasMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-         /** @var User|null $user */
         $user = Auth::user();
-
-        if($user && $user->isAdminDinas()){
-            return $next($request);
+        
+        if ($user->role !== 'admin_dinas') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden. Hanya Admin Dinas yang dapat mengakses.',
+                'data' => null
+            ], 403);
         }
 
-        return response()->json([
-            'message'=>'Unauthorized. Admin access required.'
-        ], 403);
-
+        return $next($request);
     }
 }

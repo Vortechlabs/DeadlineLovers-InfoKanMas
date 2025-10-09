@@ -4,38 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class KecamatanModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'kecamatan';
-
     protected $fillable = [
         'nama_kecamatan',
         'kabupaten',
-        'provinsi',
     ];
 
-    
-    /**
-     * Relasi ke Provinsi (Many to One)
-     * Banyak kabupaten berada di satu provinsi
-     */
-
-
-    public function wilayah()
+    public function kabupatenRel(): BelongsTo
     {
-        return $this->hasMany(WilayahModel::class);
+        return $this->belongsTo(KabupatenModel::class, 'kabupaten');
     }
 
-    public function kabupaten()
+    public function desas(): HasMany
     {
-        return $this->belongsTo(KabupatenModel::class);
-    }
-
-    public function provinsi()
-    {
-        return $this->belongsTo(KabupatenModel::class);
+        return $this->hasMany(DesaModel::class, 'kecamatan');
     }
 }

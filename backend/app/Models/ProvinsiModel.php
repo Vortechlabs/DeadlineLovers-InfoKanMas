@@ -4,36 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProvinsiModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'provinsi';
-
     protected $fillable = [
         'nama_provinsi',
     ];
 
-    public function kabupaten()
+    public function kabupatens(): HasMany
     {
-        return $this->hasMany(KabupatenModel::class);
+        return $this->hasMany(KabupatenModel::class, 'provinsi');
     }
-
-    public function kecamatan()
-    {
-        return $this->hasMany(KecamatanModel::class);
-    }
-
-    public function desa()
-    {
-        return $this->hasMany(DesaModel::class);
-    }
-
-    // Relasi ke Wilayah
-    public function wilayah()
-    {
-        return $this->hasMany(WilayahModel::class);
-    }
-
 }

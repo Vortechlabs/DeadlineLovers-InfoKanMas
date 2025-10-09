@@ -4,33 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class KabupatenModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'kabupaten';
-
     protected $fillable = [
         'nama_kabupaten',
-        'provinsi', // foreign key
+        'provinsi',
     ];
 
-    /**
-     * 🔗 Relasi ke Provinsi
-     * Setiap kabupaten berada di satu provinsi
-     */
-    public function provinsi()
+    public function provinsiRel(): BelongsTo
     {
-        return $this->belongsTo(ProvinsiModel::class);
+        return $this->belongsTo(ProvinsiModel::class, 'provinsi');
     }
 
-    /**
-     * 🔗 Relasi ke Kecamatan
-     * Satu kabupaten memiliki banyak kecamatan
-     */
-    public function wilayah()
+    public function kecamatans(): HasMany
     {
-        return $this->hasMany(WilayahModel::class);
+        return $this->hasMany(KecamatanModel::class, 'kabupaten');
     }
 }

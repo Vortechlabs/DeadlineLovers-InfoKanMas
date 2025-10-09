@@ -11,9 +11,18 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        // Route Middleware (Alias)
+        $middleware->alias([
+            'admin.desa' => \App\Http\Middleware\AdminDesaMiddleware::class,
+            'admin.dinas' => \App\Http\Middleware\AdminDinasMiddleware::class,
+            'admin.kabupaten' => \App\Http\Middleware\AdminKabupatenMiddleware::class,
+            'admin.kecamatan' => \App\Http\Middleware\AdminKecamatanMIddleware::class,
+            'can.verify' => \App\Http\Middleware\CanVerifyProgram::class,
+            'can.approve' => \App\Http\Middleware\CanApproveProgram::class,
+            'program.ownership' => \App\Http\Middleware\ProgramOwnership::class,
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

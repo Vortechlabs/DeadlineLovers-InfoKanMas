@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WilayahModel extends Model
 {
@@ -12,59 +14,71 @@ class WilayahModel extends Model
     protected $table = 'wilayah';
 
     protected $fillable = [
-        'desa',
-        'kecamatan',
-        'kabupaten',
-        'provinsi',
+        'kode_wilayah',
+        'nama_wilayah',
+        'tingkat',
+        'parent_id',
+        'polygon',
     ];
 
-    /**
-     * 🔗 Relasi ke tabel desa
-     * Satu wilayah berelasi dengan satu desa
-     */
-    public function desa()
+    // Relationships
+    public function parent(): BelongsTo
     {
-        return $this->belongsTo(DesaModel::class);
+        return $this->belongsTo(WilayahModel::class, 'parent_id');
     }
 
-    /**
-     * 🔗 Relasi ke tabel kecamatan
-     * Satu wilayah berelasi dengan satu kecamatan
-     */
-    public function kecamatan()
+    public function children(): HasMany
     {
-        return $this->belongsTo(KecamatanModel::class);
+        return $this->hasMany(WilayahModel::class, 'parent_id');
     }
 
-    /**
-     * 🔗 Relasi ke tabel kabupaten
-     * Satu wilayah berelasi dengan satu kabupaten
-     */
-    public function kabupaten()
+    public function users(): HasMany
     {
-        return $this->belongsTo(KabupatenModel::class);
+        return $this->hasMany(User::class, 'alamat_lengkap');
     }
 
-    /**
-     * 🔗 Relasi ke tabel provinsi
-     * Satu wilayah berelasi dengan satu provinsi
-     */
-    public function provinsi()
+    public function programs(): HasMany
     {
-        return $this->belongsTo(ProvinsiModel::class);
+        return $this->hasMany(ProgramModel::class, 'wilayah_id');
     }
 
-    /**
-     * 🔗 Relasi ke tabel users
-     * Banyak pengguna bisa berada di satu wilayah
-     */
-    public function users()
+    // Scopes
+    public function scopeProvinsi($query)
     {
-        return $this->hasMany(User::class);
+        return $query->where('tingkat', 'provinsi');
     }
 
-    public function program()
+    public function scopeKabupaten($query)
     {
-        return $this->hasMany(ProgramModel::class);
+        return $query->where('tingkat', 'kabupaten');
+    }
+
+    public function scopeKecamatan($query)
+    {
+        return $query->where('tingkat', 'kecamatan');
+    }
+
+    public function scopeDesa($query)
+    {
+        return $query->where('tingkat', 'desa');
+    }
+
+    public function scopeDusun($query)
+    {
+        return $query->where('tingkat', 'dusun');
+    }
+
+    // Methods
+    public function getHierarchyAttribute(): string
+    {
+        $hierarchy = [];
+        $current = $this;
+        
+        while ($current) {
+            $hierarchy[] = $current->nama_wilayah;
+            $current = $current->parent;
+        }
+        
+        return implode(' → ', array_reverse($hierarchy));
     }
 }

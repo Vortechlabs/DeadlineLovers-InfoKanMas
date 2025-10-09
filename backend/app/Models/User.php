@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
-    protected $table = 'users';
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'nama',
@@ -23,7 +21,6 @@ class User extends Authenticatable
         'rw',
         'alamat_lengkap',
         'role',
-        'email_verified_at',
         'password',
     ];
 
@@ -32,49 +29,99 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
-    /**
-     * 🔗 Relasi ke tabel wilayah
-     * Setiap user punya satu alamat lengkap (FK ke tabel wilayah)
-     */
-    public function wilayah()
+    // Relationships
+    public function alamat(): BelongsTo
     {
         return $this->belongsTo(WilayahModel::class, 'alamat_lengkap');
     }
 
-    public function program()
+    public function programsCreated(): HasMany
     {
-        return $this->hasMany(ProgramModel::class);
+        return $this->hasMany(ProgramModel::class, 'created_by');
     }
 
-    /**
-     * 🔐 Fungsi Role Check
-     */
-    public function isAdminKabupaten()
+    public function programsPenanggungJawab(): HasMany
     {
-        return $this->role === 'admin_kabupaten';
+        return $this->hasMany(ProgramModel::class, 'penanggung_jawab_id');
     }
 
-    public function isAdminKecamatan()
+    public function progressReports(): HasMany
     {
-        return $this->role === 'admin_kecamatan';
+        return $this->hasMany(ProgramProgressModel::class, 'dilaporkan_oleh');
     }
 
-    public function isAdminDesa()
+    public function issuesReported(): HasMany
     {
-        return $this->role === 'admin_desa';
+        return $this->hasMany(ProgramIssueModel::class, 'dilaporkan_oleh');
     }
 
-    public function isAdminDinas()
+    public function issuesAssigned(): HasMany
     {
-        return $this->role === 'admin_dinas';
+        return $this->hasMany(ProgramIssueModel::class, 'ditugaskan_ke');
     }
 
-    public function isUser()
+    // Scopes
+    public function scopeAdminDesa($query)
     {
-        return $this->role === 'user';
+        return $query->where('role', 'admin_desa');
+    }
+
+    public function scopeAdminKecamatan($query)
+    {
+        return $query->where('role', 'admin_kecamatan');
+    }
+
+    public function scopeAdminKabupaten($query)
+    {
+        return $query->where('role', 'admin_kabupaten');
+    }
+
+    public function scopeAdminDinas($query)
+    {
+        return $query->where('role', 'admin_dinas');
+    }
+
+    public function scopeMasyarakat($query)
+    {
+        return $query->where('role', 'user');
+    }
+
+    // Methods
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['admin_desa', 'admin_kecamatan', 'admin_kabupaten', 'admin_dinas']);
+    }
+
+    public function canVerifyPrograms(): bool
+    {
+        return in_array($this->role, ['admin_kecamatan', 'admin_kabupaten', 'admin_dinas']);
+    }
+
+    public function canApprovePrograms(): bool
+    {
+        return in_array($this->role, ['admin_kabupaten', 'admin_dinas']);
+    }
+
+    public function getAlamatLengkapAttribute(): string
+    {
+        if (!$this->alamat) return '';
+
+        $hierarchy = [];
+        $current = $this->alamat;
+        
+        while ($current) {
+            $hierarchy[] = $current->nama_wilayah;
+            $current = $current->parent;
+        }
+        
+        return implode(', ', array_reverse($hierarchy)) . " RT {$this->rt}/RW {$this->rw}";
     }
 }
