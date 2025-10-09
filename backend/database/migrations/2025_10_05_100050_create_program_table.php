@@ -15,6 +15,7 @@ return new class extends Migration
         $table->id();
         $table->string('nama_program');
         $table->text('deskripsi');
+        $table->foreignId('kategori_program')->constrained('kategori_program')->onDelete('cascade');
         $table->enum('jenis_program', ['desa', 'kecamatan', 'dinas', 'kabupaten']);
         $table->enum('tingkat_pengusul', ['desa', 'kecamatan', 'dinas', 'kabupaten']);
         $table->foreignId('alamat')->nullable()->constrained('wilayah')->onDelete('cascade');
