@@ -12,7 +12,7 @@ const apiClient = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  //withCredentials: true,
+  withCredentials: true,
 });
 
 // Tambahkan properti kustom
