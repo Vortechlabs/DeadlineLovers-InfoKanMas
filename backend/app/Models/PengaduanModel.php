@@ -69,6 +69,6 @@ class PengaduanModel extends Model
      */
     public function lokasi()
     {
-        return $this->belongsTo(WilayahModel::class, 'lokasi_kejadian');
+        return $this->belongsTo(related: WilayahModel::class);
     }
-}
+};

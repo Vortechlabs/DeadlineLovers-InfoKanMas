@@ -22,7 +22,7 @@ return new class extends Migration
             $table->json('bukti_pendukung')->nullable();
             $table->foreignId('lokasi_kejadian')->constrained('wilayah')->onDelete('cascade');
             $table->date('tanggal_kejadian');
-            $table->enum('status_pengaduan', ['pending','diterima', 'diproses', 'ditindaklanjuti', 'selesai', 'ditolak'])->default('pending');
+            $table->enum('status_pengaduan', ['baru','dalam investigasi', 'terverifikasi', 'dalam penyelidikan', 'selesai', 'ditolak'])->default('dalam investigasi');
             $table->enum('prioritas', ['rendah', 'sedang', 'tinggi'])->default('sedang');
             $table->foreignId('ditangani_oleh')->nullable()->constrained('users')->onDelete('cascade');
             $table->dateTime('tanggal_ditangani')->nullable();
