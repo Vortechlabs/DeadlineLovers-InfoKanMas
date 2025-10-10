@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('telepon');
             $table->integer('umur');
+            $table->string('nik')->unique();
             $table->string('rt');
             $table->string('rw');
             $table->foreignId('alamat_lengkap')->constrained('wilayah')->onDelete('cascade');

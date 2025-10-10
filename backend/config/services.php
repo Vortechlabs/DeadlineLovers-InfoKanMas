@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+     'fastapi' => [
+        'base_url' => env('FASTAPI_BASE_URL', 'http://localhost:8000'),
+        'endpoint' => env('FASTAPI_ENDPOINT', '/deteksi-anggaran'),
+        'timeout' => env('FASTAPI_TIMEOUT', 30),
+    ],
+
 ];

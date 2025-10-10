@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProgramController;
+use App\Http\Controllers\ProgramDokumentasiController;
+use App\Http\Controllers\ProgramRekomendasiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -79,5 +81,27 @@ Route::prefix("V1")->group(function () {
                 return response()->json(['message' => 'Dashboard Dinas']);
             });
         });
+
+
     });
+
+    Route::middleware('api')->group(function () {
+    // Upload dan analisis dokumentasi
+    Route::post('/dokumentasi/upload', [ProgramDokumentasiController::class, 'uploadDokumentasi']);
+    
+    // Lihat detail dokumentasi
+    Route::get('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'showDokumentasi']);
+    
+    // List dokumentasi untuk progress tertentu
+    Route::get('/progress/{progressId}/dokumentasi', [ProgramDokumentasiController::class, 'listDokumentasi']);
+    
+    // Ringkasan analisis program
+    Route::get('/program/{programId}/analisis-summary', [ProgramDokumentasiController::class, 'getSummaryAnalysis']);
+    
+    // Update verifikasi manual
+    Route::put('/dokumentasi/{dokumentasiId}/verifikasi', [ProgramDokumentasiController::class, 'updateVerifikasi']);
+    
+    // Delete dokumentasi
+    Route::delete('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'deleteDokumentasi']);
+});
 });
