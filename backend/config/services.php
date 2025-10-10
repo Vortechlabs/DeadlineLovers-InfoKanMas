@@ -41,4 +41,8 @@ return [
         'timeout' => env('FASTAPI_TIMEOUT', 30),
     ],
 
+    'gemini' => [
+    'api_key' => env('GEMINI_API_KEY'),
+],
+
 ];

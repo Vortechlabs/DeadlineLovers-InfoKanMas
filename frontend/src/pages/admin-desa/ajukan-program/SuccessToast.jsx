@@ -1,8 +1,8 @@
 import React from 'react';
-import { CheckCircle, X, ExternalLink } from 'lucide-react';
+import { CheckCircle, X, ExternalLink, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
-const SuccessToast = ({ toastId, programData, backendResponse }) => {
+const SuccessToast = ({ toastId, programData, backendResponse, hasRoadmap  }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -79,6 +79,27 @@ const SuccessToast = ({ toastId, programData, backendResponse }) => {
             <ExternalLink size={12} />
             Pantau Status
           </button>
+          
+        <div className={`border rounded-lg p-2 ${hasRoadmap ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+          <div className="flex items-center gap-2">
+            {hasRoadmap ? (
+              <>
+                <CheckCircle size={16} className="text-green-600" />
+                <span className="text-xs text-green-700 font-medium">
+                  ✓ Roadmap AI Terpasang
+                </span>
+              </>
+            ) : (
+              <>
+                <FileText size={16} className="text-blue-600" />
+                <span className="text-xs text-blue-700 font-medium">
+                  📋 Roadmap Default Terpasang
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+          
           <button 
             onClick={() => toast.dismiss(toastId)}
             className="px-3 py-2 border border-gray-300 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 transition-colors"

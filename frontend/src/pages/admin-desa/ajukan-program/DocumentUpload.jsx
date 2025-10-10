@@ -4,6 +4,7 @@ import { Upload, FileText, Image, X, CheckCircle, AlertCircle, Plus } from 'luci
 const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
   const fileInputRef = useRef({});
 
+  // ✅ HAPUS FIELD RUNDOWN DARI DOKUMEN TYPES
   const documentTypes = [
     {
       key: 'proposal',
@@ -36,27 +37,25 @@ const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
     }
   ];
 
-const handleFileUpload = (docType, files) => {
-  const updatedDokumen = { ...formData.dokumen };
-  
-  if (docType === 'fotoLokasi') {
-    // Handle multiple photos - pastikan tidak melebihi 5
-    const newPhotos = Array.from(files).slice(0, 5);
+  const handleFileUpload = (docType, files) => {
+    const updatedDokumen = { ...formData.dokumen };
     
-    // Gabungkan dengan foto yang sudah ada
-    const existingPhotos = updatedDokumen[docType] || [];
-    const allPhotos = [...existingPhotos, ...newPhotos].slice(0, 5); // Max 5
+    if (docType === 'fotoLokasi') {
+      // Handle multiple photos - pastikan tidak melebihi 5
+      const newPhotos = Array.from(files).slice(0, 5);
+      
+      // Gabungkan dengan foto yang sudah ada
+      const existingPhotos = updatedDokumen[docType] || [];
+      const allPhotos = [...existingPhotos, ...newPhotos].slice(0, 5); // Max 5
+      
+      updatedDokumen[docType] = allPhotos;
+    } else {
+      // Handle single file
+      updatedDokumen[docType] = files[0];
+    }
     
-    updatedDokumen[docType] = allPhotos;
-  } else {
-    // Handle single file
-    updatedDokumen[docType] = files[0];
-  }
-  
-  onUpdate({ dokumen: updatedDokumen });
-};
-
-
+    onUpdate({ dokumen: updatedDokumen });
+  };
 
   const removeFile = (docType, index = null) => {
     const updatedDokumen = { ...formData.dokumen };
@@ -95,23 +94,23 @@ const handleFileUpload = (docType, files) => {
     return FileText;
   };
 
-// Tambahkan validasi sebelum submit
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  // Validasi dokumen wajib
-  if (!formData.dokumen.proposal || !formData.dokumen.suratPermohonan) {
-    alert('Harap upload proposal dan surat permohonan yang wajib diisi');
-    return;
-  }
+  // Tambahkan validasi sebelum submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validasi dokumen wajib
+    if (!formData.dokumen.proposal || !formData.dokumen.suratPermohonan) {
+      alert('Harap upload proposal dan surat permohonan yang wajib diisi');
+      return;
+    }
 
-  try {
-    onNext();
-  } catch (error) {
-    console.error('Error submitting documents:', error);
-    alert('Terjadi error saat upload dokumen. Silakan coba lagi.');
-  }
-};
+    try {
+      onNext();
+    } catch (error) {
+      console.error('Error submitting documents:', error);
+      alert('Terjadi error saat upload dokumen. Silakan coba lagi.');
+    }
+  };
 
   const isDocumentUploaded = (docType) => {
     const file = formData.dokumen[docType];
@@ -138,7 +137,7 @@ const handleSubmit = async (e) => {
           {documentTypes.map((docType) => {
             const files = getFileInfo(docType.key);
             const isUploaded = isDocumentUploaded(docType.key);
-            const FileIcon = docType.key === 'fotoLokasi' ? Image : FileText;
+            const FileIcon = getFileIcon(files?.type);
 
             return (
               <div key={docType.key} className="border border-gray-200 rounded-lg p-4">
@@ -273,9 +272,9 @@ const handleSubmit = async (e) => {
                 {isDocumentUploaded(docType.key) ? (
                   <CheckCircle size={16} className="text-green-500" />
                 ) : (
-                  <AlertCircle size={16} className="text-yellow-500" />
+                  <AlertCircle size={16} className={docType.required ? 'text-red-500' : 'text-yellow-500'} />
                 )}
-                <span className={isDocumentUploaded(docType.key) ? 'text-gray-700' : 'text-gray-500'}>
+                <span className={isDocumentUploaded(docType.key) ? 'text-gray-700' : docType.required ? 'text-red-600' : 'text-gray-500'}>
                   {docType.label}
                 </span>
               </div>

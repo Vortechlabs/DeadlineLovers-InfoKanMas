@@ -15,6 +15,6 @@ export default defineConfig({
     }
   },
   server: {
-    allowedHosts: ['890b6121a25d.ngrok-free.app']
+    allowedHosts: ["resolutive-chelsea-unaired.ngrok-free.dev"]
   }
 })

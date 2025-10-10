@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AiDocumentController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\ProgramDokumentasiController;
@@ -56,7 +57,18 @@ Route::prefix("V1")->group(function () {
             Route::post('/{id}/progress', [ProgramController::class, 'updateProgress'])->middleware(['auth:sanctum', 'program.ownership']);
             Route::post('/{id}/dokumentasi', [ProgramController::class, 'uploadDokumentasi'])->middleware(['auth:sanctum', 'program.ownership']);
             Route::get('/{id}/export', [ProgramController::class, 'exportProgram'])->middleware(['auth:sanctum', 'program.ownership']);
+            Route::post('/create-without-tahapan', [ProgramController::class, 'createWithoutTahapan'])->middleware('admin.desa');
+            Route::post('/{id}/add-tahapan', [ProgramController::class, 'addTahapan'])->middleware(['admin.desa', 'program.ownership']);
+            Route::post('/{id}/complete-program', [ProgramController::class, 'completeProgram'])->middleware(['admin.desa', 'program.ownership']);
+            Route::get('/{id}/default-tahapan', [ProgramController::class, 'getDefaultTahapan'])->middleware(['admin.desa', 'program.ownership']);
         });
+    });
+
+    // Tambahkan routes AI document processing
+    Route::prefix('ai-document')->group(function () {
+        Route::post('/program/{programId}/upload-rundown', [AiDocumentController::class, 'uploadRundown'])->middleware('auth:sanctum');
+        Route::get('/document/{dokumenId}/status', [AiDocumentController::class, 'getProcessingStatus'])->middleware('auth:sanctum');
+            Route::post('/document/{dokumenId}/generate-tahapan', [AiDocumentController::class, 'generateTahapan'])->middleware('auth:sanctum');
     });
 
     // Route khusus untuk admin level tertentu
@@ -86,22 +98,22 @@ Route::prefix("V1")->group(function () {
     });
 
     Route::middleware('api')->group(function () {
-    // Upload dan analisis dokumentasi
-    Route::post('/dokumentasi/upload', [ProgramDokumentasiController::class, 'uploadDokumentasi']);
-    
-    // Lihat detail dokumentasi
-    Route::get('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'showDokumentasi']);
-    
-    // List dokumentasi untuk progress tertentu
-    Route::get('/progress/{progressId}/dokumentasi', [ProgramDokumentasiController::class, 'listDokumentasi']);
-    
-    // Ringkasan analisis program
-    Route::get('/program/{programId}/analisis-summary', [ProgramDokumentasiController::class, 'getSummaryAnalysis']);
-    
-    // Update verifikasi manual
-    Route::put('/dokumentasi/{dokumentasiId}/verifikasi', [ProgramDokumentasiController::class, 'updateVerifikasi']);
-    
-    // Delete dokumentasi
-    Route::delete('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'deleteDokumentasi']);
-});
+        // Upload dan analisis dokumentasi
+        Route::post('/dokumentasi/upload', [ProgramDokumentasiController::class, 'uploadDokumentasi']);
+
+        // Lihat detail dokumentasi
+        Route::get('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'showDokumentasi']);
+
+        // List dokumentasi untuk progress tertentu
+        Route::get('/progress/{progressId}/dokumentasi', [ProgramDokumentasiController::class, 'listDokumentasi']);
+
+        // Ringkasan analisis program
+        Route::get('/program/{programId}/analisis-summary', [ProgramDokumentasiController::class, 'getSummaryAnalysis']);
+
+        // Update verifikasi manual
+        Route::put('/dokumentasi/{dokumentasiId}/verifikasi', [ProgramDokumentasiController::class, 'updateVerifikasi']);
+
+        // Delete dokumentasi
+        Route::delete('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'deleteDokumentasi']);
+    });
 });
