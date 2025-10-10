@@ -22,9 +22,6 @@ return new class extends Migration
             $table->json('metadata_ai')->nullable();
             $table->boolean('is_verified_ai')->default(false);
             $table->text('keterangan')->nullable();
-            $table->enum('resiko_kecurangan',['low', 'standard', 'high'])->nullable();
-            $table->decimal('presentase_kecurangan')->nullable();
-            $table->text('skor_ai')->nullable();
             $table->timestamps();
         });
     }

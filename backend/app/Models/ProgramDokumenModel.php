@@ -21,6 +21,9 @@ class ProgramDokumenModel extends Model
         'mime_type',
         'file_size',
         'keterangan',
+        'resiko_kecurangan',
+        'presentase_kecurangan',
+        'skor_ai'
     ];
 
     protected $casts = [

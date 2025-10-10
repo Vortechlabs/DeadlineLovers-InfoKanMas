@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('mime_type');
             $table->decimal('file_size')->nullable();
             $table->text('keterangan')->nullable();
+            $table->enum('resiko_kecurangan',['low', 'standard', 'high'])->nullable();
+            $table->decimal('presentase_kecurangan')->nullable();
+            $table->text('skor_ai')->nullable();
             $table->timestamps();
         });
     }

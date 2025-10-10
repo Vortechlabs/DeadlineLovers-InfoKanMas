@@ -25,9 +25,6 @@ class ProgramDokumentasiModel extends Model
         'metadata_ai',
         'is_verified_ai',
         'keterangan',
-        'resiko_kecurangan',
-        'presentase_kecurangan',
-        'skor_ai'
     ];
 
     protected $casts = [
