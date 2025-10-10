@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AiDocumentController;
+use App\Http\Controllers\API\AiFraudDetectionController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\Api\PengaduanController;
 use App\Http\Controllers\API\ProgramController;
@@ -73,6 +74,7 @@ Route::prefix("V1")->group(function () {
             Route::post('/document/{dokumenId}/generate-tahapan', [AiDocumentController::class, 'generateTahapan'])->middleware('auth:sanctum');
     });
 
+
     Route::prefix('pengaduan')->group(function () {
         Route::get('/', [PengaduanController::class, 'index']);
         Route::get('/{id}', [PengaduanController::class, 'show']);
@@ -80,6 +82,14 @@ Route::prefix("V1")->group(function () {
         Route::put('/{id}', [PengaduanController::class, 'update']);
         Route::patch('/{id}/status', [PengaduanController::class, 'updateStatus']);
         Route::delete('/{id}', [PengaduanController::class, 'destroy']);
+    });
+
+    Route::prefix('ai-fraud-detection')->group(function () {
+        Route::post('/program/{programId}/analyze-document', [AiFraudDetectionController::class, 'analyzeDocument'])->middleware('auth:sanctum');
+        Route::post('/program/{programId}/analyze-rab', [AiFraudDetectionController::class, 'analyzeRAB'])->middleware('auth:sanctum');
+        Route::get('/program/{programId}/comprehensive-analysis', [AiFraudDetectionController::class, 'comprehensiveAnalysis'])->middleware('auth:sanctum');
+        Route::get('/analysis/{analisisId}/status', [AiFraudDetectionController::class, 'getAnalysisStatus'])->middleware('auth:sanctum');
+        Route::get('/analysis/{analisisId}/recommendations', [AiFraudDetectionController::class, 'getRecommendations'])->middleware('auth:sanctum');
     });
 
     // Route khusus untuk admin level tertentu

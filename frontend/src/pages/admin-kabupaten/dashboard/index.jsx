@@ -1,26 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  TrendingDown,
-  FileText, 
-  CheckCircle, 
-  Clock,
-  XCircle,
-  DollarSign,
-  Users,
-  AlertTriangle,
-  ArrowUpRight,
-  ArrowDownRight,
-  ChevronRight,
-  Calendar,
-  MapPin
-} from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Calendar, TrendingUp, FileText, CheckCircle, Clock, XCircle, DollarSign, Shield } from 'lucide-react';
+
+// Import komponen
+import StatsCard from './StatsCard';
+import BudgetCard from './BudgetCard';
+import AlertCard from './AlertCard';
+import TrendChart from './TrendChart';
+import DistributionChart from './DistributionChart';
+import RecentSubmissionsTable from './RecentSubmissionsTable';
+import FraudDetectionCard from './FraudDetectionCard';
+import FraudAnalysisModal from './FraudAnalysisModal';
 
 const AdminKabupatenDashboard = () => {
   const [timeFilter, setTimeFilter] = useState('bulan_ini');
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [showFraudModal, setShowFraudModal] = useState(false);
 
-  // Data statistik
+  // Data statistik dengan fraud detection
   const stats = [
     {
       title: 'Total Pengajuan RAB',
@@ -50,13 +46,13 @@ const AdminKabupatenDashboard = () => {
       description: 'dari bulan lalu'
     },
     {
-      title: 'RAB Ditolak',
-      value: '5',
-      change: '-15%',
-      trend: 'down',
-      icon: XCircle,
+      title: 'RAB Berisiko Tinggi',
+      value: '7',
+      change: '+40%',
+      trend: 'up',
+      icon: Shield,
       color: 'red',
-      description: 'dari bulan lalu'
+      description: 'perlu perhatian khusus'
     }
   ];
 
@@ -104,7 +100,7 @@ const AdminKabupatenDashboard = () => {
     { name: 'Lainnya', value: 12500, color: '#6b7280' }
   ];
 
-  // Data pengajuan terbaru
+  // Data pengajuan terbaru dengan info risiko
   const recentSubmissions = [
     {
       id: 'RAB-2025-001',
@@ -113,7 +109,9 @@ const AdminKabupatenDashboard = () => {
       amount: 'Rp 850 Juta',
       status: 'pending',
       date: '2 jam lalu',
-      priority: 'high'
+      priority: 'high',
+      riskLevel: 'high',
+      programData: { id: 1, nama_program: 'Bantuan Sosial PKH', anggaran_total: 850000000 }
     },
     {
       id: 'RAB-2025-002',
@@ -122,7 +120,9 @@ const AdminKabupatenDashboard = () => {
       amount: 'Rp 620 Juta',
       status: 'review',
       date: '5 jam lalu',
-      priority: 'medium'
+      priority: 'medium',
+      riskLevel: 'medium',
+      programData: { id: 2, nama_program: 'Program Sembako', anggaran_total: 620000000 }
     },
     {
       id: 'RAB-2025-003',
@@ -131,7 +131,9 @@ const AdminKabupatenDashboard = () => {
       amount: 'Rp 450 Juta',
       status: 'approved',
       date: '1 hari lalu',
-      priority: 'low'
+      priority: 'low',
+      riskLevel: 'low',
+      programData: { id: 3, nama_program: 'Rehabilitasi Sosial', anggaran_total: 450000000 }
     },
     {
       id: 'RAB-2025-004',
@@ -140,11 +142,13 @@ const AdminKabupatenDashboard = () => {
       amount: 'Rp 380 Juta',
       status: 'approved',
       date: '1 hari lalu',
-      priority: 'medium'
+      priority: 'medium',
+      riskLevel: 'critical',
+      programData: { id: 4, nama_program: 'Bantuan Pangan', anggaran_total: 380000000 }
     }
   ];
 
-  // Data alert
+  // Data alert termasuk fraud detection
   const alerts = [
     {
       id: 1,
@@ -159,42 +163,30 @@ const AdminKabupatenDashboard = () => {
       title: 'Laporan Masyarakat Baru',
       message: '3 laporan baru memerlukan verifikasi',
       time: '2 jam lalu'
+    },
+    {
+      id: 3,
+      type: 'warning',
+      title: 'Program Berisiko Tinggi Terdeteksi',
+      message: 'AI mendeteksi 2 program dengan indikasi kecurangan',
+      time: '1 jam lalu'
     }
   ];
 
-  const getStatusStyle = (status) => {
-    const styles = {
-      pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-      review: 'bg-blue-50 text-blue-700 border-blue-200',
-      approved: 'bg-green-50 text-green-700 border-green-200',
-      rejected: 'bg-red-50 text-red-700 border-red-200'
-    };
-    return styles[status] || styles.pending;
+  const handleReviewSubmission = (submission) => {
+    console.log('Review submission:', submission);
+    // Navigate to review page or open review modal
   };
 
-  const getStatusText = (status) => {
-    const texts = {
-      pending: 'Menunggu',
-      review: 'Direview',
-      approved: 'Disetujui',
-      rejected: 'Ditolak'
-    };
-    return texts[status] || status;
-  };
-
-  const getPriorityColor = (priority) => {
-    const colors = {
-      high: 'bg-red-500',
-      medium: 'bg-yellow-500',
-      low: 'bg-green-500'
-    };
-    return colors[priority] || colors.medium;
+  const handleFraudAnalysis = (program) => {
+    setSelectedProgram(program);
+    setShowFraudModal(true);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Main Content */}
-      <div className=" w-full max-w-full">
+      <div className="w-full max-w-full">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-6 w-full max-w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full max-w-full">
@@ -225,217 +217,60 @@ const AdminKabupatenDashboard = () => {
         <div className="p-4 sm:p-6 space-y-6 w-full max-w-full">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              const colorClasses = {
-                blue: 'bg-blue-50 text-blue-600',
-                green: 'bg-green-50 text-green-600',
-                yellow: 'bg-yellow-50 text-yellow-600',
-                red: 'bg-red-50 text-red-600'
-              };
-              
-              return (
-                <div key={index} className="bg-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{stat.value}</h3>
-                      <div className="flex items-center gap-1">
-                        {stat.trend === 'up' ? (
-                          <ArrowUpRight size={16} className="text-green-600" />
-                        ) : (
-                          <ArrowDownRight size={16} className="text-red-600" />
-                        )}
-                        <span className={`text-sm font-medium ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                          {stat.change}
-                        </span>
-                        <span className="text-sm text-gray-500">{stat.description}</span>
-                      </div>
-                    </div>
-                    <div className={`w-12 h-12 rounded-lg ${colorClasses[stat.color]} flex items-center justify-center`}>
-                      <Icon size={24} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {stats.map((stat, index) => (
+              <StatsCard key={index} {...stat} />
+            ))}
           </div>
 
-          {/* Budget Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {budgetStats.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <div key={index} className="bg-white rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-10 h-10 rounded-lg bg-${item.color}-50 text-${item.color}-600 flex items-center justify-center`}>
-                      <Icon size={20} />
-                    </div>
-                    <p className="text-sm font-medium text-gray-600">{item.title}</p>
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">{item.value}</h3>
-                  {item.percentage && (
-                    <p className="text-sm text-gray-500 mt-1">{item.percentage} dari total</p>
-                  )}
-                </div>
-              );
-            })}
+          {/* Budget Overview & Fraud Detection */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {/* Budget Cards */}
+            <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {budgetStats.map((item, index) => (
+                <BudgetCard key={index} {...item} />
+              ))}
+            </div>
+            
+            {/* Fraud Detection Card */}
+            <FraudDetectionCard 
+              program={recentSubmissions[0]?.programData}
+              onAnalyzeClick={() => handleFraudAnalysis(recentSubmissions[0]?.programData)}
+            />
           </div>
 
           {/* Alerts */}
-          {alerts.length > 0 && (
-            <div className="space-y-3">
-              {alerts.map((alert) => (
-                <div key={alert.id} className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertTriangle size={20} className="text-yellow-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-yellow-900">{alert.title}</h4>
-                    <p className="text-sm text-yellow-800 mt-1">{alert.message}</p>
-                    <p className="text-xs text-yellow-600 mt-2">{alert.time}</p>
-                  </div>
-                  <button className="text-yellow-600 hover:text-yellow-800 transition-colors">
-                    <ChevronRight size={20} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <AlertCard alerts={alerts} />
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Trend Chart */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Trend Pengajuan RAB</h3>
-                  <p className="text-sm text-gray-500 mt-1">6 bulan terakhir</p>
-                </div>
-              </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="bulan" stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }} 
-                  />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line type="monotone" dataKey="pengajuan" stroke="#3b82f6" strokeWidth={2} name="Pengajuan" />
-                  <Line type="monotone" dataKey="disetujui" stroke="#10b981" strokeWidth={2} name="Disetujui" />
-                  <Line type="monotone" dataKey="ditolak" stroke="#ef4444" strokeWidth={2} name="Ditolak" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Distribution Chart */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Distribusi Anggaran</h3>
-                  <p className="text-sm text-gray-500 mt-1">Per provinsi (dalam juta)</p>
-                </div>
-              </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={regionalData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {regionalData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
-                    formatter={(value) => `Rp ${value}M`}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <TrendChart 
+              data={trendData}
+              title="Trend Pengajuan RAB"
+              description="6 bulan terakhir"
+            />
+            <DistributionChart 
+              data={regionalData}
+              title="Distribusi Anggaran"
+              description="Per provinsi (dalam juta)"
+            />
           </div>
 
           {/* Recent Submissions */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Pengajuan Terbaru</h3>
-                <p className="text-sm text-gray-500 mt-1">Daftar RAB yang baru masuk</p>
-              </div>
-              <button className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                Lihat Semua
-                <ChevronRight size={16} />
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID & Daerah</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Program</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nilai</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Waktu</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {recentSubmissions.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`}></div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{item.id}</p>
-                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                              <MapPin size={12} />
-                              {item.region}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-gray-900">{item.program}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-medium text-gray-900">{item.amount}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getStatusStyle(item.status)}`}>
-                          {getStatusText(item.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-gray-500">{item.date}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                          Review
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <RecentSubmissionsTable 
+            submissions={recentSubmissions}
+            onReview={handleReviewSubmission}
+          />
         </div>
       </div>
+
+      {/* Fraud Analysis Modal */}
+      {showFraudModal && (
+        <FraudAnalysisModal
+          program={selectedProgram}
+          isOpen={showFraudModal}
+          onClose={() => setShowFraudModal(false)}
+        />
+      )}
     </div>
   );
 };
