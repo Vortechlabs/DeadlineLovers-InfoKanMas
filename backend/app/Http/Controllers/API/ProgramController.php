@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\FraudAnalysisModel;
 use App\Models\KategoriProgramModel;
 use App\Models\ProgramDokumenModel;
 use App\Models\ProgramDokumentasiModel;
@@ -15,6 +16,7 @@ use App\Models\ProgramDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -158,6 +160,75 @@ class ProgramController extends Controller
                 'status_options' => ['draft', 'diajukan', 'diverifikasi_kecamatan', 'approved', 'rejected', 'berjalan', 'selesai']
             ]
         ], 200);
+    }
+
+    /**
+     * Get fraud analysis summary for program
+     */
+    public function getFraudAnalysisSummary($programId)
+    {
+        try {
+            $program = ProgramModel::findOrFail($programId);
+
+            // Get latest fraud analyses
+            $analyses = FraudAnalysisModel::where('program_id', $programId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $highRiskCount = $analyses->where('level_risiko', 'high')->count();
+            $suspiciousCount = $analyses->where('flag_meragukan', true)->count();
+
+            $latestAnalysis = $analyses->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_analyses' => $analyses->count(),
+                    'high_risk_count' => $highRiskCount,
+                    'suspicious_count' => $suspiciousCount,
+                    'latest_analysis' => $latestAnalysis,
+                    'overall_risk_level' => $this->calculateOverallRisk($analyses),
+                    'recommendations' => $this->extractKeyRecommendations($analyses)
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('❌ Get fraud analysis summary error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil summary analisis'
+            ], 500);
+        }
+    }
+
+    private function calculateOverallRisk($analyses)
+    {
+        if ($analyses->isEmpty())
+            return 'low';
+
+        $maxRisk = $analyses->max('skor_risiko');
+
+        if ($maxRisk >= 80)
+            return 'critical';
+        if ($maxRisk >= 60)
+            return 'high';
+        if ($maxRisk >= 40)
+            return 'medium';
+        return 'low';
+    }
+
+    private function extractKeyRecommendations($analyses)
+    {
+        $allRecommendations = [];
+
+        foreach ($analyses as $analysis) {
+            $rekomendasi = $analysis->rekomendasi ?? [];
+            if (is_array($rekomendasi)) {
+                $allRecommendations = array_merge($allRecommendations, $rekomendasi);
+            }
+        }
+
+        return array_slice(array_unique($allRecommendations), 0, 5);
     }
 
     /**
