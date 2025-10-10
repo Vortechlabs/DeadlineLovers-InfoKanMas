@@ -823,54 +823,75 @@ private function saveProgramDocuments($programId, $request)
         ], 200);
     }
 
-    // ProgramController.php - TAMBAHKAN
-    public function updateProgress($id, Request $request)
-    {
-        try {
-            $program = ProgramModel::findOrFail($id);
+public function updateProgress($id, Request $request)
+{
+    try {
+        $program = ProgramModel::findOrFail($id);
+        $user = Auth::user();
 
-            $validated = $request->validate([
-                'tahapan_id' => 'required|exists:program_tahapan,id',
-                'persentase' => 'required|integer|min:0|max:100',
-                'deskripsi_progress' => 'required|string',
-                'anggaran_terpakai' => 'nullable|numeric|min:0',
-                'tanggal_progress' => 'required|date'
-            ]);
-
-            // Update progress tahapan
-            $tahapan = ProgramTahapanModel::find($validated['tahapan_id']);
-            $tahapan->update([
-                'persentase' => $validated['persentase'],
-                'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan'
-            ]);
-
-            // Create progress record
-            $progress = ProgramProgressModel::create([
-                'program_id' => $program->id,
-                'tahapan_id' => $validated['tahapan_id'],
-                'persentase' => $validated['persentase'],
-                'deskripsi_progress' => $validated['deskripsi_progress'],
-                'anggaran_terpakai' => $validated['anggaran_terpakai'] ?? 0,
-                'dilaporkan_oleh' => auth()->id(),
-                'tanggal_progress' => $validated['tanggal_progress']
-            ]);
-
-            // Update realisasi anggaran program
-            $program->increment('realisasi_anggaran', $validated['anggaran_terpakai'] ?? 0);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Progress berhasil diupdate',
-                'data' => $progress
-            ]);
-
-        } catch (\Exception $e) {
+        // ✅ CEK AKSES: User hanya bisa update program di desanya
+        if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengupdate progress: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Forbidden. Anda hanya bisa mengakses program di desa Anda.'
+            ], 403);
         }
+
+        $validated = $request->validate([
+            'tahapan_id' => 'required|exists:program_tahapan,id',
+            'persentase' => 'required|integer|min:0|max:100',
+            'deskripsi_progress' => 'required|string',
+            'anggaran_terpakai' => 'nullable|numeric|min:0',
+            'tanggal_progress' => 'required|date'
+        ]);
+
+        // Pastikan tahapan milik program yang benar
+        $tahapan = ProgramTahapanModel::where('id', $validated['tahapan_id'])
+            ->where('program_id', $program->id)
+            ->first();
+
+        if (!$tahapan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tahapan tidak ditemukan atau tidak sesuai dengan program.'
+            ], 404);
+        }
+
+        // Update progress tahapan
+        $tahapan->update([
+            'persentase' => $validated['persentase'],
+            'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan',
+            'tanggal_mulai_aktual' => $tahapan->tanggal_mulai_aktual ?: $validated['tanggal_progress'],
+            'tanggal_selesai_aktual' => $validated['persentase'] == 100 ? $validated['tanggal_progress'] : null
+        ]);
+
+        // Create progress record
+        $progress = ProgramProgressModel::create([
+            'program_id' => $program->id,
+            'tahapan_id' => $validated['tahapan_id'],
+            'persentase' => $validated['persentase'],
+            'deskripsi_progress' => $validated['deskripsi_progress'],
+            'anggaran_terpakai' => $validated['anggaran_terpakai'] ?? 0,
+            'dilaporkan_oleh' => auth()->id(),
+            'tanggal_progress' => $validated['tanggal_progress']
+        ]);
+
+        // Update realisasi anggaran program
+        $program->increment('realisasi_anggaran', $validated['anggaran_terpakai'] ?? 0);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Progress berhasil diupdate',
+            'data' => $progress->load(['pelapor', 'dokumentasi'])
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengupdate progress: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     public function uploadDokumentasi($id, Request $request)
     {

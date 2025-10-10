@@ -13,8 +13,10 @@ import {
   Loader
 } from 'lucide-react';
 import ProgramService from '@/services/ProgramService';
+import { useAuth } from '@/context/AuthContext';
 
 const ProgressModal = ({ program, onClose, onUpdate }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     tahapan_id: '',
     persentase: 0,
@@ -70,60 +72,76 @@ const ProgressModal = ({ program, onClose, onUpdate }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+// Di ProgressModal.jsx - perbaiki handleSubmit
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!formData.tahapan_id) {
+    toast.error('Pilih tahapan terlebih dahulu');
+    return;
+  }
+
+  if (!formData.deskripsi_progress.trim()) {
+    toast.error('Deskripsi progress harus diisi');
+    return;
+  }
+
+  setUploading(true);
+
+  try {
+    // Submit progress update
+    const progressData = {
+      tahapan_id: parseInt(formData.tahapan_id),
+      persentase: parseInt(formData.persentase),
+      deskripsi_progress: formData.deskripsi_progress.trim(),
+      anggaran_terpakai: parseFloat(formData.anggaran_terpakai) || 0,
+      tanggal_progress: formData.tanggal_progress
+    };
+
+    console.log('Submitting progress for program:', program.backendData.id);
+    console.log('Progress data:', progressData);
+
+    const progressResponse = await ProgramService.updateProgress(
+      program.backendData.id, 
+      progressData
+    );
     
-    if (!formData.tahapan_id) {
-      toast.error('Pilih tahapan terlebih dahulu');
-      return;
-    }
-
-    if (!formData.deskripsi_progress.trim()) {
-      toast.error('Deskripsi progress harus diisi');
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      // Submit progress update
-      const progressData = {
-        tahapan_id: parseInt(formData.tahapan_id),
-        persentase: parseInt(formData.persentase),
-        deskripsi_progress: formData.deskripsi_progress.trim(),
-        anggaran_terpakai: parseFloat(formData.anggaran_terpakai) || 0,
-        tanggal_progress: formData.tanggal_progress
-      };
-
-      console.log('Submitting progress:', progressData);
-
-      const progressResponse = await ProgramService.updateProgress(
-        program.backendData.id, 
-        progressData
-      );
-      
-      // Upload files jika ada
-      if (files.length > 0 && progressResponse.data?.id) {
-        for (const file of files) {
-          await ProgramService.uploadProgressDocument(
-            program.backendData.id, 
-            progressResponse.data.id, 
-            file
-          );
-        }
+    // Upload files jika ada
+    if (files.length > 0 && progressResponse.data?.id) {
+      for (const file of files) {
+        await ProgramService.uploadProgressDocument(
+          program.backendData.id, 
+          progressResponse.data.id, 
+          file
+        );
       }
+    }
 
-      toast.success('Progress berhasil diupdate!');
-      onUpdate(); // Refresh data parent
-      onClose();
-    } catch (error) {
-      console.error('Error updating progress:', error);
+    toast.success('Progress berhasil diupdate!');
+    onUpdate(); // Refresh data parent
+    onClose();
+  } catch (error) {
+    console.error('Error updating progress:', error);
+    
+    // ✅ HANDLE ERROR 403 DENGAN BAIK
+    if (error.response?.status === 403) {
+      const errorMessage = error.response?.data?.message || 'Anda tidak memiliki akses untuk mengupdate program ini.';
+      toast.error(`Akses Ditolak: ${errorMessage}`);
+      
+      // Tampilkan informasi program untuk debugging
+      console.error('Program details:', {
+        programId: program.backendData.id,
+        programWilayah: program.backendData.wilayah_id,
+        userWilayah: 'Check user data in AuthContext' // Anda perlu menambahkan ini
+      });
+    } else {
       const errorMessage = error.response?.data?.message || 'Gagal mengupdate progress';
       toast.error(errorMessage);
-    } finally {
-      setUploading(false);
     }
-  };
+  } finally {
+    setUploading(false);
+  }
+};
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -192,6 +210,19 @@ const ProgressModal = ({ program, onClose, onUpdate }) => {
       return '-';
     }
   };
+
+  // Di ProgressModal.jsx - tambahkan debug info
+console.log('🔐 Authorization Debug:', {
+  programId: program.backendData.id,
+  programWilayahId: program.backendData.wilayah_id,
+  programWilayahName: program.lokasi,
+  userRole: 'admin_desa', // Ganti dengan actual user role
+  // Tambahkan user wilayah data jika available
+});
+
+// Di AdminDesaProgramDesa.js - log user data
+console.log('👤 Current User:', user);
+console.log('🏠 User wilayah:', user?.alamat_lengkap);
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center p-4 z-50">
