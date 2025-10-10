@@ -4,35 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProgramDokumenModel extends Model
 {
     use HasFactory;
 
     protected $table = 'program_dokumen';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'program_id',
-        'jenis_dokumen',
+        'jenis_dokumen', 
         'nama_dokumen',
         'file_path',
-        'file_name',
+        'file_name', 
         'mime_type',
         'file_size',
         'keterangan',
+        'status_verifikasi_ai',
+        'tahapan_generated',
+        'catatan_ai',
         'resiko_kecurangan',
-        'presentase_kecurangan',
-        'skor_ai'
+        'presentase_kecurangan', 
+        'skor_ai',
+        'processed_at'
     ];
 
     protected $casts = [
+        'tahapan_generated' => 'array',
         'file_size' => 'decimal:2',
+        'presentase_kecurangan' => 'decimal:2',
+        'processed_at' => 'datetime'
     ];
 
-    public function program(): BelongsTo
+    // Relasi ke Program
+    public function program()
     {
-        return $this->belongsTo(ProgramModel::class);
+        return $this->belongsTo(ProgramModel::class, 'program_id');
+    }
+
+    // Scope untuk dokumen rundown
+    public function scopeRundown($query)
+    {
+        return $query->where('jenis_dokumen', 'rundown_tahapan');
+    }
+
+    // Scope untuk dokumen yang perlu diproses AI
+    public function scopeNeedAiProcessing($query)
+    {
+        return $query->where('jenis_dokumen', 'rundown_tahapan')
+                    ->where('status_verifikasi_ai', 'pending');
     }
 
     // Methods

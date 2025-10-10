@@ -278,184 +278,570 @@ class ProgramController extends Controller
         ], 200);
     }
 
-/**
- * 💾 STORE — Menyimpan program baru dengan file upload (DEBUG VERSION)
- */
-public function store(Request $request)
-{
-    // Cek auth
-    if (!Auth::check()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Anda harus login untuk membuat program.'
-        ], 401);
+    /**
+     * 💾 STORE — Menyimpan program baru dengan file upload (DEBUG VERSION)
+     */
+    public function store(Request $request)
+    {
+        // Cek auth
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk membuat program.'
+            ], 401);
+        }
+
+        // \Log::info('🔄 Starting program creation');
+        // \Log::info('User: ' . Auth::id());
+        // \Log::info('Request keys: ' . json_encode(array_keys($request->all())));
+        // \Log::info('Files received: ' . json_encode(array_keys($request->allFiles())));
+
+        try {
+            DB::beginTransaction();
+
+            // Parse program data dari JSON string
+            $programData = [];
+            if ($request->has('program_data')) {
+                $programData = json_decode($request->input('program_data'), true);
+                // \Log::info('📦 Program data received:', $programData);
+            } else {
+                // \Log::warning('❌ program_data not found in request');
+            }
+
+            if (empty($programData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data program tidak valid'
+                ], 422);
+            }
+
+            $validator = Validator::make($programData, [
+                'nama_program' => 'required|string|max:255',
+                'deskripsi' => 'required|string',
+                'kategori_program_id' => 'required|exists:kategori_program,id',
+                'wilayah_id' => 'required|exists:wilayah,id',
+                'tahun_anggaran' => 'required|integer|min:2020|max:2030',
+                'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
+                'tanggal_mulai' => 'required|date',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                'target_penerima_manfaat' => 'nullable|integer|min:0',
+                'anggaran_total' => 'required|numeric|min:0',
+            ]);
+
+            if ($validator->fails()) {
+                // \Log::error('❌ Validation failed:', $validator->errors()->toArray());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // ✅ SET USER DATA dengan benar
+            $programData['created_by'] = Auth::id();
+            $programData['penanggung_jawab_id'] = Auth::id(); // User yang login
+            $programData['status_program'] = 'draft';
+            $programData['kode_program'] = $this->generateKodeProgram();
+
+            // \Log::info('💾 Creating program with data:', $programData);
+
+            $program = ProgramModel::create($programData);
+            // \Log::info('✅ Program created with ID: ' . $program->id);
+
+            // Jika ada RAB items
+            if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
+                foreach ($programData['rab_items'] as $index => $rabItem) {
+                    ProgramRabModel::create([
+                        'program_id' => $program->id,
+                        'nama_item' => $rabItem['nama_item'],
+                        'deskripsi' => $rabItem['deskripsi'] ?? null,
+                        'volume' => $rabItem['volume'],
+                        'satuan' => $rabItem['satuan'],
+                        'harga_satuan' => $rabItem['harga_satuan'],
+                        'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
+                        'urutan' => $index + 1,
+                    ]);
+                }
+                // \Log::info('✅ RAB items created');
+            }
+
+            // Jika ada tahapan
+            if (isset($programData['tahapan']) && is_array($programData['tahapan'])) {
+                foreach ($programData['tahapan'] as $index => $tahapan) {
+                    ProgramTahapanModel::create([
+                        'program_id' => $program->id,
+                        'nama_tahapan' => $tahapan['nama_tahapan'],
+                        'deskripsi' => $tahapan['deskripsi'] ?? null,
+                        'persentase' => $tahapan['persentase'],
+                        'tanggal_mulai_rencana' => $tahapan['tanggal_mulai_rencana'],
+                        'tanggal_selesai_rencana' => $tahapan['tanggal_selesai_rencana'],
+                        'status' => 'menunggu',
+                        'urutan' => $index + 1,
+                    ]);
+                }
+                // \Log::info('✅ Tahapan created');
+            }
+
+            // ✅ SIMPAN FILE DOKUMEN
+            $uploadedDocs = $this->saveProgramDocuments($program->id, $request);
+            // \Log::info('✅ Documents uploaded: ' . count($uploadedDocs));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program dan dokumen berhasil dibuat',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // \Log::error('❌ Program creation failed: ' . $e->getMessage());
+            // \Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat program',
+                'error' => $e->getMessage(),
+                'debug' => [
+                    'user_id' => Auth::id(),
+                    'has_program_data' => $request->has('program_data'),
+                    'file_count' => count($request->allFiles())
+                ]
+            ], 500);
+        }
     }
 
-    // \Log::info('🔄 Starting program creation');
-    // \Log::info('User: ' . Auth::id());
-    // \Log::info('Request keys: ' . json_encode(array_keys($request->all())));
-    // \Log::info('Files received: ' . json_encode(array_keys($request->allFiles())));
+    /**
+     * Simpan dokumen program dengan key yang sesuai
+     */
+    private function saveProgramDocuments($programId, $request)
+    {
+        // \Log::info('Starting document upload for program: ' . $programId);
+        // \Log::info('Available files: ', array_keys($request->allFiles()));
 
-    try {
-        DB::beginTransaction();
+        $documentTypes = [
+            'proposal' => 'proposal',
+            'gambar_teknis' => 'gambar_teknis',
+            'surat_permohonan' => 'surat_permohonan',
+            'foto_lokasi' => 'foto_lokasi'
+        ];
 
-        // Parse program data dari JSON string
-        $programData = [];
-        if ($request->has('program_data')) {
-            $programData = json_decode($request->input('program_data'), true);
-            // \Log::info('📦 Program data received:', $programData);
-        } else {
-            // \Log::warning('❌ program_data not found in request');
-        }
+        $uploadedFiles = [];
 
-        if (empty($programData)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data program tidak valid'
-            ], 422);
-        }
+        foreach ($documentTypes as $fieldName => $jenisDokumen) {
+            if ($request->hasFile($fieldName)) {
+                // \Log::info("Found file for: {$fieldName}");
 
-        $validator = Validator::make($programData, [
-            'nama_program' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
-            'kategori_program_id' => 'required|exists:kategori_program,id',
-            'wilayah_id' => 'required|exists:wilayah,id',
-            'tahun_anggaran' => 'required|integer|min:2020|max:2030',
-            'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'target_penerima_manfaat' => 'nullable|integer|min:0',
-            'anggaran_total' => 'required|numeric|min:0',
-        ]);
-
-        if ($validator->fails()) {
-            // \Log::error('❌ Validation failed:', $validator->errors()->toArray());
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // ✅ SET USER DATA dengan benar
-        $programData['created_by'] = Auth::id();
-        $programData['penanggung_jawab_id'] = Auth::id(); // User yang login
-        $programData['status_program'] = 'draft';
-        $programData['kode_program'] = $this->generateKodeProgram();
-
-        // \Log::info('💾 Creating program with data:', $programData);
-
-        $program = ProgramModel::create($programData);
-        // \Log::info('✅ Program created with ID: ' . $program->id);
-
-        // Jika ada RAB items
-        if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
-            foreach ($programData['rab_items'] as $index => $rabItem) {
-                ProgramRabModel::create([
-                    'program_id' => $program->id,
-                    'nama_item' => $rabItem['nama_item'],
-                    'deskripsi' => $rabItem['deskripsi'] ?? null,
-                    'volume' => $rabItem['volume'],
-                    'satuan' => $rabItem['satuan'],
-                    'harga_satuan' => $rabItem['harga_satuan'],
-                    'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
-                    'urutan' => $index + 1,
-                ]);
+                if ($fieldName === 'foto_lokasi') {
+                    // Handle array files
+                    foreach ($request->file($fieldName) as $index => $file) {
+                        $result = $this->saveSingleDocument($programId, $file, $jenisDokumen, $index);
+                        $uploadedFiles[] = $result;
+                        // \Log::info("Uploaded {$fieldName}[{$index}]: " . $file->getClientOriginalName());
+                    }
+                } else {
+                    // Handle single file
+                    $file = $request->file($fieldName);
+                    $result = $this->saveSingleDocument($programId, $file, $jenisDokumen);
+                    $uploadedFiles[] = $result;
+                    // \Log::info("Uploaded {$fieldName}: " . $file->getClientOriginalName());
+                }
+            } else {
+                // \Log::info("No file found for: {$fieldName}");
             }
-            // \Log::info('✅ RAB items created');
         }
 
-        // Jika ada tahapan
-        if (isset($programData['tahapan']) && is_array($programData['tahapan'])) {
-            foreach ($programData['tahapan'] as $index => $tahapan) {
-                ProgramTahapanModel::create([
-                    'program_id' => $program->id,
-                    'nama_tahapan' => $tahapan['nama_tahapan'],
-                    'deskripsi' => $tahapan['deskripsi'] ?? null,
-                    'persentase' => $tahapan['persentase'],
-                    'tanggal_mulai_rencana' => $tahapan['tanggal_mulai_rencana'],
-                    'tanggal_selesai_rencana' => $tahapan['tanggal_selesai_rencana'],
+        // \Log::info('Total uploaded documents: ' . count($uploadedFiles));
+        return $uploadedFiles;
+    }
+
+
+    /**
+     * 🚀 CREATE WITHOUT TAHAPAN — Buat program tanpa tahapan dulu
+     */
+    public function createWithoutTahapan(Request $request)
+    {
+        // Cek auth
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk membuat program.'
+            ], 401);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Parse program data dari JSON string
+            $programData = [];
+            if ($request->has('program_data')) {
+                $programData = json_decode($request->input('program_data'), true);
+            }
+
+            if (empty($programData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data program tidak valid'
+                ], 422);
+            }
+
+            $validator = Validator::make($programData, [
+                'nama_program' => 'required|string|max:255',
+                'deskripsi' => 'required|string',
+                'kategori_program_id' => 'required|exists:kategori_program,id',
+                'wilayah_id' => 'required|exists:wilayah,id',
+                'tahun_anggaran' => 'required|integer|min:2020|max:2030',
+                'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
+                'tanggal_mulai' => 'required|date',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                'target_penerima_manfaat' => 'nullable|integer|min:0',
+                'anggaran_total' => 'required|numeric|min:0',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // ✅ SET USER DATA dengan benar
+            $programData['created_by'] = Auth::id();
+            $programData['penanggung_jawab_id'] = Auth::id();
+            $programData['status_program'] = 'draft';
+            $programData['kode_program'] = $this->generateKodeProgram();
+
+            // \Log::info('💾 Creating program WITHOUT tahapan:', $programData);
+
+            $program = ProgramModel::create($programData);
+
+            // Jika ada RAB items
+            if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
+                foreach ($programData['rab_items'] as $index => $rabItem) {
+                    ProgramRabModel::create([
+                        'program_id' => $program->id,
+                        'nama_item' => $rabItem['nama_item'],
+                        'deskripsi' => $rabItem['deskripsi'] ?? null,
+                        'volume' => $rabItem['volume'],
+                        'satuan' => $rabItem['satuan'],
+                        'harga_satuan' => $rabItem['harga_satuan'],
+                        'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
+                        'urutan' => $index + 1,
+                    ]);
+                }
+            }
+
+            // ✅ TIDAK BUAT TAHAPAN DI SINI - tunggu user pilih metode roadmap
+
+            // ✅ SIMPAN FILE DOKUMEN
+            $uploadedDocs = $this->saveProgramDocuments($program->id, $request);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program berhasil dibuat. Silakan pilih metode pembuatan roadmap.',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'dokumen'])
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            \Log::error('❌ Program creation without tahapan failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat program',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * 📋 ADD TAHAPAN — Tambah tahapan ke program yang sudah ada - FIXED VALIDATION
+     */
+    public function addTahapan(Request $request, $programId)
+    {
+        try {
+            $program = ProgramModel::findOrFail($programId);
+
+            // Cek ownership
+            $user = Auth::user();
+            if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk program ini.'
+                ], 403);
+            }
+
+            // ✅ PERBAIKI: Validasi yang lebih fleksibel
+            $validator = Validator::make($request->all(), [
+                'tahapan' => 'required|array',
+                'tahapan.*.nama_tahapan' => 'required|string|max:255',
+                'tahapan.*.deskripsi' => 'nullable|string',
+                'tahapan.*.persentase' => 'required|numeric|min:0|max:100',
+                'tahapan.*.tanggal_mulai_rencana' => 'nullable|date', // ✅ Ubah jadi nullable
+                'tahapan.*.tanggal_selesai_rencana' => 'nullable|date|after_or_equal:tahapan.*.tanggal_mulai_rencana', // ✅ Ubah jadi nullable
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi tahapan gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Hapus tahapan lama jika ada
+            ProgramTahapanModel::where('program_id', $programId)->delete();
+
+            $tahapanData = $request->input('tahapan');
+            $createdTahapan = [];
+
+            foreach ($tahapanData as $index => $tahap) {
+                // ✅ PERBAIKI: Handle tanggal yang null
+                $tanggalMulai = $tahap['tanggal_mulai_rencana'] ?? null;
+                $tanggalSelesai = $tahap['tanggal_selesai_rencana'] ?? null;
+
+                // Jika tanggal null, hitung otomatis berdasarkan program
+                if (empty($tanggalMulai) || empty($tanggalSelesai)) {
+                    $dates = $this->calculateTahapDates(
+                        $program->tanggal_mulai,
+                        $program->tanggal_selesai,
+                        $index,
+                        count($tahapanData)
+                    );
+                    $tanggalMulai = $dates['mulai'];
+                    $tanggalSelesai = $dates['selesai'];
+                }
+
+                $tahapan = ProgramTahapanModel::create([
+                    'program_id' => $programId,
+                    'nama_tahapan' => $tahap['nama_tahapan'],
+                    'deskripsi' => $tahap['deskripsi'] ?? '',
+                    'persentase' => $tahap['persentase'],
+                    'tanggal_mulai_rencana' => $tanggalMulai,
+                    'tanggal_selesai_rencana' => $tanggalSelesai,
                     'status' => 'menunggu',
                     'urutan' => $index + 1,
                 ]);
+
+                $createdTahapan[] = $tahapan;
             }
-            // \Log::info('✅ Tahapan created');
+
+            // Update status program menjadi "diajukan" setelah tahapan selesai
+            $program->update([
+                'status_program' => 'diajukan'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tahapan berhasil ditambahkan dan program siap diajukan',
+                'data' => [
+                    'program' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen']),
+                    'tahapan' => $createdTahapan
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            \Log::error('❌ Add tahapan failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan tahapan: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        // ✅ SIMPAN FILE DOKUMEN
-        $uploadedDocs = $this->saveProgramDocuments($program->id, $request);
-        // \Log::info('✅ Documents uploaded: ' . count($uploadedDocs));
+    // ✅ TAMBAHKAN METHOD calculateTahapDates di ProgramController
+    private function calculateTahapDates($startDate, $endDate, $index, $totalTahapan)
+    {
+        $start = \Carbon\Carbon::parse($startDate);
+        $end = \Carbon\Carbon::parse($endDate);
+        $totalDays = $start->diffInDays($end);
 
-        DB::commit();
+        $daysPerTahap = floor($totalDays / $totalTahapan);
+        $tahapStart = $start->copy()->addDays($index * $daysPerTahap);
+        $tahapEnd = ($index === $totalTahapan - 1)
+            ? $end
+            : $tahapStart->copy()->addDays($daysPerTahap - 1);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Program dan dokumen berhasil dibuat',
-            'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
-        ], 201);
+        return [
+            'mulai' => $tahapStart->format('Y-m-d'),
+            'selesai' => $tahapEnd->format('Y-m-d')
+        ];
+    }
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        
-        // \Log::error('❌ Program creation failed: ' . $e->getMessage());
-        // \Log::error('Stack trace: ' . $e->getTraceAsString());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal membuat program',
-            'error' => $e->getMessage(),
-            'debug' => [
-                'user_id' => Auth::id(),
-                'has_program_data' => $request->has('program_data'),
-                'file_count' => count($request->allFiles())
+    /**
+     * 🔄 COMPLETE PROGRAM — Selesaikan program dengan tahapan dan submit
+     */
+    public function completeProgram(Request $request, $programId)
+    {
+        try {
+            $program = ProgramModel::findOrFail($programId);
+
+            // Cek ownership
+            $user = Auth::user();
+            if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk program ini.'
+                ], 403);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'tahapan' => 'required|array',
+                'tahapan.*.nama_tahapan' => 'required|string|max:255',
+                'tahapan.*.deskripsi' => 'nullable|string',
+                'tahapan.*.persentase' => 'required|numeric|min:0|max:100',
+                'tahapan.*.tanggal_mulai_rencana' => 'required|date',
+                'tahapan.*.tanggal_selesai_rencana' => 'required|date|after_or_equal:tahapan.*.tanggal_mulai_rencana',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi tahapan gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // Hapus tahapan lama jika ada
+            ProgramTahapanModel::where('program_id', $programId)->delete();
+
+            $tahapanData = $request->input('tahapan');
+            $totalPersentase = 0;
+
+            foreach ($tahapanData as $index => $tahap) {
+                $tahapan = ProgramTahapanModel::create([
+                    'program_id' => $programId,
+                    'nama_tahapan' => $tahap['nama_tahapan'],
+                    'deskripsi' => $tahap['deskripsi'] ?? '',
+                    'persentase' => $tahap['persentase'],
+                    'tanggal_mulai_rencana' => $tahap['tanggal_mulai_rencana'],
+                    'tanggal_selesai_rencana' => $tahap['tanggal_selesai_rencana'],
+                    'status' => 'menunggu',
+                    'urutan' => $index + 1,
+                ]);
+
+                $totalPersentase += $tahap['persentase'];
+            }
+
+            // Validasi total persentase harus 100
+            if ($totalPersentase != 100) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Total persentase tahapan harus 100%, saat ini: ' . $totalPersentase . '%'
+                ], 422);
+            }
+
+            // Update status program menjadi "diajukan"
+            $program->update([
+                'status_program' => 'diajukan',
+                'submitted_at' => now()
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program berhasil diselesaikan dan diajukan untuk verifikasi',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('❌ Complete program failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyelesaikan program: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 📊 GET DEFAULT TAHAPAN — Generate template tahapan default berdasarkan program
+     */
+    public function getDefaultTahapan($programId)
+    {
+        try {
+            $program = ProgramModel::findOrFail($programId);
+
+            // Cek ownership
+            $user = Auth::user();
+            if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk program ini.'
+                ], 403);
+            }
+
+            $defaultTahapan = $this->generateDefaultTahapanTemplate($program);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Template tahapan default berhasil digenerate',
+                'data' => $defaultTahapan
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('❌ Get default tahapan failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal generate template tahapan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate template tahapan default
+     */
+    private function generateDefaultTahapanTemplate($program)
+    {
+        $tanggalMulai = \Carbon\Carbon::parse($program->tanggal_mulai);
+        $tanggalSelesai = \Carbon\Carbon::parse($program->tanggal_selesai);
+        $totalDays = $tanggalMulai->diffInDays($tanggalSelesai);
+
+        return [
+            [
+                'nama_tahapan' => 'Persiapan dan Perencanaan',
+                'deskripsi' => 'Penyusunan dokumen perencanaan teknis, survey lokasi, pengukuran, koordinasi dengan pihak terkait, dan persiapan administrasi',
+                'persentase' => 20,
+                'tanggal_mulai_rencana' => $tanggalMulai->format('Y-m-d'),
+                'tanggal_selesai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.2))->format('Y-m-d'),
+            ],
+            [
+                'nama_tahapan' => 'Pengadaan Material dan Persiapan',
+                'deskripsi' => 'Pengadaan material utama dan pendukung, transportasi material ke lokasi, quality control material, dan penyiapan peralatan',
+                'persentase' => 25,
+                'tanggal_mulai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.2) + 1)->format('Y-m-d'),
+                'tanggal_selesai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.45))->format('Y-m-d'),
+            ],
+            [
+                'nama_tahapan' => 'Pelaksanaan Utama',
+                'deskripsi' => 'Pekerjaan fisik utama program, monitoring dan evaluasi harian, quality assurance, laporan progress mingguan, dan koordinasi lapangan',
+                'persentase' => 35,
+                'tanggal_mulai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.45) + 1)->format('Y-m-d'),
+                'tanggal_selesai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.8))->format('Y-m-d'),
+            ],
+            [
+                'nama_tahapan' => 'Finishing dan Penyerahan',
+                'deskripsi' => 'Pekerjaan finishing, testing dan commissioning, serah terima pekerjaan, dokumentasi akhir, dan laporan akhir program',
+                'persentase' => 20,
+                'tanggal_mulai_rencana' => $tanggalMulai->copy()->addDays(floor($totalDays * 0.8) + 1)->format('Y-m-d'),
+                'tanggal_selesai_rencana' => $tanggalSelesai->format('Y-m-d'),
             ]
-        ], 500);
+        ];
     }
-}
-
-/**
- * Simpan dokumen program dengan key yang sesuai
- */
-private function saveProgramDocuments($programId, $request)
-{
-    // \Log::info('Starting document upload for program: ' . $programId);
-    // \Log::info('Available files: ', array_keys($request->allFiles()));
-
-    $documentTypes = [
-        'proposal' => 'proposal',
-        'gambar_teknis' => 'gambar_teknis', 
-        'surat_permohonan' => 'surat_permohonan',
-        'foto_lokasi' => 'foto_lokasi'
-    ];
-
-    $uploadedFiles = [];
-
-    foreach ($documentTypes as $fieldName => $jenisDokumen) {
-        if ($request->hasFile($fieldName)) {
-            // \Log::info("Found file for: {$fieldName}");
-            
-            if ($fieldName === 'foto_lokasi') {
-                // Handle array files
-                foreach ($request->file($fieldName) as $index => $file) {
-                    $result = $this->saveSingleDocument($programId, $file, $jenisDokumen, $index);
-                    $uploadedFiles[] = $result;
-                    // \Log::info("Uploaded {$fieldName}[{$index}]: " . $file->getClientOriginalName());
-                }
-            } else {
-                // Handle single file
-                $file = $request->file($fieldName);
-                $result = $this->saveSingleDocument($programId, $file, $jenisDokumen);
-                $uploadedFiles[] = $result;
-                // \Log::info("Uploaded {$fieldName}: " . $file->getClientOriginalName());
-            }
-        } else {
-            // \Log::info("No file found for: {$fieldName}");
-        }
-    }
-
-    // \Log::info('Total uploaded documents: ' . count($uploadedFiles));
-    return $uploadedFiles;
-}
 
     /**
      * Simpan single document
@@ -823,75 +1209,75 @@ private function saveProgramDocuments($programId, $request)
         ], 200);
     }
 
-public function updateProgress($id, Request $request)
-{
-    try {
-        $program = ProgramModel::findOrFail($id);
-        $user = Auth::user();
+    public function updateProgress($id, Request $request)
+    {
+        try {
+            $program = ProgramModel::findOrFail($id);
+            $user = Auth::user();
 
-        // ✅ CEK AKSES: User hanya bisa update program di desanya
-        if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+            // ✅ CEK AKSES: User hanya bisa update program di desanya
+            if ($user->role === 'admin_desa' && $program->wilayah_id !== $user->alamat_lengkap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Forbidden. Anda hanya bisa mengakses program di desa Anda.'
+                ], 403);
+            }
+
+            $validated = $request->validate([
+                'tahapan_id' => 'required|exists:program_tahapan,id',
+                'persentase' => 'required|integer|min:0|max:100',
+                'deskripsi_progress' => 'required|string',
+                'anggaran_terpakai' => 'nullable|numeric|min:0',
+                'tanggal_progress' => 'required|date'
+            ]);
+
+            // Pastikan tahapan milik program yang benar
+            $tahapan = ProgramTahapanModel::where('id', $validated['tahapan_id'])
+                ->where('program_id', $program->id)
+                ->first();
+
+            if (!$tahapan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tahapan tidak ditemukan atau tidak sesuai dengan program.'
+                ], 404);
+            }
+
+            // Update progress tahapan
+            $tahapan->update([
+                'persentase' => $validated['persentase'],
+                'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan',
+                'tanggal_mulai_aktual' => $tahapan->tanggal_mulai_aktual ?: $validated['tanggal_progress'],
+                'tanggal_selesai_aktual' => $validated['persentase'] == 100 ? $validated['tanggal_progress'] : null
+            ]);
+
+            // Create progress record
+            $progress = ProgramProgressModel::create([
+                'program_id' => $program->id,
+                'tahapan_id' => $validated['tahapan_id'],
+                'persentase' => $validated['persentase'],
+                'deskripsi_progress' => $validated['deskripsi_progress'],
+                'anggaran_terpakai' => $validated['anggaran_terpakai'] ?? 0,
+                'dilaporkan_oleh' => auth()->id(),
+                'tanggal_progress' => $validated['tanggal_progress']
+            ]);
+
+            // Update realisasi anggaran program
+            $program->increment('realisasi_anggaran', $validated['anggaran_terpakai'] ?? 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Progress berhasil diupdate',
+                'data' => $progress->load(['pelapor', 'dokumentasi'])
+            ]);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Forbidden. Anda hanya bisa mengakses program di desa Anda.'
-            ], 403);
+                'message' => 'Gagal mengupdate progress: ' . $e->getMessage()
+            ], 500);
         }
-
-        $validated = $request->validate([
-            'tahapan_id' => 'required|exists:program_tahapan,id',
-            'persentase' => 'required|integer|min:0|max:100',
-            'deskripsi_progress' => 'required|string',
-            'anggaran_terpakai' => 'nullable|numeric|min:0',
-            'tanggal_progress' => 'required|date'
-        ]);
-
-        // Pastikan tahapan milik program yang benar
-        $tahapan = ProgramTahapanModel::where('id', $validated['tahapan_id'])
-            ->where('program_id', $program->id)
-            ->first();
-
-        if (!$tahapan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tahapan tidak ditemukan atau tidak sesuai dengan program.'
-            ], 404);
-        }
-
-        // Update progress tahapan
-        $tahapan->update([
-            'persentase' => $validated['persentase'],
-            'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan',
-            'tanggal_mulai_aktual' => $tahapan->tanggal_mulai_aktual ?: $validated['tanggal_progress'],
-            'tanggal_selesai_aktual' => $validated['persentase'] == 100 ? $validated['tanggal_progress'] : null
-        ]);
-
-        // Create progress record
-        $progress = ProgramProgressModel::create([
-            'program_id' => $program->id,
-            'tahapan_id' => $validated['tahapan_id'],
-            'persentase' => $validated['persentase'],
-            'deskripsi_progress' => $validated['deskripsi_progress'],
-            'anggaran_terpakai' => $validated['anggaran_terpakai'] ?? 0,
-            'dilaporkan_oleh' => auth()->id(),
-            'tanggal_progress' => $validated['tanggal_progress']
-        ]);
-
-        // Update realisasi anggaran program
-        $program->increment('realisasi_anggaran', $validated['anggaran_terpakai'] ?? 0);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Progress berhasil diupdate',
-            'data' => $progress->load(['pelapor', 'dokumentasi'])
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengupdate progress: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     public function uploadDokumentasi($id, Request $request)
     {
