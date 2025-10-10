@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AiDocumentController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\PengaduanController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\ProgramDokumenController;
 use App\Http\Controllers\ProgramDokumentasiController;
@@ -72,6 +73,15 @@ Route::prefix("V1")->group(function () {
             Route::post('/document/{dokumenId}/generate-tahapan', [AiDocumentController::class, 'generateTahapan'])->middleware('auth:sanctum');
     });
 
+    Route::prefix('pengaduan')->group(function () {
+        Route::get('/', [PengaduanController::class, 'index']);
+        Route::get('/{id}', [PengaduanController::class, 'show']);
+        Route::post('/', [PengaduanController::class, 'store']);
+        Route::put('/{id}', [PengaduanController::class, 'update']);
+        Route::patch('/{id}/status', [PengaduanController::class, 'updateStatus']);
+        Route::delete('/{id}', [PengaduanController::class, 'destroy']);
+    });
+
     // Route khusus untuk admin level tertentu
     Route::middleware(['auth:sanctum'])->group(function () {
         // Hanya admin kecamatan ke atas
@@ -97,3 +107,4 @@ Route::prefix("V1")->group(function () {
 
 
     });
+});
