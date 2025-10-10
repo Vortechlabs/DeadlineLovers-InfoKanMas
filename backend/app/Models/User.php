@@ -69,6 +69,16 @@ class User extends Authenticatable
         return $this->hasMany(ProgramIssueModel::class, 'ditugaskan_ke');
     }
 
+    public function pengaduanDibuat()
+    {
+        return $this->hasMany(PengaduanModel::class, 'pelapor');
+    }
+
+    public function pengaduanDitangani()
+    {
+        return $this->hasMany(PengaduanModel::class, 'ditangani_oleh');
+    }
+
     // Scopes
     public function scopeAdminDesa($query)
     {

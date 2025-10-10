@@ -122,6 +122,12 @@ class ProgramModel extends Model
         return $this->hasMany(ProgramDokumenModel::class, 'program_id');
     }
 
+    public function pengaduan()
+    {
+        return $this->hasMany(PengaduanModel::class, 'program_id');
+    }
+
+
     // Scopes
     public function scopeBerjalan($query)
     {

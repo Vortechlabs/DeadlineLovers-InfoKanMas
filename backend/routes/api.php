@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProgramController;
+use App\Http\Controllers\ProgramDokumenController;
 use App\Http\Controllers\ProgramDokumentasiController;
 use App\Http\Controllers\ProgramRekomendasiController;
 use Illuminate\Http\Request;
@@ -24,9 +25,9 @@ Route::prefix("V1")->group(function () {
 
     // Test authentication
     Route::get('/test-auth', function (Request $request) {
-        $user = auth()->user();
+        $user = auth()->user; //awalnya user()
         return response()->json([
-            'authenticated' => auth()->check(),
+            'authenticated' => auth()->check, //awalnya check()
             'user_id' => $user ? $user->id : null,
             'user_name' => $user ? $user->nama : null,
             'token_valid' => !is_null($user)
@@ -85,23 +86,5 @@ Route::prefix("V1")->group(function () {
 
     });
 
-    Route::middleware('api')->group(function () {
-    // Upload dan analisis dokumentasi
-    Route::post('/dokumentasi/upload', [ProgramDokumentasiController::class, 'uploadDokumentasi']);
-    
-    // Lihat detail dokumentasi
-    Route::get('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'showDokumentasi']);
-    
-    // List dokumentasi untuk progress tertentu
-    Route::get('/progress/{progressId}/dokumentasi', [ProgramDokumentasiController::class, 'listDokumentasi']);
-    
-    // Ringkasan analisis program
-    Route::get('/program/{programId}/analisis-summary', [ProgramDokumentasiController::class, 'getSummaryAnalysis']);
-    
-    // Update verifikasi manual
-    Route::put('/dokumentasi/{dokumentasiId}/verifikasi', [ProgramDokumentasiController::class, 'updateVerifikasi']);
-    
-    // Delete dokumentasi
-    Route::delete('/dokumentasi/{dokumentasiId}', [ProgramDokumentasiController::class, 'deleteDokumentasi']);
-});
+
 });

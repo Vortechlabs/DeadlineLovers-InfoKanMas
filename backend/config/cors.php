@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'https://890b6121a25d.ngrok-free.app', 'https://890b6121a25d.ngrok-free.app/', 'https://superadequately-unbagged-sandra.ngrok-free.dev', 'https://infokanmas.netlify.app'],
+    'allowed_origins' => ['http://localhost:5173','https://resolutive-chelsea-unaired.ngrok-free.dev/', 'https://890b6121a25d.ngrok-free.app', 'https://890b6121a25d.ngrok-free.app/', 'https://superadequately-unbagged-sandra.ngrok-free.dev', 'https://infokanmas.netlify.app'],
 
     'allowed_origins_patterns' => [],
 

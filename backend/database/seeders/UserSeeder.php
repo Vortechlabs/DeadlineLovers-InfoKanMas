@@ -136,7 +136,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'nama' => 'Siti Rahayu',
-                'email' => 'siti@example.com',
+                'email' => '     ',
                 'telepon' => '081234567808',
                 'umur' => 28,
                 'nik' => '3301012800080008',

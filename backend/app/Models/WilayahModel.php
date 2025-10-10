@@ -42,6 +42,11 @@ class WilayahModel extends Model
         return $this->hasMany(ProgramModel::class, 'wilayah_id');
     }
 
+     public function pengaduan()
+    {
+        return $this->hasMany(PengaduanModel::class, 'lokasi_kejadian');
+    }
+
     // Scopes
     public function scopeProvinsi($query)
     {
