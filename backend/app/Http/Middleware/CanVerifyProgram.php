@@ -13,7 +13,7 @@ class CanVerifyProgram
     {
         $user = Auth::user();
         
-        if (!$user->canVerifyPrograms()) {
+        if (!$user->canVerifyPrograms()){
             return response()->json([
                 'success' => false,
                 'message' => 'Forbidden. Anda tidak memiliki wewenang untuk memverifikasi program.',

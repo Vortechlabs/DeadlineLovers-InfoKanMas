@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\Program;
+use App\Models\ProgramModel;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,7 +14,7 @@ class ProgramOwnership
     public function handle(Request $request, Closure $next): Response
     {
         $programId = $request->route('id') ?? $request->route('program');
-        $program = Program::find($programId);
+        $program = ProgramModel::find($programId);
 
         if (!$program) {
             return response()->json([
