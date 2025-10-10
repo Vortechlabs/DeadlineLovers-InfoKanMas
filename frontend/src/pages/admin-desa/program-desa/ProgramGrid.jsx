@@ -7,7 +7,8 @@ const ProgramGrid = ({
   onViewDetails, 
   onEditProgram, 
   onDeleteProgram, 
-  onExportProgram 
+  onExportProgram,
+  onUpdateProgress 
 }) => {
   if (programs.length === 0) {
     return (
@@ -46,6 +47,7 @@ const ProgramGrid = ({
               onEditProgram={onEditProgram}
               onDeleteProgram={onDeleteProgram}
               onExportProgram={onExportProgram}
+              onUpdateProgress={onUpdateProgress} // INI HARUS ADA
             />
           ))}
         </div>
@@ -64,6 +66,7 @@ const ProgramGrid = ({
           onEditProgram={onEditProgram}
           onDeleteProgram={onDeleteProgram}
           onExportProgram={onExportProgram}
+          onUpdateProgress={onUpdateProgress} // INI HARUS ADA
         />
       ))}
     </div>

@@ -21,7 +21,8 @@ const ProgramCard = ({
   onViewDetails, 
   onEditProgram, 
   onDeleteProgram, 
-  onExportProgram 
+  onExportProgram,
+  onUpdateProgress // PASTIKAN INI ADA
 }) => {
   const getStatusConfig = (status) => {
     const configs = {
@@ -120,18 +121,19 @@ const ProgramCard = ({
                 </div>
               </div>
               
+              {/* ACTION MENU - PASTIKAN SEMUA PROP DITERUSKAN */}
               <ActionMenu
                 program={program}
                 onViewDetails={onViewDetails}
                 onEditProgram={onEditProgram}
                 onDeleteProgram={onDeleteProgram}
                 onExportProgram={onExportProgram}
+                onUpdateProgress={onUpdateProgress} // INI HARUS ADA
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                {/* Progress */}
                 <div className="flex items-center gap-3">
                   <div className="w-24 bg-gray-200 rounded-full h-2">
                     <div 
@@ -142,7 +144,6 @@ const ProgramCard = ({
                   <span className="text-sm font-medium text-gray-700 w-8">{program.progress}%</span>
                 </div>
 
-                {/* Budget */}
                 <div className="text-right">
                   <div className="text-sm font-medium text-gray-900">
                     {formatCurrency(program.anggaran)}
@@ -152,7 +153,6 @@ const ProgramCard = ({
                   </div>
                 </div>
 
-                {/* Documentation */}
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Image size={14} />
@@ -186,7 +186,6 @@ const ProgramCard = ({
   // Grid View
   return (
     <div className="bg-white rounded-2xl border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-      {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
@@ -197,12 +196,14 @@ const ProgramCard = ({
               {program.kategori}
             </span>
           </div>
+          {/* ACTION MENU - PASTIKAN SEMUA PROP DITERUSKAN */}
           <ActionMenu
             program={program}
             onViewDetails={onViewDetails}
             onEditProgram={onEditProgram}
             onDeleteProgram={onDeleteProgram}
             onExportProgram={onExportProgram}
+            onUpdateProgress={onUpdateProgress} // INI HARUS ADA
           />
         </div>
         
@@ -220,9 +221,7 @@ const ProgramCard = ({
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4 space-y-3">
-        {/* Progress Bar */}
         <div>
           <div className="flex justify-between text-xs text-gray-600 mb-1">
             <span>Progress</span>
@@ -236,7 +235,6 @@ const ProgramCard = ({
           </div>
         </div>
 
-        {/* Info */}
         <div className="space-y-2 text-xs text-gray-600">
           <div className="flex items-center gap-2">
             <MapPin size={12} />
@@ -252,7 +250,6 @@ const ProgramCard = ({
           </div>
         </div>
 
-        {/* Anggaran */}
         <div className="bg-gray-50 rounded-lg p-2">
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Anggaran:</span>
@@ -264,7 +261,6 @@ const ProgramCard = ({
           </div>
         </div>
 
-        {/* Dokumentasi */}
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
@@ -283,7 +279,6 @@ const ProgramCard = ({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-500 truncate">

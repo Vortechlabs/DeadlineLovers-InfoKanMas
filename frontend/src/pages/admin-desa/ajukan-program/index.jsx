@@ -86,37 +86,46 @@ const AdminDesaAjukanProgram = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
+// Di AdminDesaAjukanProgram.js - perbaiki handleSubmit
+const handleSubmit = async () => {
+  if (isSubmitting) return;
+  
+  setIsSubmitting(true);
+  
+  try {
+    console.log('🔄 Submitting program with user:', user);
     
-    setIsSubmitting(true);
+    // ✅ PASS USER DATA ke createProgram
+    const response = await ProgramService.createProgram(formData, formData.dokumen, user);
     
-    try {
-      // Submit ke backend
-      const response = await ProgramService.createProgram(formData);
-      
-      // Show success toast dengan data dari backend
-      toast.custom((t) => (
-        <SuccessToast 
-          toastId={t} 
-          programData={formData}
-          backendResponse={response}
-        />
-      ), {
-        duration: 5000,
-      });
+    // Show success toast
+    toast.custom((t) => (
+      <SuccessToast 
+        toastId={t} 
+        programData={formData}
+        backendResponse={response}
+      />
+    ), {
+      duration: 5000,
+    });
 
-      // Reset form setelah submit berhasil
-      resetForm();
-      
-    } catch (error) {
-      console.error('Submit failed:', error);
-      const errorMessage = error.response?.data?.message || 'Gagal mengajukan program. Silakan coba lagi.';
-      toast.error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
+    // Reset form setelah submit berhasil
+    resetForm();
+    
+  } catch (error) {
+    console.error('❌ Submit failed:', error);
+    const errorMessage = error.response?.data?.message || 'Gagal mengajukan program. Silakan coba lagi.';
+    
+    // Tampilkan error detail untuk debugging
+    if (error.response?.data?.errors) {
+      console.error('Validation errors:', error.response.data.errors);
     }
-  };
+    
+    toast.error(errorMessage);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const resetForm = () => {
     setFormData({

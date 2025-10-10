@@ -380,7 +380,7 @@ const ProgramModal = ({ program, onClose, onEdit, onDelete, onExport }) => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{program.nama}</h2>
-              <p className="text-sm text-gray-500">ID: {program.id}</p>
+              <p className="text-sm text-gray-500">{program.kode_program}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\KategoriProgramModel;
 use App\Models\ProgramDokumenModel;
+use App\Models\ProgramDokumentasiModel;
 use App\Models\ProgramModel;
+use App\Models\ProgramProgressModel;
 use App\Models\ProgramRabModel;
 use App\Models\ProgramTahapanModel;
 use App\Models\WilayahModel;
@@ -102,14 +104,14 @@ class ProgramController extends Controller
             ], 404);
         }
 
-        // Cek akses untuk user yang belum login
-        $user = Auth::user();
-        if (!$user && !in_array($program->status_program, ['approved', 'berjalan', 'selesai'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk melihat program ini.'
-            ], 403);
-        }
+        // // Cek akses untuk user yang belum login
+        // $user = Auth::user();
+        // if (!$user && !in_array($program->status_program, ['approved', 'berjalan', 'selesai'])) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Anda tidak memiliki akses untuk melihat program ini.'
+        //     ], 403);
+        // }
 
         // Hitung progress keseluruhan
         $progressPercentage = $program->progress_percentage;
@@ -276,28 +278,47 @@ class ProgramController extends Controller
         ], 200);
     }
 
-    /**
-     * 💾 STORE — Menyimpan program baru dengan file upload
-     */
-    public function store(Request $request)
-    {
-        // Cek auth
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login untuk membuat program.'
-            ], 401);
-        }
+/**
+ * 💾 STORE — Menyimpan program baru dengan file upload (DEBUG VERSION)
+ */
+public function store(Request $request)
+{
+    // Cek auth
+    if (!Auth::check()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda harus login untuk membuat program.'
+        ], 401);
+    }
+
+    // \Log::info('🔄 Starting program creation');
+    // \Log::info('User: ' . Auth::id());
+    // \Log::info('Request keys: ' . json_encode(array_keys($request->all())));
+    // \Log::info('Files received: ' . json_encode(array_keys($request->allFiles())));
+
+    try {
+        DB::beginTransaction();
 
         // Parse program data dari JSON string
-        $programData = json_decode($request->program_data, true);
+        $programData = [];
+        if ($request->has('program_data')) {
+            $programData = json_decode($request->input('program_data'), true);
+            // \Log::info('📦 Program data received:', $programData);
+        } else {
+            // \Log::warning('❌ program_data not found in request');
+        }
+
+        if (empty($programData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data program tidak valid'
+            ], 422);
+        }
 
         $validator = Validator::make($programData, [
             'nama_program' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'kategori_program_id' => 'required|exists:kategori_program,id',
-            'jenis_program' => 'required|in:desa,kecamatan,dinas,kabupaten',
-            'tingkat_pengusul' => 'required|in:desa,kecamatan,dinas,kabupaten',
             'wilayah_id' => 'required|exists:wilayah,id',
             'tahun_anggaran' => 'required|integer|min:2020|max:2030',
             'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
@@ -308,6 +329,7 @@ class ProgramController extends Controller
         ]);
 
         if ($validator->fails()) {
+            // \Log::error('❌ Validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
@@ -315,95 +337,125 @@ class ProgramController extends Controller
             ], 422);
         }
 
-        try {
-            DB::beginTransaction();
+        // ✅ SET USER DATA dengan benar
+        $programData['created_by'] = Auth::id();
+        $programData['penanggung_jawab_id'] = Auth::id(); // User yang login
+        $programData['status_program'] = 'draft';
+        $programData['kode_program'] = $this->generateKodeProgram();
 
-            $programData['created_by'] = Auth::id();
-            $programData['penanggung_jawab_id'] = Auth::id();
-            $programData['status_program'] = 'draft';
-            $programData['kode_program'] = $this->generateKodeProgram();
+        // \Log::info('💾 Creating program with data:', $programData);
 
-            $program = ProgramModel::create($programData);
+        $program = ProgramModel::create($programData);
+        // \Log::info('✅ Program created with ID: ' . $program->id);
 
-            // Jika ada RAB items
-            if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
-                foreach ($programData['rab_items'] as $index => $rabItem) {
-                    ProgramRabModel::create([
-                        'program_id' => $program->id,
-                        'nama_item' => $rabItem['nama_item'],
-                        'deskripsi' => $rabItem['deskripsi'] ?? null,
-                        'volume' => $rabItem['volume'],
-                        'satuan' => $rabItem['satuan'],
-                        'harga_satuan' => $rabItem['harga_satuan'],
-                        'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
-                        'urutan' => $index + 1,
-                    ]);
-                }
+        // Jika ada RAB items
+        if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
+            foreach ($programData['rab_items'] as $index => $rabItem) {
+                ProgramRabModel::create([
+                    'program_id' => $program->id,
+                    'nama_item' => $rabItem['nama_item'],
+                    'deskripsi' => $rabItem['deskripsi'] ?? null,
+                    'volume' => $rabItem['volume'],
+                    'satuan' => $rabItem['satuan'],
+                    'harga_satuan' => $rabItem['harga_satuan'],
+                    'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
+                    'urutan' => $index + 1,
+                ]);
             }
-
-            // Jika ada tahapan
-            if (isset($programData['tahapan']) && is_array($programData['tahapan'])) {
-                foreach ($programData['tahapan'] as $index => $tahapan) {
-                    ProgramTahapanModel::create([
-                        'program_id' => $program->id,
-                        'nama_tahapan' => $tahapan['nama_tahapan'],
-                        'deskripsi' => $tahapan['deskripsi'] ?? null,
-                        'persentase' => $tahapan['persentase'],
-                        'tanggal_mulai_rencana' => $tahapan['tanggal_mulai_rencana'],
-                        'tanggal_selesai_rencana' => $tahapan['tanggal_selesai_rencana'],
-                        'status' => 'menunggu',
-                        'urutan' => $index + 1,
-                    ]);
-                }
-            }
-
-            // ✅ SIMPAN FILE DOKUMEN
-            $this->saveProgramDocuments($program->id, $request);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Program dan dokumen berhasil dibuat',
-                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat program',
-                'error' => $e->getMessage()
-            ], 500);
+            // \Log::info('✅ RAB items created');
         }
+
+        // Jika ada tahapan
+        if (isset($programData['tahapan']) && is_array($programData['tahapan'])) {
+            foreach ($programData['tahapan'] as $index => $tahapan) {
+                ProgramTahapanModel::create([
+                    'program_id' => $program->id,
+                    'nama_tahapan' => $tahapan['nama_tahapan'],
+                    'deskripsi' => $tahapan['deskripsi'] ?? null,
+                    'persentase' => $tahapan['persentase'],
+                    'tanggal_mulai_rencana' => $tahapan['tanggal_mulai_rencana'],
+                    'tanggal_selesai_rencana' => $tahapan['tanggal_selesai_rencana'],
+                    'status' => 'menunggu',
+                    'urutan' => $index + 1,
+                ]);
+            }
+            // \Log::info('✅ Tahapan created');
+        }
+
+        // ✅ SIMPAN FILE DOKUMEN
+        $uploadedDocs = $this->saveProgramDocuments($program->id, $request);
+        // \Log::info('✅ Documents uploaded: ' . count($uploadedDocs));
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Program dan dokumen berhasil dibuat',
+            'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // \Log::error('❌ Program creation failed: ' . $e->getMessage());
+        // \Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal membuat program',
+            'error' => $e->getMessage(),
+            'debug' => [
+                'user_id' => Auth::id(),
+                'has_program_data' => $request->has('program_data'),
+                'file_count' => count($request->allFiles())
+            ]
+        ], 500);
     }
+}
 
-    /**
-     * Simpan dokumen program
-     */
-    private function saveProgramDocuments($programId, $request)
-    {
-        $documentTypes = [
-            'proposal' => 'proposal',
-            'gambar_teknis' => 'gambar_teknis',
-            'surat_permohonan' => 'surat_permohonan'
-        ];
+/**
+ * Simpan dokumen program dengan key yang sesuai
+ */
+private function saveProgramDocuments($programId, $request)
+{
+    // \Log::info('Starting document upload for program: ' . $programId);
+    // \Log::info('Available files: ', array_keys($request->allFiles()));
 
-        // Simpan file single
-        foreach ($documentTypes as $fieldName => $jenisDokumen) {
-            if ($request->hasFile($fieldName)) {
+    $documentTypes = [
+        'proposal' => 'proposal',
+        'gambar_teknis' => 'gambar_teknis', 
+        'surat_permohonan' => 'surat_permohonan',
+        'foto_lokasi' => 'foto_lokasi'
+    ];
+
+    $uploadedFiles = [];
+
+    foreach ($documentTypes as $fieldName => $jenisDokumen) {
+        if ($request->hasFile($fieldName)) {
+            // \Log::info("Found file for: {$fieldName}");
+            
+            if ($fieldName === 'foto_lokasi') {
+                // Handle array files
+                foreach ($request->file($fieldName) as $index => $file) {
+                    $result = $this->saveSingleDocument($programId, $file, $jenisDokumen, $index);
+                    $uploadedFiles[] = $result;
+                    // \Log::info("Uploaded {$fieldName}[{$index}]: " . $file->getClientOriginalName());
+                }
+            } else {
+                // Handle single file
                 $file = $request->file($fieldName);
-                $this->saveSingleDocument($programId, $file, $jenisDokumen);
+                $result = $this->saveSingleDocument($programId, $file, $jenisDokumen);
+                $uploadedFiles[] = $result;
+                // \Log::info("Uploaded {$fieldName}: " . $file->getClientOriginalName());
             }
-        }
-
-        // Simpan multiple foto lokasi
-        if ($request->hasFile('foto_lokasi')) {
-            foreach ($request->file('foto_lokasi') as $index => $foto) {
-                $this->saveSingleDocument($programId, $foto, 'foto_lokasi', $index);
-            }
+        } else {
+            // \Log::info("No file found for: {$fieldName}");
         }
     }
+
+    // \Log::info('Total uploaded documents: ' . count($uploadedFiles));
+    return $uploadedFiles;
+}
 
     /**
      * Simpan single document
@@ -775,7 +827,7 @@ class ProgramController extends Controller
     public function updateProgress($id, Request $request)
     {
         try {
-            $program = Program::findOrFail($id);
+            $program = ProgramModel::findOrFail($id);
 
             $validated = $request->validate([
                 'tahapan_id' => 'required|exists:program_tahapan,id',
@@ -786,14 +838,14 @@ class ProgramController extends Controller
             ]);
 
             // Update progress tahapan
-            $tahapan = ProgramTahapan::find($validated['tahapan_id']);
+            $tahapan = ProgramTahapanModel::find($validated['tahapan_id']);
             $tahapan->update([
                 'persentase' => $validated['persentase'],
                 'status' => $validated['persentase'] == 100 ? 'selesai' : 'dalam_pengerjaan'
             ]);
 
             // Create progress record
-            $progress = ProgramProgress::create([
+            $progress = ProgramProgressModel::create([
                 'program_id' => $program->id,
                 'tahapan_id' => $validated['tahapan_id'],
                 'persentase' => $validated['persentase'],
@@ -832,7 +884,7 @@ class ProgramController extends Controller
             $file = $request->file('file');
             $path = $file->store('program-dokumentasi', 'public');
 
-            $dokumentasi = ProgramDokumentasi::create([
+            $dokumentasi = ProgramDokumentasiModel::create([
                 'progress_id' => $validated['progress_id'],
                 'jenis' => $validated['jenis'],
                 'file_path' => $path,

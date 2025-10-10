@@ -8,7 +8,7 @@ import {
   FileText,
   Send,
   Copy,
-  TrendingUp // Import icon untuk update progress
+  TrendingUp
 } from 'lucide-react';
 
 const ActionMenu = ({ 
@@ -17,12 +17,11 @@ const ActionMenu = ({
   onEditProgram, 
   onDeleteProgram, 
   onExportProgram,
-  onUpdateProgress // Tambahkan prop ini
+  onUpdateProgress
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -46,39 +45,20 @@ const ActionMenu = ({
       icon: TrendingUp,
       action: () => onUpdateProgress(program),
       color: 'text-green-600',
-      show: program.status === 'dalam_pengerjaan' // Hanya tampil untuk program yang sedang berjalan
+      show: program.status === 'dalam_pengerjaan' || program.status === 'menunggu_persetujuan' || program.status === 'approved'
     },
     {
       label: 'Edit Program',
       icon: Edit,
       action: () => onEditProgram(program),
       color: 'text-blue-600',
-      show: program.status === 'menunggu_persetujuan' || program.status === 'ditolak' // Hanya bisa edit program yang belum/sudah ditolak
-    },
-    {
-      label: 'Duplikat Program',
-      icon: Copy,
-      action: () => console.log('Duplikat program', program.id),
-      color: 'text-purple-600'
+      show: program.status === 'menunggu_persetujuan' || program.status === 'ditolak'
     },
     {
       label: 'Export Data',
       icon: Download,
       action: () => onExportProgram(program),
       color: 'text-green-600'
-    },
-    {
-      label: 'Laporan Progress',
-      icon: FileText,
-      action: () => console.log('Buat laporan progress', program.id),
-      color: 'text-orange-600'
-    },
-    {
-      label: 'Ajukan Revisi',
-      icon: Send,
-      action: () => console.log('Ajukan revisi', program.id),
-      color: 'text-yellow-600',
-      show: program.status === 'ditolak'
     },
     {
       label: 'Hapus Program',

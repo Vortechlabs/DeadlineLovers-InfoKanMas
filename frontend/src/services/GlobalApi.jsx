@@ -13,7 +13,7 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   // HAPUS withCredentials: true karena tidak compatible dengan multiple origins
-  withCredentials: true,
+  //withCredentials: true,
 });
 
 // Request Interceptor

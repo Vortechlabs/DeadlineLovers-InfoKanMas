@@ -36,20 +36,27 @@ const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
     }
   ];
 
-  const handleFileUpload = (docType, files) => {
-    const updatedDokumen = { ...formData.dokumen };
+const handleFileUpload = (docType, files) => {
+  const updatedDokumen = { ...formData.dokumen };
+  
+  if (docType === 'fotoLokasi') {
+    // Handle multiple photos - pastikan tidak melebihi 5
+    const newPhotos = Array.from(files).slice(0, 5);
     
-    if (docType === 'fotoLokasi') {
-      // Handle multiple photos
-      const newPhotos = Array.from(files).slice(0, 5); // Limit to 5 photos
-      updatedDokumen[docType] = [...(updatedDokumen[docType] || []), ...newPhotos];
-    } else {
-      // Handle single file
-      updatedDokumen[docType] = files[0];
-    }
+    // Gabungkan dengan foto yang sudah ada
+    const existingPhotos = updatedDokumen[docType] || [];
+    const allPhotos = [...existingPhotos, ...newPhotos].slice(0, 5); // Max 5
     
-    onUpdate({ dokumen: updatedDokumen });
-  };
+    updatedDokumen[docType] = allPhotos;
+  } else {
+    // Handle single file
+    updatedDokumen[docType] = files[0];
+  }
+  
+  onUpdate({ dokumen: updatedDokumen });
+};
+
+
 
   const removeFile = (docType, index = null) => {
     const updatedDokumen = { ...formData.dokumen };
@@ -88,17 +95,23 @@ const DocumentUpload = ({ formData, onUpdate, onNext, onBack }) => {
     return FileText;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validasi dokumen wajib
-    if (!formData.dokumen.proposal || !formData.dokumen.suratPermohonan) {
-      alert('Harap upload proposal dan surat permohonan yang wajib diisi');
-      return;
-    }
+// Tambahkan validasi sebelum submit
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // Validasi dokumen wajib
+  if (!formData.dokumen.proposal || !formData.dokumen.suratPermohonan) {
+    alert('Harap upload proposal dan surat permohonan yang wajib diisi');
+    return;
+  }
 
+  try {
     onNext();
-  };
+  } catch (error) {
+    console.error('Error submitting documents:', error);
+    alert('Terjadi error saat upload dokumen. Silakan coba lagi.');
+  }
+};
 
   const isDocumentUploaded = (docType) => {
     const file = formData.dokumen[docType];
