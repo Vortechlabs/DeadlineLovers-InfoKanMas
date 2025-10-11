@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AiDocumentController;
 use App\Http\Controllers\API\AiFraudDetectionController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\FraudDetectionController;
 use App\Http\Controllers\Api\PengaduanController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\ProgramDokumenController;
@@ -71,7 +72,7 @@ Route::prefix("V1")->group(function () {
     Route::prefix('ai-document')->group(function () {
         Route::post('/program/{programId}/upload-rundown', [AiDocumentController::class, 'uploadRundown'])->middleware('auth:sanctum');
         Route::get('/document/{dokumenId}/status', [AiDocumentController::class, 'getProcessingStatus'])->middleware('auth:sanctum');
-            Route::post('/document/{dokumenId}/generate-tahapan', [AiDocumentController::class, 'generateTahapan'])->middleware('auth:sanctum');
+        Route::post('/document/{dokumenId}/generate-tahapan', [AiDocumentController::class, 'generateTahapan'])->middleware('auth:sanctum');
     });
 
 
@@ -82,6 +83,15 @@ Route::prefix("V1")->group(function () {
         Route::put('/{id}', [PengaduanController::class, 'update']);
         Route::patch('/{id}/status', [PengaduanController::class, 'updateStatus']);
         Route::delete('/{id}', [PengaduanController::class, 'destroy']);
+    });
+
+    Route::prefix('fraud-detection')->group(function () {
+        Route::post('/analyze-program/{programId}', [FraudDetectionController::class, 'analyzeProgram']);
+        Route::get('/analysis-history/{programId}', [FraudDetectionController::class, 'getAnalysisHistory']);
+        Route::post('/manual-override/{programId}', [FraudDetectionController::class, 'manualOverride']);
+        Route::post('/program/with-analysis', [ProgramController::class, 'storeWithAutoAnalysis']);
+        Route::post('/program/{id}/trigger-analysis', [ProgramController::class, 'triggerAnalysis']);
+        Route::get('/program/{id}/analysis-result', [ProgramController::class, 'getAnalysisResult']);
     });
 
     Route::prefix('ai-fraud-detection')->group(function () {
@@ -114,7 +124,5 @@ Route::prefix("V1")->group(function () {
                 return response()->json(['message' => 'Dashboard Dinas']);
             });
         });
-
-
     });
 });

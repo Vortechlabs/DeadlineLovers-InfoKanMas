@@ -13,6 +13,8 @@ use App\Models\ProgramRabModel;
 use App\Models\ProgramTahapanModel;
 use App\Models\WilayahModel;
 use App\Models\ProgramDokumen;
+use App\Services\AiComprehensiveAnalysisService;
+use App\Services\AiFraudDetectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -191,7 +193,6 @@ class ProgramController extends Controller
                     'recommendations' => $this->extractKeyRecommendations($analyses)
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('❌ Get fraud analysis summary error: ' . $e->getMessage());
             return response()->json([
@@ -459,12 +460,22 @@ class ProgramController extends Controller
 
             DB::commit();
 
+            try {
+                // Trigger AI Fraud Analysis secara SYNCHRONOUS
+                $fraudService = app(AiFraudDetectionService::class);
+                $fraudService->analyzeProgramComprehensive($program->id);
+
+                Log::info("✅ AI Fraud Analysis triggered for program: {$program->id}");
+            } catch (\Exception $e) {
+                Log::error("❌ AI Fraud Analysis failed: " . $e->getMessage());
+                // Jangan gagalkan proses create program hanya karena AI analysis gagal
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Program dan dokumen berhasil dibuat',
                 'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -527,6 +538,196 @@ class ProgramController extends Controller
         // \Log::info('Total uploaded documents: ' . count($uploadedFiles));
         return $uploadedFiles;
     }
+
+/**
+ * 🚀 CREATE PROGRAM DENGAN AUTO-ANALYSIS
+ */
+public function storeWithAutoAnalysis(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda harus login untuk membuat program.'
+        ], 401);
+    }
+
+    try {
+        DB::beginTransaction();
+
+        // Parse program data
+        $programData = [];
+        if ($request->has('program_data')) {
+            $programData = json_decode($request->input('program_data'), true);
+        }
+
+        if (empty($programData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data program tidak valid'
+            ], 422);
+        }
+
+        // Validasi
+        $validator = Validator::make($programData, [
+            'nama_program' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'kategori_program_id' => 'required|exists:kategori_program,id',
+            'wilayah_id' => 'required|exists:wilayah,id',
+            'tahun_anggaran' => 'required|integer|min:2020|max:2030',
+            'prioritas' => 'required|in:rendah,sedang,tinggi,darurat',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'target_penerima_manfaat' => 'nullable|integer|min:0',
+            'anggaran_total' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Create program
+        $programData['created_by'] = Auth::id();
+        $programData['penanggung_jawab_id'] = Auth::id();
+        $programData['status_program'] = 'draft'; // Akan di-update oleh AI
+        $programData['kode_program'] = $this->generateKodeProgram();
+
+        $program = ProgramModel::create($programData);
+
+        // RAB Items
+        if (isset($programData['rab_items']) && is_array($programData['rab_items'])) {
+            foreach ($programData['rab_items'] as $index => $rabItem) {
+                ProgramRabModel::create([
+                    'program_id' => $program->id,
+                    'nama_item' => $rabItem['nama_item'],
+                    'deskripsi' => $rabItem['deskripsi'] ?? null,
+                    'volume' => $rabItem['volume'],
+                    'satuan' => $rabItem['satuan'],
+                    'harga_satuan' => $rabItem['harga_satuan'],
+                    'total' => $rabItem['volume'] * $rabItem['harga_satuan'],
+                    'urutan' => $index + 1,
+                ]);
+            }
+        }
+
+        // Documents
+        $this->saveProgramDocuments($program->id, $request);
+
+        DB::commit();
+
+        // 🎯 TRIGGER AUTO-ANALYSIS SETELAH PROGRAM DIBUAT
+        try {
+            $aiService = new AiComprehensiveAnalysisService();
+            $analysisResult = $aiService->analyzeProgramComprehensive($program->id);
+            
+            Log::info("✅ Auto-analysis completed. Program {$program->id} status: {$program->fresh()->status_program}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program berhasil dibuat dan dianalisis otomatis',
+                'data' => [
+                    'program' => $program->load(['kategori', 'wilayah', 'rabItems', 'dokumen']),
+                    'ai_analysis' => $analysisResult,
+                    'final_status' => $program->fresh()->status_program,
+                    'risk_level' => $analysisResult['risk_level']
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error("❌ Auto-analysis failed but program created: " . $e->getMessage());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Program berhasil dibuat (analisis AI ditunda)',
+                'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'dokumen'])
+            ], 201);
+        }
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal membuat program',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * 🔄 MANUAL TRIGGER ANALYSIS
+ */
+public function triggerAnalysis($programId)
+{
+    try {
+        $program = ProgramModel::findOrFail($programId);
+        
+        // Cek akses berdasarkan role
+        $user = Auth::user();
+        if (!$this->checkProgramAccess($user, $program)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak untuk program ini.'
+            ], 403);
+        }
+
+        $aiService = new AiComprehensiveAnalysisService();
+        $analysisResult = $aiService->analyzeProgramComprehensive($programId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Analisis berhasil dilakukan',
+            'data' => [
+                'program' => $program->fresh(),
+                'analysis' => $analysisResult
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal melakukan analisis: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * 👮 CHECK PROGRAM ACCESS BERDASARKAN ROLE
+ */
+private function checkProgramAccess($user, $program)
+{
+    if (!$user) return false;
+
+    switch ($user->role) {
+        case 'admin_desa':
+            // Hanya bisa akses program di desanya
+            return $program->wilayah_id == $user->alamat_lengkap;
+            
+        case 'admin_kecamatan':
+            // Bisa akses program di kecamatannya
+            return $this->isProgramInKecamatan($program->wilayah_id, $user->alamat_lengkap);
+            
+        case 'admin_kabupaten':
+        case 'admin_dinas':
+            // Bisa akses semua program
+            return true;
+            
+        default:
+            return false;
+    }
+}
+
+/**
+ * CEK APAKAH PROGRAM DI KECAMATAN USER
+ */
+private function isProgramInKecamatan($programWilayahId, $userKecamatanId)
+{
+    $wilayah = WilayahModel::find($programWilayahId);
+    return $wilayah && $wilayah->parent_id == $userKecamatanId;
+}
 
 
     /**
@@ -617,11 +818,10 @@ class ProgramController extends Controller
                 'message' => 'Program berhasil dibuat. Silakan pilih metode pembuatan roadmap.',
                 'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'dokumen'])
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
-            \Log::error('❌ Program creation without tahapan failed: ' . $e->getMessage());
+            // \Log::error('❌ Program creation without tahapan failed: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -717,9 +917,8 @@ class ProgramController extends Controller
                     'tahapan' => $createdTahapan
                 ]
             ], 201);
-
         } catch (\Exception $e) {
-            \Log::error('❌ Add tahapan failed: ' . $e->getMessage());
+            // \Log::error('❌ Add tahapan failed: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -826,10 +1025,9 @@ class ProgramController extends Controller
                 'message' => 'Program berhasil diselesaikan dan diajukan untuk verifikasi',
                 'data' => $program->load(['kategori', 'wilayah', 'rabItems', 'tahapan', 'dokumen'])
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('❌ Complete program failed: ' . $e->getMessage());
+            // \Log::error('❌ Complete program failed: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -862,9 +1060,8 @@ class ProgramController extends Controller
                 'message' => 'Template tahapan default berhasil digenerate',
                 'data' => $defaultTahapan
             ], 200);
-
         } catch (\Exception $e) {
-            \Log::error('❌ Get default tahapan failed: ' . $e->getMessage());
+            // \Log::error('❌ Get default tahapan failed: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -1341,7 +1538,6 @@ class ProgramController extends Controller
                 'message' => 'Progress berhasil diupdate',
                 'data' => $progress->load(['pelapor', 'dokumentasi'])
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1376,7 +1572,6 @@ class ProgramController extends Controller
                 'message' => 'Dokumentasi berhasil diupload',
                 'data' => $dokumentasi
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
